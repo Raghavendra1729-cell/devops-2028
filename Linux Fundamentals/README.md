@@ -1,10 +1,5 @@
 # Linux Fundamentals
 
-## Notes
-
-These are the 25 Linux commands I found most useful from the class notes. I kept this list focused on files and paths, system information, processes, networking, and basic volume handling.
-
-> The terminal blocks below are sample Ubuntu outputs. The username, AWS-style private IP, process IDs, disk names, and usage values will be different on another machine.
 
 ## Files and paths
 
@@ -258,16 +253,3 @@ I first make sure no program is using files inside the mount point.
 ### `journalctl`
 
 `journalctl` reads logs collected by `systemd-journald`. It is useful for checking boot problems, service failures, and recent system events. Useful forms include `journalctl -b` for the current boot, `journalctl -u nginx` for one service, and `journalctl -f` to follow new entries.
-
-### Cheat-sheet revision
-
-The command cheat sheet is a quick revision tool, but I should understand what a command changes before running it. Commands involving deletion, processes, users, networking, or mounted filesystems should be checked carefully instead of copied blindly.
-
-## Class material
-
-These notes were prepared after reviewing the PDFs shared in the class repository:
-
-- [Session 2 - Linux](https://github.com/Nency-Ravaliya/devops-heros/tree/main/session2-linux)
-- Linux basic commands
-- Advanced Linux commands
-- Linux networking cheat sheet

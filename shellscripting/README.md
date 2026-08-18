@@ -2,33 +2,6 @@
 
 This folder contains my Session 3 Bash practice. Each script focuses on one small concept, and `system_info.sh` combines the commands required for the homework.
 
-## Homework checklist
-
-| Requirement | Used in `system_info.sh` |
-| --- | --- |
-| Current date, hostname, and username | `date`, `hostname`, `whoami` |
-| Disk usage and running processes | `df -h`, `ps aux` |
-| Variables and user input | Shell variables and `read -r -p` |
-| Create a directory and file | `mkdir -p`, `touch` |
-| Save process output | `ps aux > system_report/processes.txt` |
-| Print clear output | `echo` and `cat` |
-
-## Run all scripts
-
-```bash
-chmod +x *.sh
-./hello.sh
-./data.sh
-./script1.sh
-./input.sh
-./variable.sh
-./function.sh
-./loop.sh
-./system_info.sh
-./condition.sh
-./while_loop.sh
-./while_loop1.sh
-```
 
 ## 1. Create a folder and file — `hello.sh`
 
@@ -42,9 +15,10 @@ printf '%s\n' "This is my logfile" > hello/app.log
 cat hello/app.log
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./hello.sh
 This is my logfile
 ```
 
@@ -62,9 +36,10 @@ printf '%s\n' "This is my file" > data/app.log
 cat data/app.log
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./data.sh
 This is a log file.
 This is my file
 ```
@@ -82,9 +57,10 @@ echo "This is file2" >> test/app.log
 cat test/app.log
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./script1.sh
 This is file1
 This is file2
 ```
@@ -105,11 +81,15 @@ echo "My roll number is $roll_number"
 echo "My comment is: $comment"
 ```
 
-**Input used:** `Raghavendra`, `24BCS10250`, `Learning Bash`
+**Sample input:** `Raghavendra`, `24BCS10250`, `Learning Bash`
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./input.sh
+Enter your name: Raghavendra
+Enter your roll number: 24BCS10250
+Enter your comment: Learning Bash
 My name is Raghavendra
 My roll number is 24BCS10250
 My comment is: Learning Bash
@@ -131,9 +111,10 @@ echo "My roll number is $roll_number"
 echo "I am $comment"
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./variable.sh
 My name is Raghavendra
 My roll number is 24BCS10250
 I am learning Bash
@@ -154,9 +135,10 @@ show_info() {
 show_info
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./function.sh
 This is a function
 This is a function to show information
 ```
@@ -173,9 +155,10 @@ for ((i=0;i<=5;i++)); do
 done
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./loop.sh
 This is iteration number 0
 This is iteration number 1
 This is iteration number 2
@@ -278,11 +261,13 @@ else
 fi
 ```
 
-**Input used:** `21`
+**Sample input:** `21`
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./condition.sh
+Enter your age: 21
 You are an adult.
 ```
 
@@ -308,12 +293,15 @@ while true; do
 done
 ```
 
-**Input used:** `7`, then `q`
+**Sample input:** `7`, then `q`
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./while_loop.sh
+Enter a number (or 'q' to quit): 7
 You entered: 7
+Enter a number (or 'q' to quit): q
 Exiting the loop.
 ```
 
@@ -332,12 +320,30 @@ while [ "$count" -lt 5 ]; do
 done
 ```
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./while_loop1.sh
 This is iteration number 0
 This is iteration number 1
 This is iteration number 2
 This is iteration number 3
 This is iteration number 4
+```
+
+## Run all scripts
+
+```bash
+chmod +x *.sh
+./hello.sh
+./data.sh
+./script1.sh
+./input.sh
+./variable.sh
+./function.sh
+./loop.sh
+./system_info.sh
+./condition.sh
+./while_loop.sh
+./while_loop1.sh
 ```

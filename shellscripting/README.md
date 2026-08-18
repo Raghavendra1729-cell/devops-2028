@@ -188,6 +188,7 @@ report_directory="system_report"
 process_file="$report_directory/processes.txt"
 
 mkdir -p "$report_directory"
+touch "$process_file"
 
 echo ""
 echo "=== System Information ==="
@@ -352,3 +353,9 @@ chmod +x *.sh
 ./while_loop.sh
 ./while_loop1.sh
 ```
+
+## Recorded practice
+
+The [recorded run](outputs/all-scripts.txt) contains the actual output from all eleven scripts. The system-information script uses `read -p`, variables, `mkdir`, `touch`, `df`, `ps` and output redirection. Its process report was created and checked after the run.
+
+![Recorded script execution](images/scripts-run.jpg)

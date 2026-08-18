@@ -1,0 +1,79 @@
+$ bash condition.sh
+You are an adult.
+
+$ bash data.sh
+This is a log file.
+This is my file
+
+$ bash function.sh
+This is a function
+This is a function to show information
+
+$ bash hello.sh
+This is my logfile
+
+$ bash input.sh
+My name is Raghavendra
+My roll number is 24BCS10250
+My comment is: Learning Bash
+
+$ bash loop.sh
+This is iteration number 0
+This is iteration number 1
+This is iteration number 2
+This is iteration number 3
+This is iteration number 4
+This is iteration number 5
+
+$ bash script1.sh
+This is file1
+This is file2
+
+$ bash system_info.sh
+
+=== System Information ===
+Current date: Fri Oct  2 19:49:15 IST 2026
+Hostname: Lingas-MacBook-Air.local
+Username: lingaraghavendra
+
+=== Disk Usage ===
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   228Gi    12Gi    51Gi    19%    459k  533M    0%   /
+devfs            204Ki   204Ki     0Bi   100%     704     0  100%   /dev
+/dev/disk3s6     228Gi   3.0Gi    51Gi     6%       3  533M    0%   /System/Volumes/VM
+/dev/disk3s2     228Gi   8.4Gi    51Gi    15%    1.4k  533M    0%   /System/Volumes/Preboot
+/dev/disk3s4     228Gi   2.3Mi    51Gi     1%      67  533M    0%   /System/Volumes/Update
+/dev/disk1s2     500Mi   6.0Mi   481Mi     2%       1  4.9M    0%   /System/Volumes/xarts
+/dev/disk1s1     500Mi   5.8Mi   481Mi     2%      31  4.9M    0%   /System/Volumes/iSCPreboot
+/dev/disk1s3     500Mi   2.3Mi   481Mi     1%     106  4.9M    0%   /System/Volumes/Hardware
+/dev/disk3s5     228Gi   153Gi    51Gi    76%    2.0M  533M    0%   /System/Volumes/Data
+map auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home
+
+=== Running Processes ===
+Process information saved to system_report/processes.txt
+USER               PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND
+lingaraghavendra 28554  52.8 19.5 443848480 3272256   ??  Ss    7:45PM   2:19.59 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Virtualization.VirtualMachine.xpc/Contents/MacOS/com.apple.Virtualization.VirtualMachine
+lingaraghavendra 28830   9.6  0.1 435269616  18944   ??  Ss    7:49PM   0:00.13 /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/lingaraghavendra/Documents/Codex/2026-10-02/se/work/record-early.py
+root               375   4.5  0.1 435357184  11520   ??  Ss   Thu06PM   0:50.15 /usr/sbin/systemstats --daemon
+lingaraghavendra   721   4.3  0.3 435787552  57664   ??  S    Thu06PM  10:52.86 /System/Applications/Utilities/Activity Monitor.app/Contents/MacOS/Activity Monitor
+
+=== User Details ===
+My name is Raghavendra
+My roll number is 24BCS10250
+My comment is: Linux practice
+
+$ bash variable.sh
+My name is Raghavendra
+My roll number is 24BCS10250
+I am learning Bash
+
+$ bash while_loop.sh
+You entered: 7
+Exiting the loop.
+
+$ bash while_loop1.sh
+This is iteration number 0
+This is iteration number 1
+This is iteration number 2
+This is iteration number 3
+This is iteration number 4

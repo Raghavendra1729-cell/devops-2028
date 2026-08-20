@@ -1,11 +1,7 @@
-mkdir shreyash
-cd shreyash
-touch pratham.txt
-echo "erripuku" > pratham.txt
-cat pratham.txt
-echo "shreyash" > pratham.txt
-cat pratham.txt
+#!/usr/bin/env bash
 
-
-
-
+mkdir -p data
+printf '%s\n' "This is a log file." > data/app.log
+cat data/app.log
+printf '%s\n' "This is my file" > data/app.log
+cat data/app.log

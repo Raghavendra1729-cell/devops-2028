@@ -104,3 +104,11 @@ When something is not reachable, this order helps me narrow down the problem:
 4. `nslookup <domain>` - check DNS.
 5. `nc -vz <host> <port>` - check the actual TCP port.
 6. `curl -I <url>` - check the application response.
+
+## Recorded practice
+
+The [recorded networking commands](outputs/network-commands.txt) include Linux interfaces, routes and sockets plus ping, traceroute, DNS lookups, TCP connectivity and HTTP headers. A `*` in traceroute means no reply arrived for that probe; it does not by itself prove that the destination is unavailable.
+
+## Telnet connection check
+
+`telnet example.com 80` opened a TCP connection. The [recorded result](outputs/telnet.txt) shows the connection; I then ended the session. Telnet sends unencrypted traffic, so I used it only for this connection test. SSH is used for remote login.

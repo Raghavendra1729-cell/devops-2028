@@ -1,0 +1,129 @@
+$ git init -b main
+Initialized empty Git repository in /private/var/folders/gm/c0vfzffs7hg92_yn2dt8c7zw0000gn/T/git-homework-ahlu0eui/.git/
+Exit status: 0
+
+$ git config user.name Raghavendra
+Exit status: 0
+
+$ git config user.email raghavendra@example.com
+Exit status: 0
+
+$ bash -c 'printf '"'"'Git practice\n'"'"' > notes.md'
+Exit status: 0
+
+$ git add notes.md
+Exit status: 0
+
+$ git commit -m 'Create practice repository'
+[main (root-commit) cae15c5] Create practice repository
+ 1 file changed, 1 insertion(+)
+ create mode 100644 notes.md
+Exit status: 0
+
+$ bash -c 'printf '"'"'Tracked change\n'"'"' >> notes.md; printf '"'"'New file\n'"'"' > extra.md'
+Exit status: 0
+
+$ git status --short
+ M notes.md
+?? extra.md
+Exit status: 0
+
+$ git commit -a -m 'Update tracked notes'
+[main 64d31b2] Update tracked notes
+ 1 file changed, 1 insertion(+)
+Exit status: 0
+
+$ git status --short
+?? extra.md
+Exit status: 0
+
+$ git add extra.md
+Exit status: 0
+
+$ git commit -m 'Add staged file'
+[main eb0bc62] Add staged file
+ 1 file changed, 1 insertion(+)
+ create mode 100644 extra.md
+Exit status: 0
+
+$ git log --oneline -3
+eb0bc62 Add staged file
+64d31b2 Update tracked notes
+cae15c5 Create practice repository
+Exit status: 0
+
+$ git switch -c feature-notes
+Switched to a new branch 'feature-notes'
+Exit status: 0
+
+$ bash -c 'printf '"'"'Branch note\n'"'"' > branch.md'
+Exit status: 0
+
+$ git add branch.md
+Exit status: 0
+
+$ git commit -m 'Add branch note'
+[feature-notes b65bc9a] Add branch note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 branch.md
+Exit status: 0
+
+$ bash -c 'printf '"'"'Only the selected change\n'"'"' > selected.md'
+Exit status: 0
+
+$ git add selected.md
+Exit status: 0
+
+$ git commit -m 'Add selected note'
+[feature-notes d2f5c67] Add selected note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 selected.md
+Exit status: 0
+
+$ bash -c 'printf '"'"'Another branch change\n'"'"' > last.md'
+Exit status: 0
+
+$ git add last.md
+Exit status: 0
+
+$ git commit -m 'Add another branch note'
+[feature-notes ce0e4b6] Add another branch note
+ 1 file changed, 1 insertion(+)
+ create mode 100644 last.md
+Exit status: 0
+
+$ git log --oneline -3
+ce0e4b6 Add another branch note
+d2f5c67 Add selected note
+b65bc9a Add branch note
+Exit status: 0
+
+$ git switch main
+Switched to branch 'main'
+Exit status: 0
+
+$ git cherry-pick 'feature-notes~1'
+[main a07d44c] Add selected note
+ Date: Fri Oct 2 19:49:15 2026 +0530
+ 1 file changed, 1 insertion(+)
+ create mode 100644 selected.md
+Exit status: 0
+
+$ git log --graph --oneline --decorate --all
+* ce0e4b6 (feature-notes) Add another branch note
+* d2f5c67 Add selected note
+* b65bc9a Add branch note
+| * a07d44c (HEAD -> main) Add selected note
+|/
+* eb0bc62 Add staged file
+* 64d31b2 Update tracked notes
+* cae15c5 Create practice repository
+Exit status: 0
+
+$ cat selected.md
+Only the selected change
+Exit status: 0
+
+$ bash -c 'test ! -e branch.md && test ! -e last.md && echo "Only the selected feature change is present on main"'
+Only the selected feature change is present on main
+Exit status: 0

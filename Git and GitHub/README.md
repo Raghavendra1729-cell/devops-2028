@@ -99,3 +99,9 @@ git log --graph --oneline --decorate --all
 The final graph shows the commits on both branches and the selected commit copied to `main` with cherry-pick.
 
 ![Git history after cherry-pick](Screenshot%202026-08-31%20at%207.49.28%E2%80%AFPM.png)
+
+## Recorded practice
+
+The [recorded practice run](outputs/commit-and-cherry-pick.txt) tests both commit commands. `commit -a` left the new file untracked; staging it made `commit -m` include it. I created three main commits and three feature commits, selected the middle feature commit, and verified that only its new file appeared on main.
+
+![Recorded commit and cherry-pick exercise](images/git-practice.jpg)

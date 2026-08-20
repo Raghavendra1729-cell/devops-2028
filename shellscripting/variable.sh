@@ -1,4 +1,9 @@
-name="Raghav"
-rollno=10250
-mail="seeta.24bcs10250@sst.scaler.com"
-echo -e "$name\n$rollno\n$mail"
+#!/usr/bin/env bash
+
+name="Raghavendra"
+roll_number="24BCS10250"
+comment="learning Bash"
+
+echo "My name is $name"
+echo "My roll number is $roll_number"
+echo "I am $comment"

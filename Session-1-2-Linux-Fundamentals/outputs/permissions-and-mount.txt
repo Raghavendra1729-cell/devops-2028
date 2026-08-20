@@ -1,0 +1,28 @@
+$ minikube ssh -- 'set -eu
+mkdir -p /tmp/course-extra
+cd /tmp/course-extra
+touch notes.txt
+printf '"'"'Hello world\n'"'"' > notes.txt
+chmod +x notes.txt
+sudo chown docker:docker notes.txt
+ls -l notes.txt
+grep world notes.txt
+du -sh .
+sudo journalctl -u kubelet --since '"'"'1 minute ago'"'"' -n 3 --no-pager
+mkdir mount-demo
+sudo mount -t tmpfs -o size=1m tmpfs mount-demo
+findmnt mount-demo
+sudo umount mount-demo
+rmdir mount-demo
+rm notes.txt
+cd /tmp
+rmdir course-extra
+'
+-rwxr-xr-x 1 docker docker 12 Oct  2 14:34 notes.txt
+Hello world
+4.0K	.
+Oct 02 14:34:00 minikube kubelet[581]: E1002 14:34:00.310881     581 pod_workers.go:1338] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"app\" with ImagePullBackOff: \"Back-off pulling image \\\"example.invalid/devops/not-real:v999\\\": ErrImagePull: failed to pull and unpack image \\\"example.invalid/devops/not-real:v999\\\": failed to resolve reference \\\"example.invalid/devops/not-real:v999\\\": failed to do request: Head \\\"https://example.invalid/v2/devops/not-real/manifests/v999\\\": dial tcp: lookup example.invalid on 192.168.65.254:53: no such host\"" pod="lifecycle-audit/lifecycle-imagepull" podUID="0ab297dc-e33a-4881-bb99-90936adf1a94"
+Oct 02 14:34:07 minikube kubelet[581]: I1002 14:34:07.308231     581 scope.go:118] "RemoveContainer" containerID="39f6e948dbbcc5c554ee93ce9cf9567988abe1ac6d50de89fd5e93a74e4ea445"
+Oct 02 14:34:07 minikube kubelet[581]: E1002 14:34:07.308755     581 pod_workers.go:1338] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"app\" with CrashLoopBackOff: \"back-off 5m0s restarting failed container=app pod=lifecycle-crashloop_lifecycle-audit(9130b961-f6a3-459b-8e3f-b859ea53e06c)\"" pod="lifecycle-audit/lifecycle-crashloop" podUID="9130b961-f6a3-459b-8e3f-b859ea53e06c"
+TARGET                       SOURCE FSTYPE OPTIONS
+/tmp/course-extra/mount-demo tmpfs  tmpfs  rw,relatime,size=1024k

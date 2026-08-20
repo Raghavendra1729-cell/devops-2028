@@ -1,0 +1,212 @@
+$ minikube ssh -- 'set -eu
+mkdir -p /tmp/course-linux-audit
+cd /tmp/course-linux-audit
+pwd
+printf '"'"'Hello links\n'"'"' > original.txt
+ln original.txt hard.txt
+ln -s original.txt soft.txt
+ls -li original.txt hard.txt soft.txt
+rm original.txt
+cat hard.txt
+if cat soft.txt; then exit 1; fi
+rm hard.txt soft.txt
+ls -la
+printf '"'"'Course notes\n'"'"' > notes.txt
+mkdir archive
+cp notes.txt archive/copy.txt
+mv archive/copy.txt archive/moved.txt
+chmod 640 notes.txt
+ls -l notes.txt archive/moved.txt
+cat notes.txt
+grep Course notes.txt
+head -n 1 notes.txt
+tail -n 1 notes.txt
+find . -name '"'"'*.txt'"'"'
+whoami
+id
+date -u
+df -h /tmp
+free -h
+uptime
+ps -eo pid,comm | head -n 8
+top -b -n 1 | head -n 8
+sleep 300 &
+pid=$!
+kill "$pid"
+wait "$pid" || true
+ip -brief addr
+ip route
+ss -tuln | head -n 10
+lsblk
+findmnt /tmp || findmnt /
+sudo journalctl -b -n 5 --no-pager
+sudo journalctl -u kubelet -n 5 --no-pager
+rm -r archive notes.txt
+cd /tmp
+rmdir course-linux-audit
+'
+/tmp/course-linux-audit
+10 -rw-r--r-- 2 docker docker 12 Oct  2 14:19 hard.txt
+10 -rw-r--r-- 2 docker docker 12 Oct  2 14:19 original.txt
+11 lrwxrwxrwx 1 docker docker 12 Oct  2 14:19 soft.txt -> original.txt
+Hello links
+cat: soft.txt: No such file or directory
+total 0
+drwxr-xr-x 2 docker docker  40 Oct  2 14:19 .
+drwxrwxrwt 6 root   root   160 Oct  2 14:19 ..
+-rw-r--r-- 1 docker docker 13 Oct  2 14:19 archive/moved.txt
+-rw-r----- 1 docker docker 13 Oct  2 14:19 notes.txt
+Course notes
+Course notes
+Course notes
+Course notes
+./archive/moved.txt
+./notes.txt
+docker
+uid=1000(docker) gid=997(docker) groups=997(docker),27(sudo),107(nerdctl),108(buildkit),109(podman)
+Fri Oct  2 14:19:10 UTC 2026
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           3.9G   16K  3.9G   1% /tmp
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       2.7Gi       2.8Gi        12Mi       2.4Gi       5.0Gi
+Swap:          1.0Gi          0B       1.0Gi
+ 14:19:10 up 4 min,  0 user,  load average: 0.21, 0.35, 0.18
+    PID COMMAND
+      1 systemd
+     94 systemd-journal
+    142 sshd
+    430 containerd
+    581 kubelet
+   1010 containerd-shim
+   1017 containerd-shim
+top - 14:19:10 up 4 min,  0 user,  load average: 0.21, 0.35, 0.18
+Tasks: 174 total,   1 running, 173 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.0 sy,  0.0 ni,100.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   7934.4 total,   2859.8 free,   2770.6 used,   2490.7 buff/cache
+MiB Swap:   1024.0 total,   1024.0 free,      0.0 used.   5163.8 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   1224 root      20   0 1400932 135188  60012 S   6.2   1.7   0:05.41 kube-co+
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+tunl0@NONE       DOWN
+gre0@NONE        DOWN
+gretap0@NONE     DOWN
+erspan0@NONE     DOWN
+ip_vti0@NONE     DOWN
+ip6_vti0@NONE    DOWN
+sit0@NONE        DOWN
+ip6tnl0@NONE     DOWN
+ip6gre0@NONE     DOWN
+eth0@if18        UP             192.168.49.2/24
+veth597ed1d7@if11 UP             10.244.0.1/32 fe80::3cc1:fdff:fe42:dc9d/64
+veth64183d14@if11 UP             10.244.0.1/32 fe80::bc30:5ff:fe1c:1fcc/64
+veth96a1134e@if11 UP             10.244.0.1/32 fe80::40f:43ff:fef5:1e84/64
+veth23b14930@if11 UP             10.244.0.1/32 fe80::a066:35ff:feb6:8551/64
+veth71be6a86@if11 UP             10.244.0.1/32 fe80::bc41:79ff:fe6f:9584/64
+veth5631c818@if11 UP             10.244.0.1/32 fe80::646e:78ff:fe55:b798/64
+vethbdb5d1d3@if11 UP             10.244.0.1/32 fe80::b07c:19ff:fedb:24b8/64
+veth30cac818@if11 UP             10.244.0.1/32 fe80::e862:a9ff:fe80:f6ec/64
+veth5a38ad41@if11 UP             10.244.0.1/32 fe80::a8e1:ccff:fede:ae2a/64
+veth044df204@if11 UP             10.244.0.1/32 fe80::c438:acff:feb3:bd49/64
+veth4ed2eddc@if11 UP             10.244.0.1/32 fe80::4c34:7dff:fe88:29ed/64
+veth6c03a0be@if11 UP             10.244.0.1/32 fe80::4c9b:24ff:fe41:9dbb/64
+veth43c8f068@if11 UP             10.244.0.1/32 fe80::d00b:bbff:fe80:dec4/64
+vetheda58190@if11 UP             10.244.0.1/32 fe80::880f:c6ff:fe3a:f69e/64
+vethdae08a83@if11 UP             10.244.0.1/32 fe80::ccc5:86ff:fe3a:12e6/64
+veth9628976b@if11 UP             10.244.0.1/32 fe80::c0a6:9aff:febd:79a9/64
+veth7684416d@if11 UP             10.244.0.1/32 fe80::a4a7:a3ff:fec5:eb0a/64
+veth691e42d1@if11 UP             10.244.0.1/32 fe80::7c5a:bbff:feda:a432/64
+veth76625a7c@if11 UP             10.244.0.1/32 fe80::d04b:ccff:fe41:4703/64
+vethd08c96b1@if11 UP             10.244.0.1/32 fe80::7440:7aff:fef6:8387/64
+veth9e93017b@if11 UP             10.244.0.1/32 fe80::fc1c:69ff:fe9f:1630/64
+veth06528eaa@if11 UP             10.244.0.1/32 fe80::58db:31ff:fe6c:c96d/64
+veth1480ef2c@if11 UP             10.244.0.1/32 fe80::c0c6:17ff:fe8b:ebe/64
+veth0b40e662@if11 UP             10.244.0.1/32 fe80::aca0:22ff:fe03:2eb9/64
+veth27c0cfaa@if11 UP             10.244.0.1/32 fe80::442b:9ff:feab:d1e/64
+vethf8d441be@if11 UP             10.244.0.1/32 fe80::5075:41ff:fe8e:f374/64
+default via 192.168.49.1 dev eth0
+10.244.0.2 dev veth597ed1d7 scope host
+10.244.0.3 dev veth64183d14 scope host
+10.244.0.4 dev veth96a1134e scope host
+10.244.0.5 dev veth23b14930 scope host
+10.244.0.6 dev veth71be6a86 scope host
+10.244.0.7 dev veth5631c818 scope host
+10.244.0.8 dev vethbdb5d1d3 scope host
+10.244.0.9 dev veth5a38ad41 scope host
+10.244.0.10 dev veth30cac818 scope host
+10.244.0.11 dev veth044df204 scope host
+10.244.0.12 dev veth4ed2eddc scope host
+10.244.0.13 dev veth6c03a0be scope host
+10.244.0.14 dev veth43c8f068 scope host
+10.244.0.15 dev vetheda58190 scope host
+10.244.0.16 dev vethdae08a83 scope host
+10.244.0.17 dev veth9628976b scope host
+10.244.0.18 dev veth7684416d scope host
+10.244.0.19 dev veth691e42d1 scope host
+10.244.0.20 dev veth76625a7c scope host
+10.244.0.21 dev vethd08c96b1 scope host
+10.244.0.22 dev veth06528eaa scope host
+10.244.0.23 dev veth9e93017b scope host
+10.244.0.24 dev veth1480ef2c scope host
+10.244.0.25 dev veth0b40e662 scope host
+10.244.0.26 dev veth27c0cfaa scope host
+10.244.0.28 dev vethf8d441be scope host
+192.168.49.0/24 dev eth0 proto kernel scope link src 192.168.49.2
+Netid State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+udp   UNCONN 0      0         127.0.0.11:51316      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10257      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10259      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10248      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:2379       0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:2381       0.0.0.0:*
+tcp   LISTEN 0      4096    192.168.49.2:2379       0.0.0.0:*
+tcp   LISTEN 0      4096    192.168.49.2:2380       0.0.0.0:*
+tcp   LISTEN 0      4096      127.0.0.11:35969      0.0.0.0:*
+NAME MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+nbd0  43:0    0     0B  0 disk
+nbd1  43:32   0     0B  0 disk
+nbd2  43:64   0     0B  0 disk
+nbd3  43:96   0     0B  0 disk
+nbd4  43:128  0     0B  0 disk
+nbd5  43:160  0     0B  0 disk
+nbd6  43:192  0     0B  0 disk
+nbd7  43:224  0     0B  0 disk
+vda  254:0    0 228.3G  0 disk
+`-vda1
+     254:1    0 228.3G  0 part /var/lib/kubelet/pods/5cda1551-1ff4-4b1b-a70e-beb05ab1f7dc/volume-subpaths/config/grafana/2
+                               /var/lib/kubelet/pods/5cda1551-1ff4-4b1b-a70e-beb05ab1f7dc/volume-subpaths/config/grafana/1
+                               /tmp/hostpath-provisioner
+                               /tmp/hostpath_pv
+                               /data
+                               /etc/hosts
+                               /etc/hostname
+                               /etc/resolv.conf
+                               /var
+vdb  254:16   0   644M  1 disk
+nbd8  43:256  0     0B  0 disk
+nbd9  43:288  0     0B  0 disk
+nbd10
+      43:320  0     0B  0 disk
+nbd11
+      43:352  0     0B  0 disk
+nbd12
+      43:384  0     0B  0 disk
+nbd13
+      43:416  0     0B  0 disk
+nbd14
+      43:448  0     0B  0 disk
+nbd15
+      43:480  0     0B  0 disk
+TARGET SOURCE FSTYPE OPTIONS
+/tmp   tmpfs  tmpfs  rw,nosuid,nodev,noexec,relatime
+Oct 02 14:19:10 minikube sshd[6647]: pam_env(sshd:session): Unable to open env file: /etc/default/locale: No such file or directory
+Oct 02 14:19:10 minikube sshd[6647]: lastlog_openseek: Couldn't stat /var/log/lastlog: No such file or directory
+Oct 02 14:19:10 minikube sshd[6647]: lastlog_openseek: Couldn't stat /var/log/lastlog: No such file or directory
+Oct 02 14:19:11 minikube sudo[6692]:   docker : TTY=pts/1 ; PWD=/tmp/course-linux-audit ; USER=root ; COMMAND=/usr/bin/journalctl -b -n 5 --no-pager
+Oct 02 14:19:11 minikube sudo[6692]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=1000)
+Oct 02 14:19:00 minikube kubelet[581]: E1002 14:19:00.863531     581 pod_workers.go:1338] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"app\" with CrashLoopBackOff: \"back-off 40s restarting failed container=app pod=lifecycle-crashloop_lifecycle-audit(9130b961-f6a3-459b-8e3f-b859ea53e06c)\"" pod="lifecycle-audit/lifecycle-crashloop" podUID="9130b961-f6a3-459b-8e3f-b859ea53e06c"
+Oct 02 14:19:06 minikube kubelet[581]: I1002 14:19:06.312271     581 server.go:177] "Pod update broadcasted" podUID="0ab297dc-e33a-4881-bb99-90936adf1a94" type="MODIFIED"
+Oct 02 14:19:06 minikube kubelet[581]: E1002 14:19:06.314726     581 pod_workers.go:1338] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"app\" with ImagePullBackOff: \"Back-off pulling image \\\"example.invalid/devops/not-real:v999\\\": ErrImagePull: failed to pull and unpack image \\\"example.invalid/devops/not-real:v999\\\": failed to resolve reference \\\"example.invalid/devops/not-real:v999\\\": failed to do request: Head \\\"https://example.invalid/v2/devops/not-real/manifests/v999\\\": dial tcp: lookup example.invalid on 192.168.65.254:53: no such host\"" pod="lifecycle-audit/lifecycle-imagepull" podUID="0ab297dc-e33a-4881-bb99-90936adf1a94"
+Oct 02 14:19:08 minikube kubelet[581]: I1002 14:19:08.982710     581 scope.go:118] "RemoveContainer" containerID="6d7147565b9786e908f2306630b45bcb48cce93bf0c7debf779b68e956123f6a"
+Oct 02 14:19:08 minikube kubelet[581]: I1002 14:19:08.982909     581 server.go:177] "Pod update broadcasted" podUID="17c92743-e650-4361-8692-2f8d52c00723" type="MODIFIED"
+Exit status: 0

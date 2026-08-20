@@ -1,0 +1,145 @@
+$ minikube ssh -- 'ip -brief addr; ip route; ss -tuln | head -n 8'
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+tunl0@NONE       DOWN
+gre0@NONE        DOWN
+gretap0@NONE     DOWN
+erspan0@NONE     DOWN
+ip_vti0@NONE     DOWN
+ip6_vti0@NONE    DOWN
+sit0@NONE        DOWN
+ip6tnl0@NONE     DOWN
+ip6gre0@NONE     DOWN
+eth0@if18        UP             192.168.49.2/24
+veth597ed1d7@if11 UP             10.244.0.1/32 fe80::3cc1:fdff:fe42:dc9d/64
+veth64183d14@if11 UP             10.244.0.1/32 fe80::bc30:5ff:fe1c:1fcc/64
+veth96a1134e@if11 UP             10.244.0.1/32 fe80::40f:43ff:fef5:1e84/64
+veth23b14930@if11 UP             10.244.0.1/32 fe80::a066:35ff:feb6:8551/64
+veth71be6a86@if11 UP             10.244.0.1/32 fe80::bc41:79ff:fe6f:9584/64
+veth5631c818@if11 UP             10.244.0.1/32 fe80::646e:78ff:fe55:b798/64
+vethbdb5d1d3@if11 UP             10.244.0.1/32 fe80::b07c:19ff:fedb:24b8/64
+veth30cac818@if11 UP             10.244.0.1/32 fe80::e862:a9ff:fe80:f6ec/64
+veth5a38ad41@if11 UP             10.244.0.1/32 fe80::a8e1:ccff:fede:ae2a/64
+veth044df204@if11 UP             10.244.0.1/32 fe80::c438:acff:feb3:bd49/64
+veth4ed2eddc@if11 UP             10.244.0.1/32 fe80::4c34:7dff:fe88:29ed/64
+veth6c03a0be@if11 UP             10.244.0.1/32 fe80::4c9b:24ff:fe41:9dbb/64
+veth43c8f068@if11 UP             10.244.0.1/32 fe80::d00b:bbff:fe80:dec4/64
+vetheda58190@if11 UP             10.244.0.1/32 fe80::880f:c6ff:fe3a:f69e/64
+vethdae08a83@if11 UP             10.244.0.1/32 fe80::ccc5:86ff:fe3a:12e6/64
+veth9628976b@if11 UP             10.244.0.1/32 fe80::c0a6:9aff:febd:79a9/64
+veth7684416d@if11 UP             10.244.0.1/32 fe80::a4a7:a3ff:fec5:eb0a/64
+veth691e42d1@if11 UP             10.244.0.1/32 fe80::7c5a:bbff:feda:a432/64
+veth76625a7c@if11 UP             10.244.0.1/32 fe80::d04b:ccff:fe41:4703/64
+vethd08c96b1@if11 UP             10.244.0.1/32 fe80::7440:7aff:fef6:8387/64
+veth9e93017b@if11 UP             10.244.0.1/32 fe80::fc1c:69ff:fe9f:1630/64
+veth06528eaa@if11 UP             10.244.0.1/32 fe80::58db:31ff:fe6c:c96d/64
+veth1480ef2c@if11 UP             10.244.0.1/32 fe80::c0c6:17ff:fe8b:ebe/64
+veth0b40e662@if11 UP             10.244.0.1/32 fe80::aca0:22ff:fe03:2eb9/64
+veth27c0cfaa@if11 UP             10.244.0.1/32 fe80::442b:9ff:feab:d1e/64
+vethf8d441be@if11 UP             10.244.0.1/32 fe80::5075:41ff:fe8e:f374/64
+default via 192.168.49.1 dev eth0
+10.244.0.2 dev veth597ed1d7 scope host
+10.244.0.3 dev veth64183d14 scope host
+10.244.0.4 dev veth96a1134e scope host
+10.244.0.5 dev veth23b14930 scope host
+10.244.0.6 dev veth71be6a86 scope host
+10.244.0.7 dev veth5631c818 scope host
+10.244.0.8 dev vethbdb5d1d3 scope host
+10.244.0.9 dev veth5a38ad41 scope host
+10.244.0.10 dev veth30cac818 scope host
+10.244.0.11 dev veth044df204 scope host
+10.244.0.12 dev veth4ed2eddc scope host
+10.244.0.13 dev veth6c03a0be scope host
+10.244.0.14 dev veth43c8f068 scope host
+10.244.0.15 dev vetheda58190 scope host
+10.244.0.16 dev vethdae08a83 scope host
+10.244.0.17 dev veth9628976b scope host
+10.244.0.18 dev veth7684416d scope host
+10.244.0.19 dev veth691e42d1 scope host
+10.244.0.20 dev veth76625a7c scope host
+10.244.0.21 dev vethd08c96b1 scope host
+10.244.0.22 dev veth06528eaa scope host
+10.244.0.23 dev veth9e93017b scope host
+10.244.0.24 dev veth1480ef2c scope host
+10.244.0.25 dev veth0b40e662 scope host
+10.244.0.26 dev veth27c0cfaa scope host
+10.244.0.28 dev vethf8d441be scope host
+192.168.49.0/24 dev eth0 proto kernel scope link src 192.168.49.2
+Netid State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+udp   UNCONN 0      0         127.0.0.11:51316      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10257      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10259      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:10248      0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:2379       0.0.0.0:*
+tcp   LISTEN 0      4096       127.0.0.1:2381       0.0.0.0:*
+tcp   LISTEN 0      4096    192.168.49.2:2379       0.0.0.0:*
+Exit status: 0
+
+$ ping -c 2 127.0.0.1
+PING 127.0.0.1 (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.067 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.194 ms
+
+--- 127.0.0.1 ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.067/0.131/0.194/0.064 ms
+Exit status: 0
+
+$ traceroute -m 3 -w 1 example.com
+traceroute: Warning: example.com has multiple addresses; using 172.66.147.243
+traceroute to example.com (172.66.147.243), 3 hops max, 40 byte packets
+ 1  wifi.height8tech.com (100.128.160.1)  9.395 ms  16.363 ms  9.195 ms
+ 2  114.79.130.29.dvois.com (114.79.130.29)  23.335 ms  27.760 ms  29.206 ms
+ 3  * 103.27.171.248 (103.27.171.248)  73.014 ms *
+Exit status: 0
+
+$ nslookup example.com
+Server:		100.128.160.1
+Address:	100.128.160.1#53
+
+Non-authoritative answer:
+Name:	example.com
+Address: 104.20.23.154
+Name:	example.com
+Address: 172.66.147.243
+
+Exit status: 0
+
+$ dig +short example.com
+172.66.147.243
+104.20.23.154
+Exit status: 0
+
+$ host example.com
+example.com has address 104.20.23.154
+example.com has address 172.66.147.243
+example.com has IPv6 address 2606:4700:10::ac42:93f3
+example.com has IPv6 address 2606:4700:10::6814:179a
+example.com mail is handled by 0 .
+Exit status: 0
+
+$ nc -vz -w 5 example.com 443
+Connection to example.com port 443 [tcp/https] succeeded!
+Exit status: 0
+
+$ curl -I --max-time 10 https://example.com
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+HTTP/2 200
+date: Fri, 02 Oct 2026 14:19:15 GMT
+content-type: text/html; charset=utf-8
+server: cloudflare
+last-modified: Mon, 28 Sep 2026 16:19:32 GMT
+allow: GET, HEAD
+accept-ranges: bytes
+age: 1364
+cf-cache-status: HIT
+cf-ray: a444574c0f8e2c7b-BOM
+alt-svc: h3=":443"; ma=86400
+
+Exit status: 0
+
+$ bash -c 'printf '"'"'HEAD / HTTP/1.0\r\nHost: example.com\r\n\r\n'"'"' | nc -w 5 example.com 80'
+Exit status: 0

@@ -1,0 +1,95 @@
+$ docker build -t homework-node:verified '/Users/lingaraghavendra/Desktop/devops/devops-2028/Docker Fundamentals/nodejs-app'
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 150B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 ...
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 3.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 28B done
+#5 DONE 0.0s
+
+#6 [1/3] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#6 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 done
+#6 sha256:e2f4a003057d235ec28208b606f2f9524400c06882b1ffa1c89ceda8213f5fb4 0B / 444B 0.2s
+#6 sha256:d4a23e25aa718dc5c16fb5935f8683eff024fd67902ef1a4929a42da78d4e9d6 0B / 1.26MB 0.2s
+#6 sha256:e2f4a003057d235ec28208b606f2f9524400c06882b1ffa1c89ceda8213f5fb4 444B / 444B 0.2s done
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 0B / 56.60MB 0.2s
+#6 sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 0B / 4.19MB 0.2s
+#6 sha256:d4a23e25aa718dc5c16fb5935f8683eff024fd67902ef1a4929a42da78d4e9d6 1.05MB / 1.26MB 0.6s
+#6 sha256:d4a23e25aa718dc5c16fb5935f8683eff024fd67902ef1a4929a42da78d4e9d6 1.26MB / 1.26MB 0.6s done
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 4.19MB / 56.60MB 1.2s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 7.34MB / 56.60MB 1.5s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 10.49MB / 56.60MB 2.0s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 13.63MB / 56.60MB 2.4s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 17.83MB / 56.60MB 2.9s
+#6 sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 1.05MB / 4.19MB 2.9s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 20.97MB / 56.60MB 3.5s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 25.17MB / 56.60MB 3.9s
+#6 sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 2.10MB / 4.19MB 3.9s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 28.31MB / 56.60MB 4.4s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 31.46MB / 56.60MB 5.0s
+#6 sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 3.15MB / 4.19MB 5.0s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 34.60MB / 56.60MB 5.4s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 38.80MB / 56.60MB 5.9s
+#6 sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 4.19MB / 4.19MB 5.9s done
+#6 extracting sha256:a9986cd6f37dbddae7862a6d4be71683472e7c2ea708e87db14f8a6393c00f00 0.1s done
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 41.94MB / 56.60MB 6.3s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 46.14MB / 56.60MB 6.8s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 50.33MB / 56.60MB 7.2s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 53.48MB / 56.60MB 7.7s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 56.60MB / 56.60MB 8.1s
+#6 sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 56.60MB / 56.60MB 8.1s done
+#6 extracting sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c
+#6 extracting sha256:6680b19ad074d7cbe6bf0eb4013d64483980d5cc93bf6774d7effd8bb196df0c 0.8s done
+#6 DONE 8.9s
+
+#6 [1/3] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#6 extracting sha256:d4a23e25aa718dc5c16fb5935f8683eff024fd67902ef1a4929a42da78d4e9d6 0.0s done
+#6 extracting sha256:e2f4a003057d235ec28208b606f2f9524400c06882b1ffa1c89ceda8213f5fb4 done
+#6 DONE 8.9s
+
+#7 [2/3] WORKDIR /app
+#7 DONE 0.2s
+
+#8 [3/3] COPY --chown=node:node app.js .
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:703c89614c208f6117c0dcbda65ae894d93e67a2a38b2c4165896c5dffe54178 done
+#9 exporting config sha256:2560ed73781e397a739f6e0de202f3e1c87a4362d434641630a78d770e82b77c done
+#9 exporting attestation manifest sha256:1b69e3661ba644e6671aa38a45395c0ee879adaf4363b672ec710ae626b1ac0d done
+#9 exporting manifest list sha256:baf3f2743a0432e7a485d2c517f4ab74ea0783e683673cf385ab7a5f924705be done
+#9 naming to docker.io/library/homework-node:verified done
+#9 unpacking to docker.io/library/homework-node:verified 0.0s done
+#9 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lbcw66qcuj6s1e370xqebdha9
+
+$ docker run -d --name homework-node -p 127.0.0.1:8300:3000 homework-node:verified
+daac9ae2c47cb151e99b7638e2f9b08b37c8b255d4091f3b81cf547350623b22
+
+$ docker ps --filter name=homework-node
+CONTAINER ID   IMAGE                    COMMAND                  CREATED                  STATUS                  PORTS                      NAMES
+daac9ae2c47c   homework-node:verified   "docker-entrypoint.s…"   Less than a second ago   Up Less than a second   127.0.0.1:8300->3000/tcp   homework-node
+
+$ curl -fsS http://127.0.0.1:8300
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Node.js Docker App</title></head>
+<body><h1>Hello World from Node.js + Docker!</h1></body>
+</html>

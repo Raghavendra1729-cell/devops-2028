@@ -11,7 +11,7 @@ I built six small applications with Docker. I used a separate folder and Dockerf
 | Node.js | `nodejs-app` | 3000 | `http://localhost:3000` |
 | Python | `python-app` | 8000 | `http://localhost:8000` |
 | Java | `java-app` | 8080 | `http://localhost:8080` |
-| Apache HTTP Server | `apache-app` | 80 | `http://localhost:8081` |
+| Apache HTTP Server | `Apache-app` | 80 | `http://localhost:8081` |
 | React | `React-app` | 80 | `http://localhost:8082` |
 | Nginx | `nginx-app` | 80 | `http://localhost:8083` |
 
@@ -31,7 +31,7 @@ curl http://localhost:3000
 
 The page returned `Hello World from Node.js + Docker!`.
 
-![Node.js page](image-1.png)
+![Node.js page](images/node-verified.jpg)
 
 ## 2. Python
 
@@ -43,7 +43,7 @@ curl http://localhost:8000
 
 The page returned `Hello World from Python + Docker!`.
 
-![Python page](image-3.png)
+![Python page](images/python-verified.jpg)
 
 ## 3. Java
 
@@ -55,19 +55,19 @@ curl http://localhost:8080
 
 The Java application was available on port 8080.
 
-![Java page](Screenshot%202026-08-31%20at%207.19.03%E2%80%AFPM.png)
+![Java page](images/java-verified.jpg)
 
 ## 4. Apache HTTP Server
 
 ```bash
-docker build -t hello-apache ./apache-app
+docker build -t hello-apache ./Apache-app
 docker run -d --name hello-apache -p 8081:80 hello-apache
 curl http://localhost:8081
 ```
 
 I mapped port 8081 on my computer to port 80 in the container.
 
-![Apache page](Screenshot%202026-08-31%20at%207.20.18%E2%80%AFPM.png)
+![Apache page](images/apache-verified.jpg)
 
 ## 5. React
 
@@ -79,7 +79,7 @@ curl http://localhost:8082
 
 The React page was served from the container on `http://localhost:8082`.
 
-![React page](react-browser-result.png)
+![React page](images/react-verified.jpg)
 
 ## 6. Nginx
 
@@ -91,7 +91,7 @@ curl http://localhost:8083
 
 The Nginx page was available on `http://localhost:8083`.
 
-![Nginx page](nginx-browser-result.png)
+![Nginx page](images/nginx-verified.jpg)
 
 I used this command to see all six containers together:
 
@@ -99,4 +99,8 @@ I used this command to see all six containers together:
 docker ps --filter "name=hello-"
 ```
 
-The React folder is static, so its final image uses NGINX instead of keeping a Node.js package manager in the runtime container. The Java Dockerfile also uses a build stage with the JDK and a smaller JRE stage for execution.
+The React build stage installs React and ReactDOM. Its final Nginx image serves the page and both JavaScript files locally, so the page does not depend on a CDN at runtime. The Java Dockerfile also uses a build stage with the JDK and a smaller JRE stage for execution.
+
+## Rechecked containers
+
+I rebuilt all six applications and checked their HTTP responses. The new run used ports 8300–8305 so each page could be checked together. The [outputs](outputs/) contain build logs, running-container checks and page responses.

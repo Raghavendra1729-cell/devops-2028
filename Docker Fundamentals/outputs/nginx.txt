@@ -1,0 +1,85 @@
+$ docker build -t homework-nginx:verified '/Users/lingaraghavendra/Desktop/devops/devops-2028/Docker Fundamentals/nginx-app'
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 114B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/nginx:alpine
+#2 DONE 1.5s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 32B done
+#4 DONE 0.0s
+
+#5 [1/2] FROM docker.io/library/nginx:alpine@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2
+#5 resolve docker.io/library/nginx:alpine@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2 done
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 0B / 20.09MB 0.2s
+#5 sha256:d766d06974faca2e3bc47f067832c4d6469e6db75cbb597baa943ab30b822e60 1.40kB / 1.40kB 0.3s done
+#5 sha256:bc862a9910f586c671851634646f9747fdad971ca2988bf1c36b333a26677daf 0B / 1.21kB 0.2s
+#5 sha256:943c389642fab1a496f66d9b0ae09288798bb42bd6cd7fb0c06f5e48ad788474 0B / 403B 0.2s
+#5 sha256:ccea4a153c591cd6756c0a003489efb511a7d9692e5a8463b3152efce5f671e6 0B / 964B 0.2s
+#5 sha256:bc862a9910f586c671851634646f9747fdad971ca2988bf1c36b333a26677daf 1.21kB / 1.21kB 0.5s done
+#5 sha256:943c389642fab1a496f66d9b0ae09288798bb42bd6cd7fb0c06f5e48ad788474 403B / 403B 0.5s done
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 1.05MB / 20.09MB 0.6s
+#5 sha256:ccea4a153c591cd6756c0a003489efb511a7d9692e5a8463b3152efce5f671e6 964B / 964B 0.5s
+#5 sha256:766d3311d5dfcea79009b222ef4b3f88dfb0fa79944ccdd730ad164a01598605 0B / 628B 0.2s
+#5 sha256:858f76146c129bf634d0fef4a2780c3a34b40ba9bf9ef45173e0553414be267f 0B / 1.95MB 0.2s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 2.10MB / 20.09MB 0.9s
+#5 sha256:ccea4a153c591cd6756c0a003489efb511a7d9692e5a8463b3152efce5f671e6 964B / 964B 0.5s done
+#5 sha256:766d3311d5dfcea79009b222ef4b3f88dfb0fa79944ccdd730ad164a01598605 628B / 628B 0.3s done
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 3.15MB / 20.09MB 1.1s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 4.19MB / 20.09MB 1.2s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 5.24MB / 20.09MB 1.4s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 7.34MB / 20.09MB 1.5s
+#5 sha256:858f76146c129bf634d0fef4a2780c3a34b40ba9bf9ef45173e0553414be267f 1.05MB / 1.95MB 0.9s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 8.39MB / 20.09MB 1.8s
+#5 sha256:858f76146c129bf634d0fef4a2780c3a34b40ba9bf9ef45173e0553414be267f 1.95MB / 1.95MB 1.4s done
+#5 extracting sha256:858f76146c129bf634d0fef4a2780c3a34b40ba9bf9ef45173e0553414be267f 0.0s done
+#5 extracting sha256:766d3311d5dfcea79009b222ef4b3f88dfb0fa79944ccdd730ad164a01598605 done
+#5 extracting sha256:ccea4a153c591cd6756c0a003489efb511a7d9692e5a8463b3152efce5f671e6 0.0s done
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 10.49MB / 20.09MB 2.1s
+#5 extracting sha256:943c389642fab1a496f66d9b0ae09288798bb42bd6cd7fb0c06f5e48ad788474 done
+#5 extracting sha256:bc862a9910f586c671851634646f9747fdad971ca2988bf1c36b333a26677daf done
+#5 extracting sha256:d766d06974faca2e3bc47f067832c4d6469e6db75cbb597baa943ab30b822e60 done
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 11.53MB / 20.09MB 2.3s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 12.58MB / 20.09MB 2.4s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 13.63MB / 20.09MB 2.6s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 15.73MB / 20.09MB 2.7s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 16.78MB / 20.09MB 2.9s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 17.83MB / 20.09MB 3.0s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 18.87MB / 20.09MB 3.2s
+#5 sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 20.09MB / 20.09MB 3.3s done
+#5 extracting sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f
+#5 extracting sha256:1efec2485f4576f8c9fd4f47113769b2de974cece2fec5ecc95e521254da869f 0.3s done
+#5 DONE 3.6s
+
+#6 [2/2] COPY index.html /usr/share/nginx/html/index.html
+#6 DONE 0.1s
+
+#7 exporting to image
+#7 exporting layers
+#7 exporting layers 0.0s done
+#7 exporting manifest sha256:0cafe23e4d9fdcf2987866dc716dd868f1010c6837ec63e5a395791c121aa774 done
+#7 exporting config sha256:448cd8bac0a6a290fc30f81844f4020b2f9315fc4bc5616083c79270dc3e3dbf done
+#7 exporting attestation manifest sha256:5b111e970899f95b9e13abaeaea2803e79477fb4a88b3f581004c0962f7895f2 done
+#7 exporting manifest list sha256:43c3dd0f87726f49c381285d85775274cb4a8d2c75402e47d6dc92522ca045b4 done
+#7 naming to docker.io/library/homework-nginx:verified done
+#7 unpacking to docker.io/library/homework-nginx:verified done
+#7 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/6o0mxnq2zdqyxl1ms75v98lg6
+
+$ docker run -d --name homework-nginx -p 127.0.0.1:8305:80 homework-nginx:verified
+af4e7e151d4f38eef5a03f8a210cdafe9202c52a962ddc77fb5c3a7e86073589
+
+$ docker ps --filter name=homework-nginx
+CONTAINER ID   IMAGE                     COMMAND                  CREATED        STATUS                  PORTS                    NAMES
+af4e7e151d4f   homework-nginx:verified   "/docker-entrypoint.…"   1 second ago   Up Less than a second   127.0.0.1:8305->80/tcp   homework-nginx
+
+$ curl -fsS http://127.0.0.1:8305
+<!DOCTYPE html><html><head><title>Nginx Hello World</title></head><body><h1>Hello World from Nginx + Docker!</h1></body></html>

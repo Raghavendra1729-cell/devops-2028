@@ -1,0 +1,68 @@
+$ docker build -t homework-java:verified '/Users/lingaraghavendra/Desktop/devops/devops-2028/Docker Fundamentals/java-app'
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 269B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:21-jdk
+#2 ...
+
+#3 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre
+#3 DONE 0.9s
+
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:21-jdk
+#2 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/3] FROM docker.io/library/eclipse-temurin:21-jre@sha256:cff19e6215689161eb6162c11b86b0c60ddf802164f2eaf48d570f8fb79a36c5
+#5 resolve docker.io/library/eclipse-temurin:21-jre@sha256:cff19e6215689161eb6162c11b86b0c60ddf802164f2eaf48d570f8fb79a36c5 done
+#5 DONE 0.0s
+
+#6 [build 1/4] FROM docker.io/library/eclipse-temurin:21-jdk@sha256:3e3c176ffed168beb42c607be9bc1639b466cf00261a0fb04425562c9d0c5c2b
+#6 resolve docker.io/library/eclipse-temurin:21-jdk@sha256:3e3c176ffed168beb42c607be9bc1639b466cf00261a0fb04425562c9d0c5c2b done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 38B done
+#7 DONE 0.0s
+
+#8 [stage-1 2/3] WORKDIR /app
+#8 CACHED
+
+#9 [build 3/4] COPY HelloServer.java .
+#9 CACHED
+
+#10 [build 2/4] WORKDIR /app
+#10 CACHED
+
+#11 [build 4/4] RUN javac HelloServer.java
+#11 CACHED
+
+#12 [stage-1 3/3] COPY --from=build /app/HelloServer.class .
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:d31e72ce3e1d9688c0bcdebfc510633420fb473ab3d8dfe7ac83d9b5a0d421fe done
+#13 exporting config sha256:01d5d6d31b50244dd8630da130220d81354ad79b0ae9b4bdd415225388673199 done
+#13 exporting attestation manifest sha256:e2c708c7c354ea97dd672c63cb8bf9b9bbccf73ca6797fe0d7f09c5b4deb2aaf done
+#13 exporting manifest list sha256:5c7f18b2ec91310d5ffae555bd7cfab3149e88c9be4b817c6b024c3e762110a0 done
+#13 naming to docker.io/library/homework-java:verified done
+#13 unpacking to docker.io/library/homework-java:verified done
+#13 DONE 0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lerjwksm6yebx0sawia2l6h7c
+
+$ docker run -d --name homework-java -p 127.0.0.1:8302:8080 homework-java:verified
+507ec68dc86f8876d41c4a5a42b741f6ca5fe865cd78e16b3a6f8ce6021e8e38
+
+$ docker ps --filter name=homework-java
+CONTAINER ID   IMAGE                    COMMAND                  CREATED                  STATUS                  PORTS                      NAMES
+507ec68dc86f   homework-java:verified   "/__cacert_entrypoin…"   Less than a second ago   Up Less than a second   127.0.0.1:8302->8080/tcp   homework-java
+
+$ curl -fsS http://127.0.0.1:8302
+<h1>Hello World from Java + Docker!</h1>

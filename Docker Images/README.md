@@ -54,3 +54,11 @@ The output showed port 8080 on my computer mapped to port 3000 in the container.
 ![Container and port mapping](Screenshot%202026-08-31%20at%207.30.45%E2%80%AFPM.png)
 
 The first stage in the Dockerfile prepares the application files. The final stage copies only the files needed to run the server using `COPY --from=builder`.
+
+## Recorded build and deployment
+
+The [class repository](https://github.com/Mehul01-Max/devops-heros) was cloned to inspect its examples. My multi-stage application is kept here so it can be built directly. The [new build output](outputs/multi-stage.txt) shows the successful image build, running container, host port 8080 and required page text.
+
+The three language deployment requirement is covered by the independently built [Node.js](../Docker%20Fundamentals/outputs/node.txt), [Python](../Docker%20Fundamentals/outputs/python.txt) and [Java](../Docker%20Fundamentals/outputs/java.txt) applications.
+
+![Multi-stage application on port 8080](images/multi-stage-verified.jpg)

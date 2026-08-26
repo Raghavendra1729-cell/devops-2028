@@ -1,0 +1,260 @@
+# ============================================================
+# 1. CHECK DOCKER
+# ============================================================
+
+docker version
+docker info
+
+
+# ============================================================
+# 2. IMAGES
+# ============================================================
+
+# Download image
+docker pull ubuntu:24.04
+docker pull nginx:latest
+
+# List local images
+docker images
+docker image ls
+
+# Inspect image
+docker image inspect ubuntu:24.04
+
+# Remove image
+docker rmi ubuntu:24.04
+docker image rm ubuntu:24.04
+
+
+# ============================================================
+# 3. docker run
+#
+# Syntax:
+# docker run [OPTIONS] IMAGE [COMMAND]
+# ============================================================
+
+# Simple run
+docker run ubuntu:24.04
+
+# Interactive shell
+docker run -it ubuntu:24.04 bash
+
+# Give container a name
+docker run -it --name myubuntu ubuntu:24.04 bash
+
+# Run in background / detached mode
+docker run -d --name web nginx
+
+# Automatically delete container when it stops
+docker run --rm ubuntu:24.04 echo "hello"
+
+# Run command inside new container
+docker run ubuntu:24.04 echo "hello docker"
+
+
+# ============================================================
+# IMPORTANT docker run OPTIONS
+# ============================================================
+
+# -i
+# Keep STDIN/input open
+docker run -i ubuntu:24.04
+
+# -t
+# Allocate a terminal (TTY)
+docker run -t ubuntu:24.04
+
+# Usually combined:
+docker run -it ubuntu:24.04 bash
+
+# -d
+# Detached/background mode
+docker run -d nginx
+
+# --name
+# Give container your own name
+docker run -d --name web nginx
+
+# --rm
+# Delete container automatically after it stops
+docker run --rm ubuntu echo hello
+
+
+# ============================================================
+# 4. LIST CONTAINERS
+# ============================================================
+
+# Running containers only
+docker ps
+
+# All containers including stopped
+docker ps -a
+
+# Alternative forms
+docker container ls
+docker container ls -a
+
+
+# ============================================================
+# 5. STOP / START / RESTART
+# ============================================================
+
+docker stop myubuntu
+
+docker start myubuntu
+
+docker restart myubuntu
+
+
+# Start stopped container and attach interactively
+docker start -ai myubuntu
+
+
+# ============================================================
+# 6. docker exec
+#
+# Run a NEW process inside an EXISTING RUNNING container
+# ============================================================
+
+# Run one command
+docker exec myubuntu ls
+
+# Open bash inside running container
+docker exec -it myubuntu bash
+
+# Some containers don't have bash, use sh
+docker exec -it web sh
+
+
+# ============================================================
+# 7. REMOVE CONTAINERS
+# ============================================================
+
+# Container normally must be stopped first
+docker stop myubuntu
+docker rm myubuntu
+
+# Force remove running container
+docker rm -f myubuntu
+
+
+# ============================================================
+# 8. CONTAINER INFORMATION
+# ============================================================
+
+docker inspect myubuntu
+
+# View logs produced by container
+docker logs web
+
+# Follow logs continuously
+docker logs -f web
+
+
+# ============================================================
+# 9. DOCKER HUB / REGISTRY
+# ============================================================
+
+# Login
+docker login
+
+# Pull image
+docker pull nginx:latest
+
+# Tag an image before pushing
+docker tag myapp:latest USERNAME/myapp:latest
+
+# Push
+docker push USERNAME/myapp:latest
+
+
+# ============================================================
+# 10. CLEAN PRACTICE EXAMPLE
+# ============================================================
+
+# Download Ubuntu
+docker pull ubuntu:24.04
+
+# Check image
+docker images
+
+# Create + start new container
+docker run -it --name practice ubuntu:24.04 bash
+
+# Inside container:
+mkdir /demo
+echo "hello docker" > /demo/test.txt
+cat /demo/test.txt
+
+# Exit -> bash ends -> container stops
+exit
+
+# See stopped container
+docker ps
+docker ps -a
+
+# Start SAME container and attach
+docker start -ai practice
+
+# Check old file
+cat /demo/test.txt
+
+# Exit again
+exit
+
+# Start it in background
+docker start practice
+
+# Enter running container with another bash process
+docker exec -it practice bash
+
+exit
+
+# Stop container
+docker stop practice
+
+# Delete container
+docker rm practice
+
+# Image still exists
+docker images
+
+# Delete image
+docker rmi ubuntu:24.04
+
+
+# ============================================================
+# MOST IMPORTANT DISTINCTIONS
+# ============================================================
+
+# docker run
+# = CREATE NEW container + START it
+
+# docker start
+# = START an EXISTING stopped container
+
+# docker exec
+# = run another process inside EXISTING RUNNING container
+
+# docker stop
+# = stop container, container still exists
+
+# docker rm
+# = delete container
+
+# docker rmi
+# = delete image
+
+
+# ============================================================
+# FLAGS YOU SHOULD KNOW RIGHT NOW
+# ============================================================
+
+-i          # keep input/STDIN open
+-t          # allocate terminal/TTY
+-it         # interactive terminal
+-d          # detached/background
+--name      # give container a name
+--rm        # delete container automatically when it exits
+-a          # commonly means all / attach depending on command
+-f          # force, depending on command

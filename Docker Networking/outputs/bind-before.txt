@@ -1,0 +1,8 @@
+$ docker run -d --name homework-bind -p 127.0.0.1:8306:80 --mount 'type=bind,src=/Users/lingaraghavendra/Desktop/devops/devops-2028/Docker Networking/bind-mount,dst=/usr/share/nginx/html,readonly' nginx:1.28-alpine
+2f6ab7e27b180482114f656c13a997aff24f10bec1c7d619b21f3b3f1f33238e
+
+$ curl --retry 5 --retry-all-errors --retry-delay 1 -fsS http://127.0.0.1:8306
+<h1>Hello students</h1>
+
+$ docker inspect homework-bind --format 'StartedAt={{.State.StartedAt}} RestartCount={{.RestartCount}}'
+StartedAt=2026-10-02T14:37:49.736167505Z RestartCount=0

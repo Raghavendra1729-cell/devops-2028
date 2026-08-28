@@ -24,7 +24,7 @@ I started the containers with:
 
 ```bash
 cd three-tier
-cp .env.example .env
+export MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)
 docker compose up -d --wait
 docker compose ps
 ```
@@ -127,3 +127,19 @@ docker network create --driver overlay --attachable multi-host-network
 ```
 
 I did not create a real multi-host overlay in this exercise because that requires more than one Docker host.
+
+## Rechecked results
+
+The new run used an isolated Compose project. [Network membership and connectivity](outputs/three-networks.txt) show three networks, the backend attached to two, successful frontend-to-backend and backend-to-database traffic, and the expected failure between isolated frontend and database containers. The Compose frontend uses port 8307. A random database password is passed through the environment and kept out of Git.
+
+![Verified Docker networks and connectivity](networks-verified.jpg)
+
+[Host networking output](outputs/host-network.txt) confirms Apache was reached on port 80 with no port publishing.
+
+![Apache on the host network](host-apache-verified.jpg)
+
+[Before](outputs/bind-before.txt) and [after](outputs/bind-after.txt) show the page changing while the same container start time and zero restart count remained. This run used host port 8306.
+
+![Original bind-mounted page](bind-original-verified.jpg)
+
+![Changed file without a container restart](bind-updated-verified.jpg)

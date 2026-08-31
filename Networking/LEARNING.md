@@ -22,10 +22,10 @@ DHCP follows DORA: Discover, Offer, Request, and Acknowledgement. IPFIX and NetF
 
 ## Resources
 
-- [Network Troubleshooting](https://github.com/Nency-Ravaliya/Network-Troubleshooting)
-- [OSI Network Devices](https://github.com/Nency-Ravaliya/OSI-Network-devices)
-- [Networking](https://github.com/Nency-Ravaliya/Networking)
-- [Subnetting](https://github.com/Nency-Ravaliya/Subnetting)
-- [IP Questions](https://github.com/Nency-Ravaliya/IP-quest)
-- [IPFIX, NetFlow, and NTP](https://github.com/Nency-Ravaliya/IPFIX-NETFLOW-NTP)
-- [How DHCP Works](https://github.com/Nency-Ravaliya/How-DHCP-Works)
+- [RFC 791 - Internet Protocol](https://datatracker.ietf.org/doc/html/rfc791)
+- [RFC 793 - Transmission Control Protocol](https://datatracker.ietf.org/doc/html/rfc793)
+- [RFC 2131 - Dynamic Host Configuration Protocol](https://datatracker.ietf.org/doc/html/rfc2131)
+- [RFC 1035 - Domain Names - Implementation and Specification](https://datatracker.ietf.org/doc/html/rfc1035)
+- [Linux ip-route Man Page](https://man7.org/linux/man-pages/man8/ip-route.8.html)
+- [Linux ss Socket Statistics Man Page](https://man7.org/linux/man-pages/man8/ss.8.html)
+- [MDN Web Docs - Overview of HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview)

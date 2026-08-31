@@ -188,7 +188,6 @@ report_directory="system_report"
 process_file="$report_directory/processes.txt"
 
 mkdir -p "$report_directory"
-touch "$process_file"
 
 echo ""
 echo "=== System Information ==="
@@ -204,7 +203,7 @@ echo ""
 echo "=== Running Processes ==="
 ps aux > "$process_file"
 echo "Process information saved to $process_file"
-cat "$process_file"
+head -n 5 "$process_file"
 
 echo ""
 echo "=== User Details ==="
@@ -238,7 +237,8 @@ Process information saved to system_report/processes.txt
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root         1  0.0  0.5  21932 12840 ?        Ss   10:29   0:02 /sbin/init
 ubuntu    2481  0.0  0.2  17820  6120 pts/0    Ss   12:42   0:00 -bash
-[more processes follow]
+root        52  0.0  0.1  15420  3700 ?        Ss   10:29   0:00 /usr/sbin/cron
+ubuntu    2516  0.0  0.1  10240  3200 pts/0    R+   12:45   0:00 ps aux
 
 === User Details ===
 My name is Raghavendra
@@ -246,19 +246,21 @@ My roll number is 24BCS10250
 My comment is: Learning Bash
 ```
 
-## 9. If-else condition - `condition.sh`
+## 9. If-elif-else condition - `condition.sh`
 
-An `if` statement checks a condition. `else` runs when the condition is false. This version has no `elif` branch.
+This script first rejects invalid input, then checks whether the entered age is at least 18. The final `else` handles valid ages below 18.
 
 ```bash
 #!/usr/bin/env bash
 
 read -r -p "Enter your age: " age
 
-if [ "$age" -lt 0 ]; then
+if ! [[ "$age" =~ ^[0-9]+$ ]]; then
     echo "Invalid age. Please enter a valid age."
-else
+elif [ "$age" -ge 18 ]; then
     echo "You are an adult."
+else
+    echo "You are a minor."
 fi
 ```
 
@@ -271,6 +273,8 @@ ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./condition.sh
 Enter your age: 21
 You are an adult.
 ```
+
+Entering `15` prints `You are a minor.`, while text or a negative number is rejected as invalid input.
 
 ## 10. While loop with input - `while_loop.sh`
 

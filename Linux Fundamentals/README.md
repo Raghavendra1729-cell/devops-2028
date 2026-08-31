@@ -38,6 +38,7 @@ ubuntu@ip-172-31-24-18:/var/log$
 ubuntu@ip-172-31-24-18:~$ mkdir linux-lab
 ubuntu@ip-172-31-24-18:~$ ls
 linux-lab
+ubuntu@ip-172-31-24-18:~$ cd linux-lab
 ```
 
 ### 5. `touch` - create an empty file
@@ -143,11 +144,14 @@ Press `q` to leave `top`.
 ### 17. `kill` - send a signal to a process
 
 ```console
-ubuntu@ip-172-31-24-18:~$ kill 2481
+ubuntu@ip-172-31-24-18:~$ sleep 300 &
+[1] 2637
+ubuntu@ip-172-31-24-18:~$ kill 2637
+[1]+  Terminated              sleep 300
 ubuntu@ip-172-31-24-18:~$
 ```
 
-The PID must belong to the process I intend to stop. A normal `kill PID` is safer than immediately forcing termination with signal 9.
+I used a temporary `sleep` process so I did not accidentally stop my login shell. The PID must belong to the process I intend to stop. A normal `kill PID` is safer than immediately forcing termination with signal 9.
 
 ## Networking
 

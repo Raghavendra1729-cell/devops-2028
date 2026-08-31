@@ -10,9 +10,8 @@ user_name=$(whoami)
 report_directory="system_report"
 process_file="$report_directory/processes.txt"
 
-# Create report directory and file
+# Create the report directory. The redirection below creates the file.
 mkdir -p "$report_directory"
-touch "$process_file"
 
 echo ""
 echo "=== System Information ==="
@@ -29,7 +28,7 @@ echo "=== Running Processes ==="
 # Capture running processes and store them via output redirection
 ps aux > "$process_file"
 echo "Process information saved to $process_file"
-cat "$process_file"
+head -n 5 "$process_file"
 
 echo ""
 echo "=== User Details ==="

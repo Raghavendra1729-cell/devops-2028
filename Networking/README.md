@@ -37,6 +37,10 @@ Each line is one network hop. This helps find where a connection might be slow o
 I used `netstat` to see ports on my computer that were waiting for network connections.
 
 ```bash
+# On Linux / Ubuntu:
+ss -tuln | head -4
+
+# On macOS:
 netstat -an -p tcp | grep LISTEN | head -3
 ```
 

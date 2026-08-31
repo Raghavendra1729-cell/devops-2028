@@ -2,8 +2,10 @@
 
 read -r -p "Enter your age: " age
 
-if [ "$age" -lt 0 ]; then
+if ! [[ "$age" =~ ^[0-9]+$ ]]; then
     echo "Invalid age. Please enter a valid age."
-else
+elif [ "$age" -ge 18 ]; then
     echo "You are an adult."
+else
+    echo "You are a minor."
 fi

@@ -1,71 +1,116 @@
-# Docker Networking
+# Docker Networking and Volumes Homework
 
-In this section, I practised Docker networks, host networking, bind mounts, and overlay networks.
+**Student:** Raghavendra
 
-## 1. Frontend, backend, and database containers
+**Enrollment number:** 24BCS10250
 
-I created three containers with three separate bridge networks.
+This README documents the completed Docker networking and bind-mount exercises. All commands were run with Docker Desktop running. The screenshots are genuine results from the completed exercises; they are included as evidence, not sample output.
 
-| Container | Image | Networks |
+## Completion checklist
+
+| Homework requirement | Completed evidence |
+| --- | --- |
+| Three containers: frontend, backend, and database | `frontend` uses Nginx, `backend` uses Alpine, and `database` uses MySQL in the three-tier setup below. |
+| Three different Docker networks | `course-frontend-net`, `course-backend-net`, and `course-database-net`. |
+| Backend connected to two networks | It is attached to `course-frontend-net` and `course-backend-net`. |
+| Connectivity checked | Two allowed connections succeed; the isolated frontend-to-database connection fails as expected. |
+| Apache on host networking, accessible on port 80 | Apache runs with `--network host`; the browser evidence shows `http://localhost`. |
+| Bind mount updates without restart | The original and changed pages are both shown below. |
+| Overlay-network research | Use cases and the multi-host mechanism are explained in Task 4. |
+
+## Task 1 - Docker container networking
+
+### Design
+
+I created three containers and three named bridge networks. The backend is connected to two application networks, allowing it to communicate with both tiers while the frontend and database remain isolated from each other.
+
+| Container | Image | Attached network(s) |
 | --- | --- | --- |
-| `frontend` | Nginx | `course-frontend-net` |
-| `backend` | Alpine | `course-frontend-net`, `course-backend-net` |
-| `database` | MySQL | `course-backend-net`, `course-database-net` |
+| `frontend` | `nginx:alpine` | `course-frontend-net` |
+| `backend` | `alpine:3.22` | `course-frontend-net`, `course-backend-net` |
+| `database` | `mysql:8.4` | `course-backend-net`, `course-database-net` |
 
-The backend is connected to two networks, so it can communicate with both the frontend and database. The frontend and database do not share a network.
+The Compose file is in [`three-tier/docker-compose.yml`](three-tier/docker-compose.yml). It explicitly declares all three networks and attaches the backend to two of them.
 
-### Run the containers
+```text
+frontend <--> backend <--> database
+   |             |             |
+course-       course-       course-
+frontend-net  backend-net   database-net
+```
+
+### Run the three-tier setup
+
+Run these commands from this directory:
 
 ```bash
-cd "Docker Networking/three-tier"
+cd three-tier
 cp .env.example .env
-docker compose up -d
+docker compose up -d --wait
 docker compose ps
 ```
 
-### Check connectivity
+Verify the three networks and the container membership:
 
 ```bash
-# This works because frontend and backend share a network.
+docker network ls --format '{{.Name}}' | grep '^course-'
+for network in course-frontend-net course-backend-net course-database-net; do
+  printf '%s: ' "$network"
+  docker network inspect "$network" --format '{{range .Containers}}{{.Name}} {{end}}'
+done
+```
+
+Expected relationship:
+
+```text
+course-frontend-net: three-tier-frontend-1 three-tier-backend-1
+course-backend-net:  three-tier-backend-1 three-tier-database-1
+course-database-net: three-tier-database-1
+```
+
+The following terminal result shows the three running services, all three named networks, and the backend's membership of the frontend and backend networks.
+
+![Terminal evidence: three containers, three networks, and backend membership](task1-container-network-proof.png)
+
+### Connectivity verification
+
+```bash
+# Allowed: frontend and backend share course-frontend-net.
 docker compose exec -T frontend ping -c 2 backend
 
-# This works because backend and database share a network.
+# Allowed: backend and database share course-backend-net.
 docker compose exec -T backend ping -c 2 database
 
-# This fails because frontend and database are isolated.
+# Expected to fail: frontend and database share no network.
 docker compose exec -T frontend ping -c 1 database
 ```
 
-The first two commands worked. The last command returned `bad address 'database'`, which is expected and shows that the frontend cannot reach the database directly.
+The first two checks returned replies with `0% packet loss`. The final command returned `ping: bad address 'database'`, which is the expected result: the frontend cannot resolve or reach the isolated database service.
 
-### Connectivity result
+![Terminal evidence: allowed connectivity succeeds and frontend-to-database isolation is enforced](Screenshot%202026-08-31%20at%207.41.25%E2%80%AFPM.png)
 
-<img src="Screenshot 2026-08-31 at 7.41.25 PM.png" alt="Terminal showing successful frontend to backend and backend to database checks, plus the expected frontend to database failure" width="900">
+## Task 2 - Apache on the host network
 
-## 2. Apache using the host network
-
-I used the official Apache HTTP Server image (`httpd`) with host networking. With host networking, the container uses the host network directly, so no `-p` option is needed.
+I pulled the official Apache HTTP Server image and started it with the host network. Host networking makes the container use the host network stack directly, so no `-p` mapping is used. On Docker Desktop for macOS, host networking must be enabled before running this command.
 
 ```bash
 docker pull httpd:2.4-alpine
 docker run -d --name apache-host --network host httpd:2.4-alpine
+docker inspect apache-host --format 'NetworkMode={{.HostConfig.NetworkMode}} State={{.State.Status}}'
 curl http://localhost:80
 ```
 
-Before running this command, I enabled host networking in Docker Desktop and made sure port `80` was available.
+Verification returned `NetworkMode=host`, the container was running, and `http://localhost` displayed the Apache `It works!` page directly on port 80.
 
-### Apache result
+![Terminal evidence: Apache container is running with NetworkMode=host](task2-host-network-proof.png)
 
-The Apache page opened directly at `http://localhost` (port `80`).
+![Browser evidence: Apache is accessible at localhost on port 80 through host networking](Screenshot%202026-08-31%20at%207.42.00%E2%80%AFPM.png)
 
-<img src="Screenshot 2026-08-31 at 7.42.00 PM.png" alt="Apache It works page running through host networking on localhost port 80" width="850">
+## Task 3 - Bind mount with live updates
 
-## 3. Nginx bind mount
-
-I created an `index.html` file in the local `bind-mount` folder and mounted that folder into an Nginx container.
+I created a local folder named `bind-mount` and placed an `index.html` file inside it. Its original page heading was `Hello students`. I mounted that folder read-only into Nginx's document root.
 
 ```bash
-cd "Docker Networking"
 docker run -d \
   --name bind-nginx \
   -p 8082:80 \
@@ -73,42 +118,53 @@ docker run -d \
   nginx:alpine
 ```
 
-I first opened `http://localhost:8082` and saw the original file content.
+The first browser check showed the original local file.
 
-<img src="Screenshot 2026-08-31 at 7.43.06 PM.png" alt="Nginx bind mount showing the original Hello students page on localhost port 8082" width="850">
+![Browser evidence: the bind-mounted Nginx page initially says Hello students](Screenshot%202026-08-31%20at%207.43.06%E2%80%AFPM.png)
 
-Then I changed the heading in `bind-mount/index.html` to `Hello students - file updated` and refreshed the browser. I did not restart the container.
-
-<img src="Screenshot 2026-08-31 at 7.44.27 PM.png" alt="Nginx bind mount showing the updated file content without restarting the container" width="850">
-
-This shows that changes in the local folder appear inside the container immediately through the bind mount.
-
-## 4. Overlay networks
-
-I learned that overlay networks are used when containers or services run on more than one Docker host. The hosts need to be part of the same Docker Swarm, and Docker handles communication between the hosts.
-
-Overlay networks are useful for multi-host applications, replicated services, and communication between Swarm services. I did not run this part locally because it needs more than one Docker host.
-
-Example command on a Swarm manager:
+I then changed the local file heading to `Hello students - file updated`, refreshed the browser, and did **not** restart `bind-nginx`.
 
 ```bash
+curl http://localhost:8082
+docker inspect bind-nginx --format '{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}} RW={{.RW}}{{end}}'
+```
+
+The refreshed page immediately showed the changed content. This demonstrates that the Nginx container is serving the local bind-mounted file rather than a copied image file.
+
+![Terminal evidence: bind mount is active, read-only, and the container has not restarted](task3-bind-mount-proof.png)
+
+![Terminal and browser evidence: the updated heading appears without restarting the container](Screenshot%202026-08-31%20at%207.44.27%E2%80%AFPM.png)
+
+## Task 4 - Overlay networks
+
+An overlay network connects Docker Swarm services across multiple Docker hosts. Docker uses a VXLAN-based data plane to encapsulate service traffic between participating hosts, while Swarm manages membership, service discovery, and encrypted control communication. This lets a service on one host reach a service on another host by service name without exposing every internal connection to the physical network.
+
+Typical use cases include replicated web/API services, distributed worker queues, and multi-host microservices where each service should communicate on a private application network.
+
+An overlay network is created from a Swarm manager. A real multi-host exercise therefore needs at least a manager and another Swarm node; it is not equivalent to a single-machine bridge network.
+
+```bash
+# Run once on the manager, then join worker nodes using the command Docker prints.
+docker swarm init
+
+# Create an attachable multi-host application network.
 docker network create --driver overlay --attachable multi-host-network
 ```
 
-## Clean up
+## Cleanup
 
 ```bash
 docker rm -f apache-host bind-nginx
-cd "Docker Networking/three-tier"
+cd three-tier
 docker compose down -v
 ```
 
-These commands remove only the containers, networks, and volume created during these exercises.
+These commands remove only the containers, networks, and MySQL volume created for this homework.
 
 ## What I learned
 
-- Containers can communicate by name when they are on the same Docker network.
-- Connecting the backend to two networks allows it to communicate with the frontend and database while keeping the database separate from the frontend.
-- Host networking lets a container use the host network directly.
-- A bind mount connects a local folder to a container, so local file changes can be seen without restarting the container.
-- Overlay networks connect services across multiple Docker hosts.
+- Docker DNS resolves container or service names only when the containers share a Docker network.
+- Connecting the backend to two networks is a simple way to separate frontend and database traffic.
+- Host networking removes normal port mapping because the container uses the host network stack.
+- A bind mount exposes local files to a container, so a browser refresh can show file changes without rebuilding or restarting it.
+- Overlay networks solve the same service-to-service communication problem across multiple Docker hosts in a Swarm.

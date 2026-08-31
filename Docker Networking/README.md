@@ -1,4 +1,4 @@
-# Docker Networking and Volumes Homework
+# Docker Networking and Volume Homework
 
 **Student:** Raghavendra
 
@@ -87,7 +87,7 @@ docker compose exec -T frontend ping -c 1 database
 
 The first two checks returned replies with `0% packet loss`. The final command returned `ping: bad address 'database'`, which is the expected result: the frontend cannot resolve or reach the isolated database service.
 
-![Terminal evidence: allowed connectivity succeeds and frontend-to-database isolation is enforced](Screenshot%202026-08-31%20at%207.41.25%E2%80%AFPM.png)
+![Terminal evidence: allowed connectivity succeeds and frontend-to-database isolation is enforced](task1-connectivity-proof.png)
 
 ## Task 2 - Apache on the host network
 
@@ -104,7 +104,7 @@ Verification returned `NetworkMode=host`, the container was running, and `http:/
 
 ![Terminal evidence: Apache container is running with NetworkMode=host](task2-host-network-proof.png)
 
-![Browser evidence: Apache is accessible at localhost on port 80 through host networking](Screenshot%202026-08-31%20at%207.42.00%E2%80%AFPM.png)
+![Browser evidence: Apache is accessible at localhost on port 80 through host networking](task2-apache-browser-proof.png)
 
 ## Task 3 - Bind mount with live updates
 
@@ -120,7 +120,7 @@ docker run -d \
 
 The first browser check showed the original local file.
 
-![Browser evidence: the bind-mounted Nginx page initially says Hello students](Screenshot%202026-08-31%20at%207.43.06%E2%80%AFPM.png)
+![Browser evidence: the bind-mounted Nginx page initially says Hello students](task3-original-page-proof.png)
 
 I then changed the local file heading to `Hello students - file updated`, refreshed the browser, and did **not** restart `bind-nginx`.
 
@@ -133,7 +133,7 @@ The refreshed page immediately showed the changed content. This demonstrates tha
 
 ![Terminal evidence: bind mount is active, read-only, and the container has not restarted](task3-bind-mount-proof.png)
 
-![Terminal and browser evidence: the updated heading appears without restarting the container](Screenshot%202026-08-31%20at%207.44.27%E2%80%AFPM.png)
+![Browser evidence: the updated heading appears without restarting the container](task3-updated-page-proof.png)
 
 ## Task 4 - Overlay networks
 

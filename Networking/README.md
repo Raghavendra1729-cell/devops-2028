@@ -67,3 +67,36 @@ curl -sS -I --max-time 10 https://www.google.com | head -5
 The `HTTP/2 200` response means the website responded successfully.
 
 ![HTTP response headers](image.png)
+
+## 6. More DNS details
+
+`nslookup` is useful for a quick check. `dig` gives me more detail, and `host` gives a short readable answer.
+
+```bash
+dig google.com
+dig +short google.com
+host google.com
+```
+
+If an IP address is reachable but a domain name is not, DNS is one of the first things I check.
+
+## 7. Test one TCP port
+
+`ping` only checks ICMP reachability. It does not prove that a web or SSH port is accepting connections.
+
+```bash
+nc -vz google.com 443
+```
+
+The result tells me whether a TCP connection to port 443 could be opened. A firewall may block ping while still allowing the application port, so I do not use ping as the only test.
+
+## 8. Troubleshooting order
+
+When something is not reachable, this order helps me narrow down the problem:
+
+1. `ip addr` or `ifconfig` - check my interface and local address.
+2. `ip route` or `netstat -rn` - check the default route.
+3. `ping <gateway>` - check local-network reachability.
+4. `nslookup <domain>` - check DNS.
+5. `nc -vz <host> <port>` - check the actual TCP port.
+6. `curl -I <url>` - check the application response.

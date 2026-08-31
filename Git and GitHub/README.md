@@ -68,6 +68,20 @@ git cherry-pick 0ea9897
 
 The new commit has a different hash because Git applied the selected change on top of a different branch history.
 
+If the selected change conflicts with the current branch, cherry-pick pauses instead of guessing. I would fix the marked files, stage them, and continue:
+
+```bash
+git status
+git add <resolved-file>
+git cherry-pick --continue
+```
+
+To cancel the whole operation and return to the state before it started:
+
+```bash
+git cherry-pick --abort
+```
+
 ## 5. Final history
 
 ```console

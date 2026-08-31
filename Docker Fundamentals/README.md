@@ -79,6 +79,8 @@ curl http://localhost:8082
 
 The React page was served from the container on `http://localhost:8082`.
 
+![React page](react-browser-result.png)
+
 ## 6. Nginx
 
 ```bash
@@ -88,6 +90,8 @@ curl http://localhost:8083
 ```
 
 The Nginx page was available on `http://localhost:8083`.
+
+![Nginx page](nginx-browser-result.png)
 
 I used this command to see all six containers together:
 

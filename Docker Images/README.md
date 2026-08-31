@@ -1,11 +1,12 @@
 # Docker Images
 
-- **Name:** Raghavendra
-- **Enrollment number:** 24BCS10250
+## Multi-stage Node.js Application
 
-## Multi-stage Node.js application
+**Name:** Raghavendra
+**Enrollment Number:** 24BCS10250
 
-For this task, I used the multi-stage Dockerfile application. After building and running the container, it displays:
+
+This project demonstrates building and running an optimized multi-stage Docker image for a Node.js application. After building and running the container, it displays:
 
 ```text
 Hello World from Docker multi-stage build
@@ -61,7 +62,7 @@ The `PORTS` column should show a mapping from host port `8080` to container port
 docker rm -f multi-stage-hello
 ```
 
-This command targets only the container created for this exercise.
+This command stops and removes the container.
 
 ## Proof of running application
 

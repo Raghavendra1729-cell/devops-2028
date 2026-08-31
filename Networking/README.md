@@ -1,6 +1,6 @@
 # Networking Fundamentals
 
-For this homework, I ran some basic networking commands and checked how my system connects to the internet.
+This guide covers essential networking tools, connectivity testing, route tracing, DNS resolution, and TCP port inspection.
 
 ## 1. Ping
 
@@ -72,6 +72,6 @@ The `HTTP/2 200` response means the website responded successfully.
 - `nslookup` checks whether DNS can find an IP address for a domain name.
 - `curl` checks whether a website responds over HTTP or HTTPS.
 
-## Class reference
+## References
 
 - [Network Troubleshooting](https://github.com/Nency-Ravaliya/Network-Troubleshooting)

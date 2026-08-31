@@ -1,8 +1,8 @@
 # Git and GitHub
 
-## Homework
+## Overview
 
-I completed this exercise in a separate local practice repository so I could create branches and commits without changing my main coursework repository. The commit hashes and log below are from that practice repository.
+This guide demonstrates Git workflows including staging differences, multi-branch workflows, and commit cherry-picking. The commit hashes and log below illustrate a sample repository workflow.
 
 ## 1. `git commit -a -m` vs `git commit -m`
 

@@ -68,7 +68,7 @@ ubuntu@ip-172-31-24-18:~/linux-lab$ rm -i old-notes.txt
 rm: remove regular empty file 'old-notes.txt'? y
 ```
 
-I use `rm -i` while practising because it asks before deleting. Deleted files do not normally go to a recycle bin.
+The `-i` flag prompts for confirmation before deleting files. Deleted files do not go to a recycle bin.
 
 ### 9. `cat` - display a text file
 
@@ -236,20 +236,61 @@ I first make sure no program is using files inside the mount point.
 - `ip addr`, `ip route`, `ping`, and `ss` answer different networking questions.
 - A block device is not the same as a mounted filesystem. `lsblk` shows devices, while `mount` and `umount` attach or detach filesystems.
 
-## Short homework notes
+## Core Concepts and Notes 
 
-### Soft link and hard link
+### Understanding Soft and Hard Links
+**Concepts:**
+- **Hard Link:** Acts as another name for the same file. Both the original file and the hard link share the exact same **inode** (index node). If you delete the original file, the data is still accessible via the hard link. *Limitations:* Cannot cross different filesystems and cannot link directories.
+- **Soft Link (Symbolic Link):** Acts as a shortcut that stores the path to the original file. It gets a new inode. If you delete the original file, the soft link becomes a "dangling" or broken link. *Benefits:* Can cross filesystems and link directories.
 
-- A **hard link** is another name for the same file. Both names share the same inode, so the data remains available if one name is deleted. It normally cannot cross filesystems or link directories.
-- A **soft link**, or symbolic link, stores the path of another file. It can cross filesystems and link directories, but it becomes broken if its target is removed.
-- `ln original.txt hard-link.txt` creates a hard link, while `ln -s original.txt soft-link.txt` creates a soft link. `ls -li` can be used to compare inode numbers.
+**Practice Commands (Interview Prep):**
+```console
+# 1. Create a file
+ubuntu@ip-172-31-24-18:~$ echo "Hello World" > target.txt
 
-### `adduser` and `useradd`
+# 2. Create links
+ubuntu@ip-172-31-24-18:~$ ln target.txt hard-link.txt
+ubuntu@ip-172-31-24-18:~$ ln -s target.txt soft-link.txt
 
-- `useradd` is the lower-level, distribution-independent command. Its behaviour depends on options and system defaults, so administrators often specify the home directory and shell explicitly.
-- On Debian and Ubuntu, `adduser` is normally preferred for creating a regular user manually. It is a friendlier wrapper that creates the home directory, copies default files, and asks for the required details.
-- Therefore, there is no single preferred command for every Linux distribution: use `adduser` for interactive Debian/Ubuntu administration and `useradd` when a portable or scripted low-level command is required.
+# 3. Verify inodes (notice target.txt and hard-link.txt share the same inode number)
+ubuntu@ip-172-31-24-18:~$ ls -li
 
-### `journalctl`
+# 4. Delete the original and see what happens (soft link breaks, hard link survives)
+ubuntu@ip-172-31-24-18:~$ rm target.txt
+ubuntu@ip-172-31-24-18:~$ cat hard-link.txt  # Succeeds
+ubuntu@ip-172-31-24-18:~$ cat soft-link.txt  # Fails: No such file or directory
+```
 
-`journalctl` reads logs collected by `systemd-journald`. It is useful for checking boot problems, service failures, and recent system events. Useful forms include `journalctl -b` for the current boot, `journalctl -u nginx` for one service, and `journalctl -f` to follow new entries.
+### User Management: `adduser` vs `useradd`
+**Concepts:**
+- `useradd`: The native, low-level, distribution-independent binary. It just creates the user in system files without setting up a password, home directory, or shell by default (unless specific flags are used). Best used in automated bash scripts.
+- `adduser`: A high-level, interactive Perl script wrapper around `useradd`. **This is the preferred command on Debian/Ubuntu** because it automatically creates the home directory (`/home/username`), copies default skeleton files, sets the default shell, and prompts you to set a password and user details.
+
+**Practice Commands:**
+```console
+# Create a test user interactively on Ubuntu
+ubuntu@ip-172-31-24-18:~$ sudo adduser testuser
+
+# Verify the user was created successfully
+ubuntu@ip-172-31-24-18:~$ id testuser
+uid=1001(testuser) gid=1001(testuser) groups=1001(testuser)
+```
+
+### Viewing Logs with `journalctl`
+**Concepts:**
+`journalctl` is a command-line utility used to query and read logs collected by `systemd-journald`. Since systemd manages most modern Linux systems, `journalctl` is the central place to check boot issues, system events, and application/service logs.
+
+**Practice Commands:**
+```console
+# View all logs from the current boot
+ubuntu@ip-172-31-24-18:~$ journalctl -b
+
+# View logs for a specific service (e.g., SSH)
+ubuntu@ip-172-31-24-18:~$ journalctl -u ssh
+
+# Follow/tail logs live for a service (like 'tail -f')
+ubuntu@ip-172-31-24-18:~$ journalctl -u ssh -f
+
+# View logs from a specific time frame
+ubuntu@ip-172-31-24-18:~$ journalctl --since "1 hour ago"
+```

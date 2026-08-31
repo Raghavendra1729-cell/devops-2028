@@ -1,6 +1,6 @@
 # Docker Networking
 
-For this homework, I practised Docker networks, host networking, bind mounts, and overlay networks.
+In this section, I practised Docker networks, host networking, bind mounts, and overlay networks.
 
 ## 1. Frontend, backend, and database containers
 
@@ -103,7 +103,7 @@ cd "Docker Networking/three-tier"
 docker compose down -v
 ```
 
-These commands remove only the containers, networks, and volume created for this homework.
+These commands remove only the containers, networks, and volume created during these exercises.
 
 ## What I learned
 

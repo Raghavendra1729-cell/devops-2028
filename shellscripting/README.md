@@ -1,6 +1,6 @@
 # Shell Scripting
 
-This folder contains my Session 3 Bash practice. Each script focuses on one small concept, and `system_info.sh` combines the commands required for the homework.
+This directory contains modular Bash scripts demonstrating core shell scripting concepts, including file operations, user input, control flow, loops, functions, and system reporting.
 
 
 ## 1. Create a folder and file — `hello.sh`
@@ -169,7 +169,7 @@ This is iteration number 5
 
 ## 8. Complete system report — `system_info.sh`
 
-This is the main homework script. It takes student details as input, stores command results in variables, creates a report directory and file, prints disk usage and running processes, and saves the process list using output redirection.
+This script collects system information, captures disk usage and running processes, and saves the process list to a report file.
 
 ```bash
 #!/usr/bin/env bash
@@ -204,7 +204,7 @@ echo "Process information saved to $process_file"
 cat "$process_file"
 
 echo ""
-echo "=== Student Details ==="
+echo "=== User Details ==="
 echo "My name is $name"
 echo "My roll number is $roll_number"
 echo "My comment is: $comment"
@@ -237,7 +237,7 @@ root         1  0.0  0.5  21932 12840 ?        Ss   10:29   0:02 /sbin/init
 ubuntu    2481  0.0  0.2  17820  6120 pts/0    Ss   12:42   0:00 -bash
 ... remaining processes omitted here for readability ...
 
-=== Student Details ===
+=== User Details ===
 My name is Raghavendra
 My roll number is 24BCS10250
 My comment is: Learning Bash

@@ -30,7 +30,7 @@ echo "Process information saved to $process_file"
 cat "$process_file"
 
 echo ""
-echo "=== Student Details ==="
+echo "=== User Details ==="
 echo "My name is $name"
 echo "My roll number is $roll_number"
 echo "My comment is: $comment"

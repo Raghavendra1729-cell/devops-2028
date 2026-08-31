@@ -1,4 +1,4 @@
-# What I Learned from the Networking Resources
+# Networking Concepts and Architecture Notes
 
 ## How a request travels
 

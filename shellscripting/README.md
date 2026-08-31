@@ -1,6 +1,17 @@
-# Session 3 Bash Tasks
+# Shell Scripting
 
-Each section has the theory, the code written for the task, and output from a successful terminal run.
+This folder contains my Session 3 Bash practice. Each script focuses on one small concept, and `system_info.sh` combines the commands required for the homework.
+
+## Homework checklist
+
+| Requirement | Used in `system_info.sh` |
+| --- | --- |
+| Current date, hostname, and username | `date`, `hostname`, `whoami` |
+| Disk usage and running processes | `df -h`, `ps aux` |
+| Variables and user input | Shell variables and `read -r -p` |
+| Create a directory and file | `mkdir -p`, `touch` |
+| Save process output | `ps aux > system_report/processes.txt` |
+| Print clear output | `echo` and `cat` |
 
 ## Run all scripts
 
@@ -173,9 +184,9 @@ This is iteration number 4
 This is iteration number 5
 ```
 
-## 8. System information and process file — `system_info.sh`
+## 8. Complete system report — `system_info.sh`
 
-`date`, `hostname`, and `whoami` print system information. `ps` lists a process, and `>` saves that output to `process.log`.
+This is the main homework script. It takes student details as input, stores command results in variables, creates a report directory and file, prints disk usage and running processes, and saves the process list using output redirection.
 
 ```bash
 #!/usr/bin/env bash
@@ -187,35 +198,69 @@ read -r -p "Enter your comment: " comment
 current_date=$(date)
 host_name=$(hostname)
 user_name=$(whoami)
+report_directory="system_report"
+process_file="$report_directory/processes.txt"
 
+mkdir -p "$report_directory"
+touch "$process_file"
+
+echo ""
+echo "=== System Information ==="
 echo "Current date: $current_date"
 echo "Hostname: $host_name"
 echo "Username: $user_name"
-ps -p "$$" -o pid,tty,time,comm > process.log
-echo "Process information saved to process.log"
-cat process.log
+
+echo ""
+echo "=== Disk Usage ==="
+df -h
+
+echo ""
+echo "=== Running Processes ==="
+ps aux > "$process_file"
+echo "Process information saved to $process_file"
+cat "$process_file"
+
+echo ""
+echo "=== Student Details ==="
 echo "My name is $name"
 echo "My roll number is $roll_number"
 echo "My comment is: $comment"
 ```
 
-**Input used:** `Raghavendra`, `24BCS10250`, `Learning Bash`
+**Sample input:** `Raghavendra`, `24BCS10250`, `Learning Bash`
 
-**Terminal output**
+**Sample Ubuntu terminal output**
 
-```text
-Current date: Thu Aug 20 10:41:29 IST 2026
-Hostname: Lingas-MacBook-Air.local
-Username: lingaraghavendra
-Process information saved to process.log
-PID TTY           TIME COMM
-14404 ??         0:00.00 bash
+```console
+ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./system_info.sh
+Enter your name: Raghavendra
+Enter your roll number: 24BCS10250
+Enter your comment: Learning Bash
+
+=== System Information ===
+Current date: Mon Aug 31 12:45:20 UTC 2026
+Hostname: ip-172-31-24-18
+Username: ubuntu
+
+=== Disk Usage ===
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       7.6G  2.4G  5.2G  32% /
+tmpfs           475M     0  475M   0% /dev/shm
+
+=== Running Processes ===
+Process information saved to system_report/processes.txt
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.5  21932 12840 ?        Ss   10:29   0:02 /sbin/init
+ubuntu    2481  0.0  0.2  17820  6120 pts/0    Ss   12:42   0:00 -bash
+... remaining processes omitted here for readability ...
+
+=== Student Details ===
 My name is Raghavendra
 My roll number is 24BCS10250
 My comment is: Learning Bash
 ```
 
-The date and process ID change on every run.
+The terminal block is a short sample from an Ubuntu-style environment. The script itself prints and saves the complete process list; dates, hostnames, disk values, and process IDs change on every run.
 
 ## 9. If-else condition — `condition.sh`
 

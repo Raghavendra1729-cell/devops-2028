@@ -1,8 +1,10 @@
 # Docker Fundamentals
 
-## Overview
+**Name:** Raghavendra
 
-This guide demonstrates containerizing four web applications across different runtime environments (Node.js, Python, Java, and Apache HTTP Server) using Docker. Each application is located in a dedicated folder with its own source code and Dockerfile.
+**Enrollment number:** 24BCS10250
+
+I built six small applications with Docker. I used a separate folder and Dockerfile for each one.
 
 | Application | Folder | Container port | Local URL |
 | --- | --- | ---: | --- |
@@ -13,19 +15,13 @@ This guide demonstrates containerizing four web applications across different ru
 | React | `React-app` | 80 | `http://localhost:8082` |
 | Nginx | `nginx-app` | 80 | `http://localhost:8083` |
 
-## Before running
-
-I started Docker Desktop first and checked that Docker was ready using:
+I ran the commands below from the `Docker Fundamentals` folder after starting Docker Desktop.
 
 ```bash
 docker info
 ```
 
-I ran the following commands from this `Docker Fundamentals` folder.
-
-## 1. Node.js application
-
-Files used: `nodejs-app/app.js` and `nodejs-app/Dockerfile`
+## 1. Node.js
 
 ```bash
 docker build -t hello-node ./nodejs-app
@@ -33,21 +29,11 @@ docker run -d --name hello-node -p 3000:3000 hello-node
 curl http://localhost:3000
 ```
 
-This displays: `Hello World from Node.js + Docker!`
+The page returned `Hello World from Node.js + Docker!`.
 
-### Browser result
+![Node.js page](image-1.png)
 
-<img src="image-1.png" alt="Node.js Hello World page" width="700">
-
-Stop this application when finished:
-
-```bash
-docker rm -f hello-node
-```
-
-## 2. Python application
-
-Files used: `python-app/app.py` and `python-app/Dockerfile`
+## 2. Python
 
 ```bash
 docker build -t hello-python ./python-app
@@ -55,21 +41,11 @@ docker run -d --name hello-python -p 8000:8000 hello-python
 curl http://localhost:8000
 ```
 
-This displays: `Hello World from Python + Docker!`
+The page returned `Hello World from Python + Docker!`.
 
-### Browser result
+![Python page](image-3.png)
 
-<img src="image-3.png" alt="Python Hello World page" width="700">
-
-Stop this application when finished:
-
-```bash
-docker rm -f hello-python
-```
-
-## 3. Java application
-
-Files used: `java-app/HelloServer.java` and `java-app/Dockerfile`
+## 3. Java
 
 ```bash
 docker build -t hello-java ./java-app
@@ -77,21 +53,11 @@ docker run -d --name hello-java -p 8080:8080 hello-java
 curl http://localhost:8080
 ```
 
-This displays: `Hello World from Java + Docker!`
+The Java application was available on port 8080.
 
-### Browser result
+![Java page](Screenshot%202026-08-31%20at%207.19.03%E2%80%AFPM.png)
 
-<img src="Screenshot 2026-08-31 at 7.19.03 PM.png" alt="Java Hello World page" width="700">
-
-Stop this application when finished:
-
-```bash
-docker rm -f hello-java
-```
-
-## 4. Apache HTTP Server application
-
-Files used: `apache-app/index.html` and `apache-app/Dockerfile`
+## 4. Apache HTTP Server
 
 ```bash
 docker build -t hello-apache ./apache-app
@@ -99,21 +65,11 @@ docker run -d --name hello-apache -p 8081:80 hello-apache
 curl http://localhost:8081
 ```
 
-This displays: `Hello World from Apache + Docker!`
+I mapped port 8081 on my computer to port 80 in the container.
 
-### Browser result
+![Apache page](Screenshot%202026-08-31%20at%207.20.18%E2%80%AFPM.png)
 
-<img src="Screenshot 2026-08-31 at 7.20.18 PM.png" alt="Apache Hello World page" width="700">
-
-Stop this application when finished:
-
-```bash
-docker rm -f hello-apache
-```
-
-## 5. React application
-
-Files used: `React-app/index.html` and `React-app/Dockerfile`
+## 5. React
 
 ```bash
 docker build -t hello-react ./React-app
@@ -121,17 +77,9 @@ docker run -d --name hello-react -p 8082:80 hello-react
 curl http://localhost:8082
 ```
 
-This starts a web server delivering a simple React "Hello World" application.
+The React page was served from the container on `http://localhost:8082`.
 
-Stop this application when finished:
-
-```bash
-docker rm -f hello-react
-```
-
-## 6. Nginx application
-
-Files used: `nginx-app/index.html` and `nginx-app/Dockerfile`
+## 6. Nginx
 
 ```bash
 docker build -t hello-nginx ./nginx-app
@@ -139,45 +87,10 @@ docker run -d --name hello-nginx -p 8083:80 hello-nginx
 curl http://localhost:8083
 ```
 
-This displays: `Hello World from Nginx + Docker!`
+The Nginx page was available on `http://localhost:8083`.
 
-Stop this application when finished:
-
-```bash
-docker rm -f hello-nginx
-```
-
-## Verification
-
-I built all six images successfully and started each application in its own container. I also checked every localhost URL, and each one returned the correct Hello World page. The port mappings were:
-
-```text
-hello-node    3000:3000
-hello-python  8000:8000
-hello-java    8080:8080
-hello-apache  8081:80
-hello-react   8082:80
-hello-nginx   8083:80
-```
-
-To display the running containers:
+I used this command to see all six containers together:
 
 ```bash
 docker ps --filter "name=hello-"
 ```
-
-## Clean up all containers
-
-```bash
-docker rm -f hello-node hello-python hello-java hello-apache hello-react hello-nginx
-```
-
-This command stops and removes all containers created in this project.
-
-## What I learned
-
-- I learned how to write a Dockerfile using a base image, copy my application files, expose a port, and start the application with `CMD`.
-- I understood that the container port and the localhost port can be different, for example Apache uses `8081:80`.
-- I learned how to build an image with `docker build`, run it with `docker run`, and check it using `curl` in the terminal or the browser.
-- I also learned to stop and remove containers after testing so that the same container name and port can be used again.
-

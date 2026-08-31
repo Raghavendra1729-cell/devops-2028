@@ -1,99 +1,56 @@
 # Docker Images
 
-## Multi-stage Node.js Application
-
 **Name:** Raghavendra
-**Enrollment Number:** 24BCS10250
 
+**Enrollment number:** 24BCS10250
 
-This project demonstrates building and running an optimized multi-stage Docker image for a Node.js application. After building and running the container, it displays:
+## Multi-stage Node.js image
 
-```text
-Hello World from Docker multi-stage build
-```
+I used a multi-stage Dockerfile for a small Node.js application. The application listens on port 3000 in the container, and I mapped it to port 8080 on my computer.
 
-The application runs on port `3000` inside the container, and I accessed it from port `8080` on my computer.
-
-## Folder structure
+The files are inside `multi-stage-app`:
 
 ```text
-Docker Images/
-├── README.md
-└── multi-stage-app/
-    ├── .dockerignore
-    ├── Dockerfile
-    ├── package-lock.json
-    ├── package.json
-    └── server.js
+multi-stage-app/
+├── .dockerignore
+├── Dockerfile
+├── package-lock.json
+├── package.json
+└── server.js
 ```
 
-## Build the image
+## Build and run
 
 ```bash
 cd "Docker Images/multi-stage-app"
 docker build -t multi-stage-hello .
-```
-
-## Run the container
-
-```bash
 docker run -d --name multi-stage-hello -p 8080:3000 multi-stage-hello
 ```
 
-## Access the application
-
-Open [http://localhost:8080](http://localhost:8080) in a browser or run:
+I checked the application with:
 
 ```bash
 curl http://localhost:8080
 ```
 
-## Check the running container
+It returned:
+
+```text
+Hello World from Docker multi-stage build
+```
+
+The same message appeared when I opened `http://localhost:8080` in the browser.
+
+![Application running in the browser](Screenshot%202026-08-31%20at%207.34.12%E2%80%AFPM.png)
+
+I also checked the container and its port mapping:
 
 ```bash
 docker ps --filter "name=multi-stage-hello"
 ```
 
-The `PORTS` column should show a mapping from host port `8080` to container port `3000`.
+The output showed port 8080 on my computer mapped to port 3000 in the container.
 
-## Stop and remove this container
+![Container and port mapping](Screenshot%202026-08-31%20at%207.30.45%E2%80%AFPM.png)
 
-```bash
-docker rm -f multi-stage-hello
-```
-
-This command stops and removes the container.
-
-## Proof of running application
-
-### Browser result
-
-I opened `http://localhost:8080` after starting the container. It displayed the required message.
-
-<img src="Screenshot 2026-08-31 at 7.34.12 PM.png" alt="Browser showing the Docker multi-stage Hello World application on localhost port 8080" width="800">
-
-### Running container
-
-The `docker ps` screenshot below shows that the container is running. The `PORTS` column shows the `8080:3000` mapping.
-
-<img src="Screenshot 2026-08-31 at 7.30.45 PM.png" alt="docker ps showing the multi-stage container running on port 8080" width="900">
-
-## What I learned
-
-- I learned that a Docker image is used to create a running container.
-- I learned that a multi-stage Dockerfile has more than one `FROM` line. The first stage builds the app and the last stage runs it.
-- I used `COPY --from=builder` to copy only the required files into the final image.
-- I understood port mapping with `-p 8080:3000`, where `8080` is my computer's port and `3000` is the container port.
-- I used `docker build`, `docker run`, and `docker ps` to build, start, and check the application.
-
-## Additional Deployments
-
-As part of deploying multiple types of applications, I also successfully containerized and deployed the following stacks in the `Docker Fundamentals` section of this repository:
-1. **Node.js**
-2. **Python**
-3. **Java**
-4. **Apache HTTP Server**
-5. **React**
-6. **Nginx**
-
-Please refer to the `Docker Fundamentals` folder for their respective `Dockerfile`s, deployment instructions, and screenshots.
+The first stage in the Dockerfile prepares the application files. The final stage copies only the files needed to run the server using `COPY --from=builder`.

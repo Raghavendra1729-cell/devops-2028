@@ -1,8 +1,10 @@
 # Git and GitHub
 
-## Overview
+**Name:** Raghavendra
 
-This guide demonstrates Git workflows including staging differences, multi-branch workflows, and commit cherry-picking. The commit hashes and log below illustrate a sample repository workflow.
+**Enrollment number:** 24BCS10250
+
+I used a small practice repository to compare commit commands, create a branch, and cherry-pick one commit.
 
 ## 1. `git commit -a -m` vs `git commit -m`
 
@@ -80,15 +82,6 @@ git log --graph --oneline --decorate --all
 * 3f65ea2 Create Git practice lab
 ```
 
-### Screenshot of the final history
+The final graph shows the commits on both branches and the selected commit copied to `main` with cherry-pick.
 
-The screenshot shows the three commits on `main`, the three commits on `feature-notes`, and the selected commit copied to `main` using cherry-pick.
-
-<img src="Screenshot 2026-08-31 at 7.49.28 PM.png" alt="Git log graph showing the feature-notes branch and the cherry-picked commit on main" width="900">
-
-## What I learned
-
-- `git log` helps verify the order and location of commits.
-- A branch keeps work separate until I choose how to bring it back.
-- Cherry-picking applies one selected commit instead of merging the entire branch.
-- I should check `git status` before committing, switching branches, or cherry-picking.
+![Git history after cherry-pick](Screenshot%202026-08-31%20at%207.49.28%E2%80%AFPM.png)

@@ -1,9 +1,12 @@
 # Shell Scripting
 
-This directory contains modular Bash scripts demonstrating core shell scripting concepts, including file operations, user input, control flow, loops, functions, and system reporting.
+**Name:** Raghavendra
 
+**Enrollment number:** 24BCS10250
 
-## 1. Create a folder and file — `hello.sh`
+I wrote these scripts while practising files, input, variables, functions, conditions, and loops in Bash.
+
+## 1. Create a folder and file - `hello.sh`
 
 `mkdir -p` creates a folder. `>` writes text into a file and `cat` prints the file content.
 
@@ -22,7 +25,7 @@ ubuntu@ip-172-31-24-18:~/devops-2028/shellscripting$ ./hello.sh
 This is my logfile
 ```
 
-## 2. Overwrite a file — `data.sh`
+## 2. Overwrite a file - `data.sh`
 
 The `>` operator overwrites an existing file. The second write replaces the first line.
 
@@ -44,7 +47,7 @@ This is a log file.
 This is my file
 ```
 
-## 3. Append to a file — `script1.sh`
+## 3. Append to a file - `script1.sh`
 
 The `>>` operator appends content to a file and keeps the previous content.
 
@@ -65,7 +68,7 @@ This is file1
 This is file2
 ```
 
-## 4. Take input — `input.sh`
+## 4. Take input - `input.sh`
 
 `read` takes input from the user and stores it in a variable. `$name` prints the value stored in `name`.
 
@@ -95,7 +98,7 @@ My roll number is 24BCS10250
 My comment is: Learning Bash
 ```
 
-## 5. Variables — `variable.sh`
+## 5. Variables - `variable.sh`
 
 Variables store data for reuse. Variables are assigned without spaces and read with `$variable_name`.
 
@@ -120,7 +123,7 @@ My roll number is 24BCS10250
 I am learning Bash
 ```
 
-## 6. Function — `function.sh`
+## 6. Function - `function.sh`
 
 A function groups commands under one name. The function runs when its name is called.
 
@@ -143,7 +146,7 @@ This is a function
 This is a function to show information
 ```
 
-## 7. For loop — `loop.sh`
+## 7. For loop - `loop.sh`
 
 A `for` loop repeats commands while its condition is true. This loop starts at 0, runs through 5, and increases `i` after every iteration.
 
@@ -167,9 +170,9 @@ This is iteration number 4
 This is iteration number 5
 ```
 
-## 8. Complete system report — `system_info.sh`
+## 8. System report - `system_info.sh`
 
-This script collects system information, captures disk usage and running processes, and saves the process list to a report file.
+For this script, I collected the date, hostname, current user, disk usage, and running processes. The process list is also saved to a file.
 
 ```bash
 #!/usr/bin/env bash
@@ -235,7 +238,7 @@ Process information saved to system_report/processes.txt
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root         1  0.0  0.5  21932 12840 ?        Ss   10:29   0:02 /sbin/init
 ubuntu    2481  0.0  0.2  17820  6120 pts/0    Ss   12:42   0:00 -bash
-... remaining processes omitted here for readability ...
+[more processes follow]
 
 === User Details ===
 My name is Raghavendra
@@ -243,9 +246,7 @@ My roll number is 24BCS10250
 My comment is: Learning Bash
 ```
 
-The terminal block is a short sample from an Ubuntu-style environment. The script itself prints and saves the complete process list; dates, hostnames, disk values, and process IDs change on every run.
-
-## 9. If-else condition — `condition.sh`
+## 9. If-else condition - `condition.sh`
 
 An `if` statement checks a condition. `else` runs when the condition is false. This version has no `elif` branch.
 
@@ -271,7 +272,7 @@ Enter your age: 21
 You are an adult.
 ```
 
-## 10. While loop with input — `while_loop.sh`
+## 10. While loop with input - `while_loop.sh`
 
 A `while true` loop repeats until `break` stops it. This script accepts numbers until the user enters `q`.
 
@@ -305,7 +306,7 @@ Enter a number (or 'q' to quit): q
 Exiting the loop.
 ```
 
-## 11. While loop counter — `while_loop1.sh`
+## 11. While loop counter - `while_loop1.sh`
 
 A `while` loop runs while its condition is true. `count` increases after each iteration until it reaches 5.
 

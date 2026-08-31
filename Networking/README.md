@@ -1,6 +1,10 @@
 # Networking Fundamentals
 
-This guide covers essential networking tools, connectivity testing, route tracing, DNS resolution, and TCP port inspection.
+**Name:** Raghavendra
+
+**Enrollment number:** 24BCS10250
+
+I ran a few networking commands to check connectivity, routes, listening ports, DNS, and HTTP.
 
 ## 1. Ping
 
@@ -12,9 +16,9 @@ ping -c 2 google.com
 
 Both packets were received with `0.0%` packet loss, so the connection to Google was working.
 
-<img src="Screenshot 2026-08-31 at 7.55.39 PM.png" alt="Ping replies from google.com" width="850">
+![Ping replies from google.com](Screenshot%202026-08-31%20at%207.55.39%E2%80%AFPM.png)
 
-<img src="Screenshot 2026-08-31 at 7.55.50 PM.png" alt="Ping statistics showing zero packet loss" width="850">
+![Ping statistics](Screenshot%202026-08-31%20at%207.55.50%E2%80%AFPM.png)
 
 ## 2. Traceroute
 
@@ -26,7 +30,7 @@ traceroute -m 3 -w 1 google.com
 
 Each line is one network hop. This helps find where a connection might be slow or fail.
 
-<img src="Screenshot 2026-08-31 at 7.56.09 PM.png" alt="Traceroute showing three hops towards google.com" width="900">
+![Traceroute output](Screenshot%202026-08-31%20at%207.56.09%E2%80%AFPM.png)
 
 ## 3. Listening TCP ports
 
@@ -38,7 +42,7 @@ netstat -an -p tcp | grep LISTEN | head -3
 
 The `LISTEN` status means a program is ready to accept a connection on that port.
 
-<img src="Screenshot 2026-08-31 at 7.56.23 PM.png" alt="Netstat output showing listening TCP ports" width="900">
+![Listening TCP ports](Screenshot%202026-08-31%20at%207.56.23%E2%80%AFPM.png)
 
 ## 4. DNS lookup
 
@@ -50,7 +54,7 @@ nslookup google.com | tail -6
 
 The result shows the IP addresses returned for `google.com`.
 
-<img src="Screenshot 2026-08-31 at 7.56.32 PM.png" alt="DNS lookup returning IP addresses for google.com" width="850">
+![DNS lookup result](Screenshot%202026-08-31%20at%207.56.32%E2%80%AFPM.png)
 
 ## 5. HTTP check
 
@@ -62,16 +66,4 @@ curl -sS -I --max-time 10 https://www.google.com | head -5
 
 The `HTTP/2 200` response means the website responded successfully.
 
-<img src="image.png" alt="Curl HTTP check showing HTTP 200 response from Google" width="900">
-
-## What I learned
-
-- `ping` checks basic network connectivity and packet loss.
-- `traceroute` shows the route packets take through different routers.
-- `netstat` shows local ports that are open and listening.
-- `nslookup` checks whether DNS can find an IP address for a domain name.
-- `curl` checks whether a website responds over HTTP or HTTPS.
-
-## References
-
-- [Network Troubleshooting](https://github.com/Nency-Ravaliya/Network-Troubleshooting)
+![HTTP response headers](image.png)

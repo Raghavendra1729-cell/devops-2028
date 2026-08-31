@@ -1,5 +1,10 @@
 # Linux Fundamentals
 
+**Name:** Raghavendra
+
+**Enrollment number:** 24BCS10250
+
+I kept the commands grouped by the part of Linux I was practising.
 
 ## Files and paths
 
@@ -228,22 +233,14 @@ ubuntu@ip-172-31-24-18:~$
 
 I first make sure no program is using files inside the mount point.
 
-## What I learned
-
-- Linux paths start from `/`, while `~` represents my home directory.
-- File commands become safer when I check the current path before copying, moving, or deleting anything.
-- `ps` gives a process snapshot, while `top` keeps updating the information.
-- `ip addr`, `ip route`, `ping`, and `ss` answer different networking questions.
-- A block device is not the same as a mounted filesystem. `lsblk` shows devices, while `mount` and `umount` attach or detach filesystems.
-
-## Core Concepts and Notes 
+## More Linux notes
 
 ### Understanding Soft and Hard Links
-**Concepts:**
-- **Hard Link:** Acts as another name for the same file. Both the original file and the hard link share the exact same **inode** (index node). If you delete the original file, the data is still accessible via the hard link. *Limitations:* Cannot cross different filesystems and cannot link directories.
-- **Soft Link (Symbolic Link):** Acts as a shortcut that stores the path to the original file. It gets a new inode. If you delete the original file, the soft link becomes a "dangling" or broken link. *Benefits:* Can cross filesystems and link directories.
 
-**Practice Commands (Interview Prep):**
+A hard link is another name for the same inode. The data is still available through the hard link if the original name is removed. A symbolic link stores a path instead, so it breaks if that target is removed. Symbolic links can also point to directories or cross filesystems.
+
+Commands I tried:
+
 ```console
 # 1. Create a file
 ubuntu@ip-172-31-24-18:~$ echo "Hello World" > target.txt
@@ -262,11 +259,9 @@ ubuntu@ip-172-31-24-18:~$ cat soft-link.txt  # Fails: No such file or directory
 ```
 
 ### User Management: `adduser` vs `useradd`
-**Concepts:**
-- `useradd`: The native, low-level, distribution-independent binary. It just creates the user in system files without setting up a password, home directory, or shell by default (unless specific flags are used). Best used in automated bash scripts.
-- `adduser`: A high-level, interactive Perl script wrapper around `useradd`. **This is the preferred command on Debian/Ubuntu** because it automatically creates the home directory (`/home/username`), copies default skeleton files, sets the default shell, and prompts you to set a password and user details.
 
-**Practice Commands:**
+On Ubuntu, `useradd` is the lower-level command and needs flags for things such as a home directory or shell. `adduser` is interactive and creates the usual home-directory setup by default.
+
 ```console
 # Create a test user interactively on Ubuntu
 ubuntu@ip-172-31-24-18:~$ sudo adduser testuser
@@ -277,10 +272,9 @@ uid=1001(testuser) gid=1001(testuser) groups=1001(testuser)
 ```
 
 ### Viewing Logs with `journalctl`
-**Concepts:**
-`journalctl` is a command-line utility used to query and read logs collected by `systemd-journald`. Since systemd manages most modern Linux systems, `journalctl` is the central place to check boot issues, system events, and application/service logs.
 
-**Practice Commands:**
+I used `journalctl` to read logs collected by `systemd-journald`.
+
 ```console
 # View all logs from the current boot
 ubuntu@ip-172-31-24-18:~$ journalctl -b

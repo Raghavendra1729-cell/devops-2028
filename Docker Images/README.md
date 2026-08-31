@@ -85,3 +85,15 @@ The `docker ps` screenshot below shows that the container is running. The `PORTS
 - I used `COPY --from=builder` to copy only the required files into the final image.
 - I understood port mapping with `-p 8080:3000`, where `8080` is my computer's port and `3000` is the container port.
 - I used `docker build`, `docker run`, and `docker ps` to build, start, and check the application.
+
+## Additional Deployments
+
+As part of deploying multiple types of applications, I also successfully containerized and deployed the following stacks in the `Docker Fundamentals` section of this repository:
+1. **Node.js**
+2. **Python**
+3. **Java**
+4. **Apache HTTP Server**
+5. **React**
+6. **Nginx**
+
+Please refer to the `Docker Fundamentals` folder for their respective `Dockerfile`s, deployment instructions, and screenshots.

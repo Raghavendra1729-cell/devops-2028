@@ -98,3 +98,5 @@ I used this command to see all six containers together:
 ```bash
 docker ps --filter "name=hello-"
 ```
+
+The React folder is static, so its final image uses NGINX instead of keeping a Node.js package manager in the runtime container. The Java Dockerfile also uses a build stage with the JDK and a smaller JRE stage for execution.

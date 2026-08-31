@@ -33,10 +33,10 @@ I checked the application with:
 curl http://localhost:8080
 ```
 
-It returned:
+It returned this HTML response:
 
-```text
-Hello World from Docker multi-stage build
+```html
+<h1>Hello World from Docker multi-stage build</h1>
 ```
 
 The same message appeared when I opened `http://localhost:8080` in the browser.

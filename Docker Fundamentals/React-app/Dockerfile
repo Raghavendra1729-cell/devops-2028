@@ -1,17 +1,5 @@
-# Use Node.js as base image to fulfill the Node/React requirement
-FROM node:alpine
+FROM nginx:1.27-alpine
 
-# Install a simple static server
-RUN npm install -g http-server
+COPY index.html /usr/share/nginx/html/index.html
 
-# Create app directory
-WORKDIR /app
-
-# Copy the React HTML file
-COPY index.html ./
-
-# Expose port
 EXPOSE 80
-
-# Run the server
-CMD ["http-server", "-p", "80"]

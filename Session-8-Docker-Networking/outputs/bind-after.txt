@@ -1,0 +1,8 @@
+$ curl -fsS http://127.0.0.1:8306
+<h1>Hello students - file updated</h1>
+
+$ docker inspect homework-bind --format 'StartedAt={{.State.StartedAt}} RestartCount={{.RestartCount}}'
+StartedAt=2026-10-02T14:37:49.736167505Z RestartCount=0
+
+$ docker inspect homework-bind --format '{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}} RW={{.RW}}{{end}}'
+bind /Users/lingaraghavendra/Desktop/devops/devops-2028/Docker Networking/bind-mount -> /usr/share/nginx/html RW=false

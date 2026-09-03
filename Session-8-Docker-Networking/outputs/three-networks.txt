@@ -1,0 +1,79 @@
+$ docker compose -p homework-network-audit up -d --wait
+ Network course-backend-net Creating
+ Network course-frontend-net Creating
+ Volume homework-network-audit_database_data Creating
+ Volume homework-network-audit_database_data Creating
+ Network course-frontend-net Creating
+ Network course-backend-net Creating
+ Network course-database-net Creating
+ Network course-database-net Creating
+ Volume homework-network-audit_database_data Created
+ Volume homework-network-audit_database_data Created
+ Network course-frontend-net Created
+ Network course-frontend-net Created
+ Container homework-network-audit-frontend-1 Creating
+ Network course-backend-net Created
+ Network course-backend-net Created
+ Container homework-network-audit-backend-1 Creating
+ Network course-database-net Created
+ Network course-database-net Created
+ Container homework-network-audit-database-1 Creating
+ Container homework-network-audit-frontend-1 Created
+ Container homework-network-audit-backend-1 Created
+ Container homework-network-audit-database-1 Created
+ Container homework-network-audit-backend-1 Starting
+ Container homework-network-audit-database-1 Starting
+ Container homework-network-audit-frontend-1 Starting
+ Container homework-network-audit-frontend-1 Started
+ Container homework-network-audit-backend-1 Started
+ Container homework-network-audit-database-1 Started
+ Container homework-network-audit-database-1 Waiting
+ Container homework-network-audit-frontend-1 Waiting
+ Container homework-network-audit-backend-1 Waiting
+ Container homework-network-audit-frontend-1 Healthy
+ Container homework-network-audit-backend-1 Healthy
+ Container homework-network-audit-database-1 Healthy
+Exit status: 0
+
+$ docker compose -p homework-network-audit ps
+NAME                                IMAGE          COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+homework-network-audit-backend-1    alpine:3.22    "sh -c 'while true; …"   backend    11 seconds ago   Up 10 seconds
+homework-network-audit-database-1   mysql:8.4      "docker-entrypoint.s…"   database   11 seconds ago   Up 10 seconds (healthy)   3306/tcp, 33060/tcp
+homework-network-audit-frontend-1   nginx:alpine   "/docker-entrypoint.…"   frontend   11 seconds ago   Up 10 seconds             127.0.0.1:8307->80/tcp
+Exit status: 0
+
+$ docker network inspect course-frontend-net --format '{{.Name}}: {{range .Containers}}{{.Name}} {{end}}'
+course-frontend-net: homework-network-audit-backend-1 homework-network-audit-frontend-1
+Exit status: 0
+
+$ docker network inspect course-backend-net --format '{{.Name}}: {{range .Containers}}{{.Name}} {{end}}'
+course-backend-net: homework-network-audit-database-1 homework-network-audit-backend-1
+Exit status: 0
+
+$ docker network inspect course-database-net --format '{{.Name}}: {{range .Containers}}{{.Name}} {{end}}'
+course-database-net: homework-network-audit-database-1
+Exit status: 0
+
+$ docker compose -p homework-network-audit exec -T frontend ping -c 2 backend
+PING backend (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.622 ms
+64 bytes from 172.18.0.3: seq=1 ttl=64 time=0.314 ms
+
+--- backend ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.314/0.468/0.622 ms
+Exit status: 0
+
+$ docker compose -p homework-network-audit exec -T backend ping -c 2 database
+PING database (172.19.0.3): 56 data bytes
+64 bytes from 172.19.0.3: seq=0 ttl=64 time=0.194 ms
+64 bytes from 172.19.0.3: seq=1 ttl=64 time=0.288 ms
+
+--- database ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.194/0.241/0.288 ms
+Exit status: 0
+
+$ docker compose -p homework-network-audit exec -T frontend ping -c 1 database
+ping: bad address 'database'
+Exit status: 1

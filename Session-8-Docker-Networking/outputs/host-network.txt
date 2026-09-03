@@ -1,0 +1,26 @@
+$ docker pull httpd:2.4-alpine
+2.4-alpine: Pulling from library/httpd
+Digest: sha256:4e585da9d0125dec36d4500a9f5c5df7b2c0a01f67cb47865a91a4b05bdbec1b
+Status: Downloaded newer image for httpd:2.4-alpine
+docker.io/library/httpd:2.4-alpine
+Exit status: 0
+
+$ docker run -d --name homework-apache-host --network host httpd:2.4-alpine
+1dd4ac27229a64a70ec4f86334528ce590bf9df6d5a87e386e6db86469ea4a5b
+Exit status: 0
+
+$ docker inspect homework-apache-host --format 'NetworkMode={{.HostConfig.NetworkMode}} State={{.State.Status}}'
+NetworkMode=host State=running
+Exit status: 0
+
+$ curl --retry 5 --retry-connrefused -fsS http://127.0.0.1:80
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>It works! Apache httpd</title>
+</head>
+<body>
+<p>It works!</p>
+</body>
+</html>
+Exit status: 0

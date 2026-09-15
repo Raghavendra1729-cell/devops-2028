@@ -1,0 +1,79 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/08-liveness.yaml
+pod/lifecycle-liveness unchanged
+Exit status: 0
+
+$ kubectl -n lifecycle-audit get pod lifecycle-liveness -o wide
+NAME                 READY   STATUS             RESTARTS      AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-liveness   0/1     CrashLoopBackOff   6 (70s ago)   4m53s   10.244.0.20   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-liveness
+Name:             lifecycle-liveness
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:48:14 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.20
+IPs:
+  IP:  10.244.0.20
+Containers:
+  app:
+    Container ID:   containerd://628d693130f79eae8459e30b75da6702ec9d3a3097d2d48468fd09e99b057cf5
+    Image:          nginx:1.27-alpine
+    Image ID:       docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 02 Oct 2026 19:51:46 +0530
+      Finished:     Fri, 02 Oct 2026 19:51:57 +0530
+    Ready:          False
+    Restart Count:  6
+    Liveness:       http-get http://:80/healthz delay=3s timeout=1s period=3s successThreshold=1 failureThreshold=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-p9gtj (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-p9gtj:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  4m53s                  default-scheduler  Successfully assigned lifecycle-audit/lifecycle-liveness to minikube
+  Normal   Created    3m (x6 over 4m52s)     kubelet            spec.containers{app}: Container created
+  Normal   Started    3m (x6 over 4m52s)     kubelet            spec.containers{app}: Container started
+  Normal   Killing    2m50s (x6 over 4m41s)  kubelet            spec.containers{app}: Container app failed liveness probe, will be restarted
+  Warning  BackOff    2m49s (x6 over 4m23s)  kubelet            spec.containers{app}: Back-off restarting failed container app in pod lifecycle-liveness_lifecycle-audit(17c92743-e650-4361-8692-2f8d52c00723)
+  Normal   Pulled     81s (x7 over 4m52s)    kubelet            spec.containers{app}: Container image "nginx:1.27-alpine" already present on machine and can be accessed by the pod
+  Warning  Unhealthy  77s (x19 over 4m47s)   kubelet            spec.containers{app}: Liveness probe failed: HTTP probe failed with statuscode: 404
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-liveness --tail=5
+2026/10/02 14:21:56 [notice] 1#1: worker process 36 exited with code 0
+2026/10/02 14:21:56 [notice] 1#1: signal 29 (SIGIO) received
+2026/10/02 14:21:57 [notice] 1#1: signal 17 (SIGCHLD) received from 38
+2026/10/02 14:21:57 [notice] 1#1: worker process 38 exited with code 0
+2026/10/02 14:21:57 [notice] 1#1: exit
+Exit status: 0

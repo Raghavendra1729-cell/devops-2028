@@ -1,0 +1,72 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/07-readiness.yaml
+pod/lifecycle-readiness unchanged
+Exit status: 0
+
+$ kubectl -n lifecycle-audit get pod lifecycle-readiness -o wide
+NAME                  READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-readiness   0/1     Running   0          4m52s   10.244.0.18   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-readiness
+Name:             lifecycle-readiness
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:48:14 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.18
+IPs:
+  IP:  10.244.0.18
+Containers:
+  app:
+    Container ID:   containerd://3b0e5111b4a4c29af0349d2012cddeaa50a0650aa0b5c0aa5e0d52735ff01372
+    Image:          nginx:1.27-alpine
+    Image ID:       docker.io/library/nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 02 Oct 2026 19:48:15 +0530
+    Ready:          False
+    Restart Count:  0
+    Readiness:      http-get http://:80/ready delay=2s timeout=1s period=3s successThreshold=1 failureThreshold=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-trzrn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-trzrn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                     From               Message
+  ----     ------     ----                    ----               -------
+  Normal   Scheduled  4m52s                   default-scheduler  Successfully assigned lifecycle-audit/lifecycle-readiness to minikube
+  Normal   Pulled     4m52s                   kubelet            spec.containers{app}: Container image "nginx:1.27-alpine" already present on machine and can be accessed by the pod
+  Normal   Created    4m51s                   kubelet            spec.containers{app}: Container created
+  Normal   Started    4m51s                   kubelet            spec.containers{app}: Container started
+  Warning  Unhealthy  3m36s (x25 over 4m48s)  kubelet            spec.containers{app}: Readiness probe failed: HTTP probe failed with statuscode: 404
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-readiness --tail=5
+10.244.0.1 - - [02/Oct/2026:14:23:00 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.37" "-"
+2026/10/02 14:23:03 [error] 36#36: *97 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: 10.244.0.1, server: localhost, request: "GET /ready HTTP/1.1", host: "10.244.0.18:80"
+10.244.0.1 - - [02/Oct/2026:14:23:03 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.37" "-"
+10.244.0.1 - - [02/Oct/2026:14:23:06 +0000] "GET /ready HTTP/1.1" 404 153 "-" "kube-probe/1.37" "-"
+2026/10/02 14:23:06 [error] 36#36: *98 open() "/usr/share/nginx/html/ready" failed (2: No such file or directory), client: 10.244.0.1, server: localhost, request: "GET /ready HTTP/1.1", host: "10.244.0.18:80"
+Exit status: 0

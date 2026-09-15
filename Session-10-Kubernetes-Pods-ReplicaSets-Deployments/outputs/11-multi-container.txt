@@ -1,0 +1,101 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/11-multi-container.yaml
+pod/lifecycle-multi configured
+Exit status: 0
+
+$ kubectl -n lifecycle-audit get pod lifecycle-multi -o wide
+NAME              READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-multi   2/2     Running   0          4m55s   10.244.0.22   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-multi
+Name:             lifecycle-multi
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:48:14 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.22
+IPs:
+  IP:  10.244.0.22
+Containers:
+  writer:
+    Container ID:  containerd://4ab49c82ad9b0e68cd76c2f828a857459392b26f6c5490e3590abdaede3184d9
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      while true; do date > /data/time.txt; sleep 5; done
+    State:          Running
+      Started:      Fri, 02 Oct 2026 19:48:15 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /data from shared (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hj4qc (ro)
+  reader:
+    Container ID:  containerd://7fe1e4194eca51c2603c6184ae4d40d8647512a2c1a03fa4444c4dd4730a63dd
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      while true; do cat /data/time.txt 2>/dev/null || true; sleep 5; done
+    State:          Running
+      Started:      Fri, 02 Oct 2026 19:48:16 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /data from shared (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hj4qc (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  shared:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  kube-api-access-hj4qc:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  4m55s  default-scheduler  Successfully assigned lifecycle-audit/lifecycle-multi to minikube
+  Normal  Pulled     4m55s  kubelet            spec.containers{writer}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    4m55s  kubelet            spec.containers{writer}: Container created
+  Normal  Started    4m55s  kubelet            spec.containers{writer}: Container started
+  Normal  Pulled     4m55s  kubelet            spec.containers{reader}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    4m55s  kubelet            spec.containers{reader}: Container created
+  Normal  Started    4m54s  kubelet            spec.containers{reader}: Container started
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-multi -c writer --tail=3
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-multi -c reader --tail=3
+Fri Oct  2 14:22:56 UTC 2026
+Fri Oct  2 14:23:01 UTC 2026
+Fri Oct  2 14:23:06 UTC 2026
+Exit status: 0

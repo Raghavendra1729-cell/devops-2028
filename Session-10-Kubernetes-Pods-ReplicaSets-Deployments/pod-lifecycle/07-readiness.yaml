@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lifecycle-readiness
+  labels:
+    lab: pod-lifecycle
+spec:
+  containers:
+    - name: app
+      image: nginx:1.27-alpine
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 80
+        initialDelaySeconds: 2
+        periodSeconds: 3

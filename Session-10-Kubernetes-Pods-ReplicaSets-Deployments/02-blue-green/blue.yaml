@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: strategy-app
+      slot: blue
+  template:
+    metadata:
+      labels:
+        app: strategy-app
+        slot: blue
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          command: ["sh", "-c", "echo 'BLUE v1' > /usr/share/nginx/html/index.html; exec nginx -g 'daemon off;'"]
+          ports:
+            - containerPort: 80

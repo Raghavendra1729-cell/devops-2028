@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lifecycle-init
+  labels:
+    lab: pod-lifecycle
+spec:
+  initContainers:
+    - name: setup
+      image: busybox:1.36
+      command: ["sh", "-c", "echo initialized > /work/status.txt"]
+      volumeMounts:
+        - name: work
+          mountPath: /work
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /work/status.txt; sleep 3600"]
+      volumeMounts:
+        - name: work
+          mountPath: /work
+  volumes:
+    - name: work
+      emptyDir: {}

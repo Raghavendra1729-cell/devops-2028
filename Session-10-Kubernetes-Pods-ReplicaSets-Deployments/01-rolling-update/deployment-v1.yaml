@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rolling-web
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: rolling-web
+  template:
+    metadata:
+      labels:
+        app: rolling-web
+        version: v1
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          command: ["sh", "-c", "echo 'Rolling v1' > /usr/share/nginx/html/index.html; exec nginx -g 'daemon off;'"]
+          ports:
+            - containerPort: 80

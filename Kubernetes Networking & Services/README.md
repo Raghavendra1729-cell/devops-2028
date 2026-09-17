@@ -87,7 +87,7 @@ On a directly reachable Linux node, the normal address is:
 http://<node-ip>:30080
 ```
 
-![NodePort mapping and access check](images/k10-03-nodeport.png)
+![NodePort mapping, Minikube tunnel URL and successful NGINX response](images/local-nodeport-tunnel.png)
 
 ## 4. LoadBalancer
 

@@ -61,6 +61,8 @@ Before restart: ENVIRONMENT=production
 After restart:  ENVIRONMENT=staging
 ```
 
+![ConfigMap value before and after the Deployment restart](images/local-configmap-update.png)
+
 ## 3. Secret and Base64
 
 A Secret is meant for sensitive data, but Base64 is only an encoding format. It is easy to decode and is not encryption.
@@ -281,6 +283,8 @@ Controller-specific regex and rewrite annotations are useful when needed, but a 
 
 ![Backend route in a browser](images/k11-06-browser-api.png)
 
+![Ingress rules and successful local frontend and backend routing](images/local-ingress-routing.png)
+
 ## 11. Host-based routing
 
 The same entry IP can route by hostname:
@@ -389,6 +393,8 @@ campus-ingress-tls   80, 443
 HTTPS request -> frontend response
 ```
 
+![TLS Secret, certificate details and successful HTTPS response](images/local-tls-success.png)
+
 ## 14. Complete demo and automation
 
 The final flow is:
@@ -433,6 +439,10 @@ bash -n 04-full-demo/run-demo.sh
 ```
 
 Expected result: the deployment script finishes with ready frontend and backend Pods, two ClusterIP Services, configuration objects, and one Ingress. After cleanup, those demo resources are no longer listed.
+
+![Complete demo with ready workloads, Services and Ingress](images/local-full-demo.png)
+
+![Post-cleanup checks confirming that the demo resources were removed](images/local-cleanup.png)
 
 ## Troubleshooting order
 

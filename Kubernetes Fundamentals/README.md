@@ -30,6 +30,8 @@ minikube version: vX.Y.Z
 Client Version: vX.Y.Z
 ```
 
+![Minikube and kubectl versions verified locally](images/minikube-kubectl-versions.png)
+
 ## 2. Start and check the cluster
 
 ```bash
@@ -45,7 +47,7 @@ What I check:
 - The node is `Ready`.
 - `kubectl cluster-info` can reach the control plane and CoreDNS.
 
-![Cluster information, ready nodes and namespaces](images/k8-01-cluster.png)
+![Starting the local Minikube cluster](images/minikube-start.png)
 
 The important result is a reachable control plane and a node whose status is `Ready`.
 
@@ -57,6 +59,8 @@ apiserver: Running
 NAME       STATUS   ROLES           VERSION
 minikube   Ready    control-plane   vX.Y.Z
 ```
+
+![Minikube status, ready node and running system Pods](images/minikube-status.png)
 
 ## 3. Kubernetes architecture
 
@@ -98,8 +102,6 @@ To see system components in a local cluster:
 kubectl get pods -n kube-system -o wide
 kubectl get --raw='/readyz?verbose'
 ```
-
-![Kubernetes system Pods](images/k8-02-kube-system.png)
 
 ## 4. First Pod and basic inspection
 
@@ -175,6 +177,8 @@ kubelet: Stopped
 apiserver: Stopped
 kubeconfig: Configured
 ```
+
+![Minikube stopped after the lab](images/minikube-stop.png)
 
 ## Quick check
 

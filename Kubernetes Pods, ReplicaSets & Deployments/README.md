@@ -76,6 +76,8 @@ NAME               READY   STATUS             RESTARTS
 broken-image-pod   0/1     ImagePullBackOff   0
 ```
 
+![ImagePullBackOff status and the image pull error in Events](images/local-imagepullbackoff.png)
+
 ## 4. A short-lived Pod
 
 This is a useful way to see a successful batch Pod:
@@ -145,6 +147,12 @@ lifecycle-crashloop     0/1   CrashLoopBackOff
 lifecycle-readiness     0/1   Running
 lifecycle-termination   1/1   Terminating
 ```
+
+![Repeated application crashes, restart count and back-off events](images/local-crashloopbackoff.png)
+
+![A running container changing from not ready to ready](images/local-readiness-probe.png)
+
+![SIGTERM handling and graceful cleanup during Pod deletion](images/local-graceful-termination.png)
 
 ## 6. ReplicaSet and StatefulSet
 
@@ -318,6 +326,8 @@ Before cutover: selector slot=blue
 After cutover:  selector slot=green
 ```
 
+![Blue-green Service selector cutover verified with live responses](images/local-blue-green-cutover.png)
+
 ## 12. Canary deployment
 
 Canary releases a new version to a small part of the traffic first. With normal Kubernetes Service balancing, the split is an approximation based on the number of ready endpoints.
@@ -348,9 +358,7 @@ kubectl scale deployment app-canary --replicas=0
 
 A 9:1 Pod ratio does not guarantee exactly 90:10 traffic for a small sample. For precise weighted routing, a service mesh or traffic-aware gateway is a better choice.
 
-![Stable and canary Pods at the initial replica ratio](images/blue-green-endpoints.png)
-
-![The canary NodePort Service in the service list](images/canary-traffic-check.png)
+![Stable and canary replicas with responses from both versions](images/local-canary-responses.png)
 
 Expected result: most requests return the stable version and a smaller number return the canary version. The exact ratio varies over a small sample.
 
@@ -400,6 +408,8 @@ Application v1
 [OUTAGE] no ready Pod
 Application v2
 ```
+
+![Recreate strategy showing v1, the outage window and v2](images/local-recreate-outage.png)
 
 ## Deployment strategy summary
 

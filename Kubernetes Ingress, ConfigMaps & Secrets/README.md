@@ -4,9 +4,7 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 12
 
-This session connects three ideas: keep configuration outside the image, keep sensitive values separate from normal configuration, and route HTTP traffic to several Services through one entry point.
-
-> The screenshots are reference runs from our class repositories. They contain demo values only. Real passwords, keys and certificates should never be copied into a public repository.
+This session connects three ideas: keep configuration outside the image, keep sensitive values separate from normal configuration, and route HTTP traffic to several Services through one entry point. The examples use demo values only; real passwords, keys, and certificates should never be committed to a public repository.
 
 ## 1. ConfigMap for normal configuration
 
@@ -56,7 +54,12 @@ The old Pod can still show `production` after the patch. The replacement Pod sho
 
 ConfigMap files mounted as volumes behave differently: kubelet can update them after a delay. An application still has to reread the file, and a `subPath` mount does not receive those automatic updates.
 
-> Screenshot to add manually: capture the before value, rollout restart, and after value in one terminal. Save it as `images/configmap-live-update.png`.
+Expected result: the existing Pod keeps the old environment value, while the replacement Pod created by the rollout reads the updated value.
+
+```text
+Before restart: ENVIRONMENT=production
+After restart:  ENVIRONMENT=staging
+```
 
 ## 3. Secret and Base64
 
@@ -312,8 +315,9 @@ rules:
 ```
 
 ```bash
-curl -H 'Host: portal.campus.local' http://<ingress-ip>/
-curl -H 'Host: api.campus.local' http://<ingress-ip>/
+INGRESS_IP=$(minikube ip)
+curl -H 'Host: portal.campus.local' "http://$INGRESS_IP/"
+curl -H 'Host: api.campus.local' "http://$INGRESS_IP/"
 ```
 
 ## 12. Hybrid host and path routing
@@ -334,7 +338,12 @@ kubectl describe ingress campus-ingress
 
 I check the `Rules` section carefully because a wrong hostname, path type or Service port can create a valid object that still returns `404` or `503`.
 
-> Screenshot to add manually: capture the `kubectl describe ingress` rules plus two successful host/path requests. Save it as `images/hybrid-ingress.png`.
+Expected result: each hostname and path reaches its configured backend Service. A missing route normally returns `404`, while an unavailable backend commonly returns `503`.
+
+```text
+portal.campus.local -> frontend response
+api.campus.local    -> backend response
+```
 
 ## 13. TLS termination
 
@@ -365,13 +374,20 @@ tls:
 Test without permanently changing DNS:
 
 ```bash
-curl -k --resolve portal.campus.local:443:<ingress-ip> \
+INGRESS_IP=$(minikube ip)
+curl -k --resolve "portal.campus.local:443:$INGRESS_IP" \
   https://portal.campus.local/
 ```
 
 `-k` is only for the self-signed local lab. A real public service needs a trusted certificate and normal verification.
 
-> Manual capture point: show the TLS Secret, an Ingress with ports `80, 443`, and a successful `curl -k --resolve` response. Save it as `images/tls-success.png`.
+Expected result: the TLS Secret has type `kubernetes.io/tls`, the Ingress lists ports `80, 443`, and the HTTPS request returns the frontend response.
+
+```text
+campus-tls   kubernetes.io/tls
+campus-ingress-tls   80, 443
+HTTPS request -> frontend response
+```
 
 ## 14. Complete demo and automation
 
@@ -416,7 +432,7 @@ sed -n '1,240p' 04-full-demo/run-demo.sh
 bash -n 04-full-demo/run-demo.sh
 ```
 
-> Screenshot to add manually: capture the complete healthy resource list, then the cleanup result. Save it as `images/full-demo-and-cleanup.png`.
+Expected result: the deployment script finishes with ready frontend and backend Pods, two ClusterIP Services, configuration objects, and one Ingress. After cleanup, those demo resources are no longer listed.
 
 ## Troubleshooting order
 
@@ -430,8 +446,4 @@ kubectl describe ingress <ingress>
 kubectl get events --sort-by=.lastTimestamp
 ```
 
-My order is: Pod health, Service selector/endpoints, Ingress rules, controller logs, then DNS or host mapping.
-
-The reference run below is intentionally kept as a troubleshooting example, not successful TLS evidence. It shows three useful clues together: missing backend Services, an empty Ingress address, and `curl --resolve` receiving no IP. The fix is to create healthy Services first and wait until the chosen controller publishes a reachable address before testing HTTPS.
-
-![Failed TLS attempt caused by missing Services and an empty Ingress address](images/tls-ingress-reference.png)
+The troubleshooting order is: Pod health, Service selector and endpoints, Ingress rules, controller logs, then DNS or host mapping.

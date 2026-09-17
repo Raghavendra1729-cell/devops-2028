@@ -4,9 +4,7 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 10
 
-This class was mainly about how Kubernetes keeps applications running and how it replaces one version with another. I arranged the notes in the same order as the tasks so they are easy to revise.
-
-> The screenshots are reference runs from our class repositories. Commands that need the class YAML files are kept as repeatable steps rather than made-up output.
+This class covers how Kubernetes keeps applications running and how it replaces one version with another. The notes follow the same order as the class tasks.
 
 ## 1. Start with a healthy cluster
 
@@ -71,7 +69,12 @@ Pending -> ErrImagePull -> ImagePullBackOff
 
 `ImagePullBackOff` means Kubernetes is retrying with an increasing delay. The useful error is normally near the bottom of `kubectl describe pod`.
 
-> Manual capture point: create `broken-image-pod`, then capture its `ImagePullBackOff` status and the pull error from `kubectl describe`. The deployment rollback screenshot later in these notes is a separate failure drill.
+Expected result: the Pod moves from `ErrImagePull` to `ImagePullBackOff`, and the Events section explains which image could not be pulled.
+
+```text
+NAME               READY   STATUS             RESTARTS
+broken-image-pod   0/1     ImagePullBackOff   0
+```
 
 ## 4. A short-lived Pod
 
@@ -135,7 +138,13 @@ Important difference between probes:
 | Readiness | Can this Pod receive traffic now? | Pod stays running but is removed from Service endpoints. |
 | Liveness | Is this process stuck or unhealthy? | Kubelet restarts the container. |
 
-> Screenshots to add manually: capture one `CrashLoopBackOff`, one readiness failure, and one graceful termination. Suggested filenames are `pod-crashloop.png`, `readiness-probe.png`, and `graceful-termination.png`.
+The main results to compare are an increasing restart count for `CrashLoopBackOff`, `READY 0/1` for a failed readiness probe, and a clean shutdown message during graceful termination.
+
+```text
+lifecycle-crashloop     0/1   CrashLoopBackOff
+lifecycle-readiness     0/1   Running
+lifecycle-termination   1/1   Terminating
+```
 
 ## 6. ReplicaSet and StatefulSet
 
@@ -302,7 +311,12 @@ kubectl apply -f 02-blue-green/service-blue.yaml
 
 The switch is fast because the Service selector changes. The trade-off is running both versions at the same time.
 
-> Manual capture point: show the Service selector and EndpointSlice before the switch, apply the green Service manifest, and show the changed endpoints after the switch.
+Expected result: the Service selector changes from `slot=blue` to `slot=green`, and its EndpointSlice changes to the green Pods.
+
+```text
+Before cutover: selector slot=blue
+After cutover:  selector slot=green
+```
 
 ## 12. Canary deployment
 
@@ -338,7 +352,14 @@ A 9:1 Pod ratio does not guarantee exactly 90:10 traffic for a small sample. For
 
 ![The canary NodePort Service in the service list](images/canary-traffic-check.png)
 
-> Manual capture point: save the completed 20-request loop showing both stable and canary responses as `images/canary-responses.png`.
+Expected result: most requests return the stable version and a smaller number return the canary version. The exact ratio varies over a small sample.
+
+```text
+STABLE v1
+STABLE v1
+CANARY v2
+STABLE v1
+```
 
 ## 13. Recreate deployment
 
@@ -372,7 +393,13 @@ done
 kubectl apply -f 04-recreate/deployment-v2.yaml
 ```
 
-> Screenshot to add manually: capture the request loop changing from v1 to an outage and then v2. Save it as `images/recreate-outage.png`.
+Expected result: requests return v1, fail briefly while the old Pods are removed, and then return v2.
+
+```text
+Application v1
+[OUTAGE] no ready Pod
+Application v2
+```
 
 ## Deployment strategy summary
 

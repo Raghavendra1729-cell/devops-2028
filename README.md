@@ -3,7 +3,7 @@
 **Name:** Raghavendra  
 **Enrollment number:** 24BCS10250
 
-This repository contains my class notes, commands, small practical exercises, and screenshots from Linux through Kubernetes. I kept each session in its own folder so I can revise one topic without searching through the whole repository.
+This repository contains class notes, commands, small practical exercises, and screenshots from Linux through Kubernetes. Each session is kept in its own folder for quick revision.
 
 | Class | Topic | Notes |
 |---:|---|---|
@@ -19,4 +19,4 @@ This repository contains my class notes, commands, small practical exercises, an
 | Lecture 11 | Kubernetes Networking and Services | [Open notes](Kubernetes%20Networking%20%26%20Services/README.md) |
 | Lecture 12 | Kubernetes Ingress, ConfigMaps and Secrets | [Open notes](Kubernetes%20Ingress%2C%20ConfigMaps%20%26%20Secrets/README.md) |
 
-The older Docker sections contain my own practical files and runtime evidence. The Kubernetes sections are revision notes compiled from our class tasks and shared class repositories; reference screenshots are labelled inside the notes, and missing Minikube-specific captures are left as clear manual capture points.
+The Kubernetes section follows the Lecture 9–12 task order: fundamentals, workloads, networking, and configuration with Ingress.

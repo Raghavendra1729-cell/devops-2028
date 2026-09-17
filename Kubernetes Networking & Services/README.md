@@ -4,9 +4,7 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 11
 
-Pods can disappear and come back with different IP addresses. A Service gives clients a stable name and a stable way to reach the current healthy Pods. These notes cover the five Service types from class and the DNS details around them.
-
-> The screenshots are reference runs from our class repositories. The exact IP addresses and generated ports will be different on another cluster.
+Pods can disappear and come back with different IP addresses. A Service gives clients a stable name and a stable way to reach the current healthy Pods. These notes cover the five Service types from class and the DNS details around them. IP addresses and generated ports vary between clusters.
 
 ## 1. The four ports
 

@@ -4,9 +4,7 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 9
 
-These are my notes from the first Kubernetes class. I kept the setup commands, the main architecture, and the few commands I would use first when checking a cluster.
-
-> The terminal screenshots in this folder are reference runs collected from our class repositories. Some were taken on `kind`, so I have kept Minikube-specific capture points separately instead of pretending they are the same run.
+These notes cover the local cluster setup, Kubernetes architecture, Pods, namespaces, and the commands used to check cluster health.
 
 ## 1. Install and verify the tools
 
@@ -25,9 +23,12 @@ minikube version
 kubectl version --client
 ```
 
-The important part is that both commands return a version without an error.
+Expected result: both commands print their installed client versions without an error.
 
-> Screenshot to add manually: run both version commands in one terminal window and save it as `images/minikube-kubectl-versions.png`.
+```text
+minikube version: vX.Y.Z
+Client Version: vX.Y.Z
+```
 
 ## 2. Start and check the cluster
 
@@ -46,9 +47,16 @@ What I check:
 
 ![Cluster information, ready nodes and namespaces](images/k8-01-cluster.png)
 
-This screenshot is from a `kind` reference cluster, but `kubectl cluster-info` and `kubectl get nodes` are checked in the same way on Minikube.
+The important result is a reachable control plane and a node whose status is `Ready`.
 
-> Screenshot to add manually: capture `minikube status` together with `kubectl get nodes -o wide` and save it as `images/minikube-status.png`.
+```text
+host: Running
+kubelet: Running
+apiserver: Running
+
+NAME       STATUS   ROLES           VERSION
+minikube   Ready    control-plane   vX.Y.Z
+```
 
 ## 3. Kubernetes architecture
 
@@ -97,7 +105,7 @@ kubectl get --raw='/readyz?verbose'
 
 A Pod is the smallest deployable Kubernetes object. It normally contains one main application container, although helper, sidecar and init containers are also possible.
 
-For a quick test without keeping a YAML file, this reference run starts NGINX and leaves it running long enough to inspect:
+For a quick test without keeping a YAML file, this command starts NGINX and leaves it running long enough to inspect:
 
 ```bash
 kubectl run hello-nginx --image=nginx:1.25-alpine --port=80
@@ -159,7 +167,14 @@ minikube status
 
 `stop` keeps the cluster so it can be started again. `minikube delete` removes the local cluster completely, so I only use it when I really want a fresh setup.
 
-> Screenshot to add manually: capture `minikube stop` followed by `minikube status` and save it as `images/minikube-stop.png`.
+Expected result after `stop`: the host, kubelet, and API server are reported as stopped while the kubeconfig remains available.
+
+```text
+host: Stopped
+kubelet: Stopped
+apiserver: Stopped
+kubeconfig: Configured
+```
 
 ## Quick check
 

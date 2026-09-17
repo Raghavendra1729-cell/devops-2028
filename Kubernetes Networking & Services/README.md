@@ -1,7 +1,7 @@
 # Kubernetes Networking & Services
 
-**Name:** Raghavendra  
-**Enrollment number:** 24BCS10250  
+**Name:** Raghavendra
+**Enrollment number:** 24BCS10250
 **Class:** Lecture 11
 
 ## Aim
@@ -75,7 +75,13 @@ kubectl get service kubernetes-docs
 kubectl exec dns-client -- nslookup kubernetes-docs
 ```
 
-The DNS result shows that `kubernetes-docs` points to `kubernetes.io`.
+The DNS result shows that `kubernetes-docs` points to `kubernetes.io`. ExternalName changes DNS, not the HTTP Host header or TLS hostname. A request using the alias as its HTTP hostname can be rejected by the external site. I verified HTTPS through the alias while keeping the real hostname:
+
+```bash
+kubectl -n earlier-audit exec curl-diagnostic -- curl -fsSI --connect-to kubernetes.io:443:kubernetes-docs:443 https://kubernetes.io/
+```
+
+The [HTTPS check](outputs/externalname-http.txt) records the response with certificate verification enabled.
 
 ## 5. Headless Service
 
@@ -168,3 +174,7 @@ kubectl delete -f 04-externalname.yaml --ignore-not-found
 kubectl delete -f 05-headless.yaml --ignore-not-found
 kubectl delete pod dns-client --ignore-not-found
 ```
+
+## Rechecked outputs
+
+All manifests passed [server validation](outputs/server-validation.txt). The [Service and DNS results](outputs/services-rechecked.txt) include ClusterIP, LoadBalancer, ExternalName and headless lookups. The [NodePort test](outputs/nodeport-rechecked.txt) returned the Nginx page through the Minikube tunnel. These checks used an isolated `earlier-audit` namespace.

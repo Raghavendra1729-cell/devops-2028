@@ -1,0 +1,14 @@
+$ kubectl -n earlier-audit exec curl-diagnostic -- curl -fsSI --max-time 15 --connect-to kubernetes.io:443:kubernetes-docs:443 https://kubernetes.io/
+HTTP/2 200
+accept-ranges: bytes
+age: 0
+cache-control: public,max-age=0,must-revalidate
+cache-status: "Netlify Edge"; fwd=stale; fwd-status=200; stored
+content-type: text/html; charset=UTF-8
+date: Fri, 02 Oct 2026 14:40:37 GMT
+etag: "8c70aed5cd43bb2a1911e8e3e018547f-ssl"
+server: Netlify
+strict-transport-security: max-age=31536000
+vary: Accept-Encoding
+x-nf-request-id: 01M3YGYQ55GS7BYVCJWPXSAAJ3
+content-length: 41608

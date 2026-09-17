@@ -1,0 +1,73 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/04-failed.yaml
+pod/lifecycle-failed unchanged
+Exit status: 0
+
+$ kubectl -n lifecycle-audit get pod lifecycle-failed -o wide
+NAME               READY   STATUS   RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-failed   0/1     Error    0          4m51s   10.244.0.29   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-failed
+Name:             lifecycle-failed
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:48:14 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Failed
+IP:               10.244.0.29
+IPs:
+  IP:  10.244.0.29
+Containers:
+  app:
+    Container ID:  containerd://38419f282e1cd833e7de355ee4ef83e65185b50bd87e365cb92e7a10f20eeac1
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo intentional failure; exit 1
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Fri, 02 Oct 2026 19:48:15 +0530
+      Finished:     Fri, 02 Oct 2026 19:48:15 +0530
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-649t9 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-649t9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  4m50s  default-scheduler  Successfully assigned lifecycle-audit/lifecycle-failed to minikube
+  Normal  Pulled     4m50s  kubelet            spec.containers{app}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    4m50s  kubelet            spec.containers{app}: Container created
+  Normal  Started    4m49s  kubelet            spec.containers{app}: Container started
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-failed --tail=5
+intentional failure
+Exit status: 0

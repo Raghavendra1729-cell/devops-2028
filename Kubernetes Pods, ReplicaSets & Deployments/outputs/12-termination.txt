@@ -1,0 +1,73 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/12-termination.yaml
+pod/lifecycle-termination unchanged
+
+$ kubectl -n lifecycle-audit wait --for=condition=Ready pod/lifecycle-termination --timeout=90s
+pod/lifecycle-termination condition met
+
+$ kubectl -n lifecycle-audit get pod lifecycle-termination -o wide
+NAME                    READY   STATUS    RESTARTS   AGE    IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-termination   1/1     Running   0          3m7s   10.244.0.50   minikube   <none>           <none>
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-termination
+Name:             lifecycle-termination
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:53:18 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.50
+IPs:
+  IP:  10.244.0.50
+Containers:
+  app:
+    Container ID:  containerd://98023fb54ee35ab3ebc202c0b2952ce2d87a65e7d72649e09b8800def9d66eac
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      trap 'echo SIGTERM received; sleep 5; echo cleanup complete; exit 0' TERM; while true; do sleep 1; done
+    State:          Running
+      Started:      Fri, 02 Oct 2026 19:53:22 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hlcrp (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-hlcrp:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  3m6s  default-scheduler  Successfully assigned lifecycle-audit/lifecycle-termination to minikube
+  Normal  Pulled     3m4s  kubelet            spec.containers{app}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    3m4s  kubelet            spec.containers{app}: Container created
+  Normal  Started    3m3s  kubelet            spec.containers{app}: Container started
+
+$ kubectl -n lifecycle-audit delete pod lifecycle-termination
+pod "lifecycle-termination" deleted from lifecycle-audit namespace
+
+$ kubectl -n lifecycle-audit logs lifecycle-termination -f (stream opened before deletion)
+SIGTERM received
+cleanup complete

@@ -1,0 +1,103 @@
+$ kubectl -n earlier-audit get services
+NAME                       TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)          AGE
+backend-service            ClusterIP      10.102.84.250    <none>          80/TCP           2m9s
+frontend-service           ClusterIP      10.98.57.106     <none>          80/TCP           2m9s
+kubernetes-docs            ExternalName   <none>           kubernetes.io   <none>           2m7s
+web-service-clusterip      ClusterIP      10.110.6.96      <none>          80/TCP           2m7s
+web-service-headless       ClusterIP      None             <none>          80/TCP           2m7s
+web-service-loadbalancer   LoadBalancer   10.99.242.186    127.0.0.1       8080:32165/TCP   2m7s
+web-service-nodeport       NodePort       10.105.106.207   <none>          80:30080/TCP     2m7s
+Exit status: 0
+
+$ kubectl -n earlier-audit exec dns-client -- wget -qO- http://web-service-clusterip
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0
+
+$ kubectl -n earlier-audit exec dns-client -- nslookup web-service-headless.earlier-audit.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	web-service-headless.earlier-audit.svc.cluster.local
+Address: 10.244.0.79
+Name:	web-service-headless.earlier-audit.svc.cluster.local
+Address: 10.244.0.80
+
+Exit status: 0
+
+$ kubectl -n earlier-audit exec dns-client -- nslookup web-headless-0.web-service-headless.earlier-audit.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	web-headless-0.web-service-headless.earlier-audit.svc.cluster.local
+Address: 10.244.0.79
+
+Exit status: 0
+
+$ kubectl -n earlier-audit exec dns-client -- nslookup kubernetes-docs.earlier-audit.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+kubernetes-docs.earlier-audit.svc.cluster.local	canonical name = kubernetes.io
+
+kubernetes-docs.earlier-audit.svc.cluster.local	canonical name = kubernetes.io
+Name:	kubernetes.io
+Address: 3.33.186.135
+Name:	kubernetes.io
+Address: 15.197.167.90
+
+Exit status: 0
+
+$ kubectl -n earlier-audit exec dns-client -- wget -T 10 -qO- http://kubernetes-docs
+wget: server returned error: HTTP/1.1 400 Bad Request
+command terminated with exit code 1
+Exit status: 1
+
+$ curl -fsS http://127.0.0.1:8080
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0

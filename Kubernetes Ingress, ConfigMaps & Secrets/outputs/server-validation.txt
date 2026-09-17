@@ -1,0 +1,22 @@
+$ kubectl apply --dry-run=server -n earlier-audit -f ingress.yaml
+ingress.networking.k8s.io/coursework-ingress created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f frontend.yaml
+deployment.apps/frontend created (server dry run)
+service/frontend-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f secret-demo.yaml
+secret/app-secret created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f configmap.yaml
+configmap/app-config created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f backend.yaml
+deployment.apps/backend created (server dry run)
+service/backend-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f troubleshooting/fixed-service.yaml
+service/backend-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f troubleshooting/broken-service.yaml
+service/backend-service created (server dry run)

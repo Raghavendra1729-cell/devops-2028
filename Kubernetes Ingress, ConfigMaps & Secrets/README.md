@@ -1,7 +1,7 @@
 # Kubernetes Ingress, ConfigMaps & Secrets
 
-**Name:** Raghavendra  
-**Enrollment number:** 24BCS10250  
+**Name:** Raghavendra
+**Enrollment number:** 24BCS10250
 **Class:** Lecture 12
 
 ## Aim
@@ -147,3 +147,5 @@ kubectl delete -f configmap.yaml --ignore-not-found
 kubectl delete -f secret-demo.yaml --ignore-not-found
 kubectl delete pod curl-client --ignore-not-found
 ```
+
+The [rechecked routing output](outputs/routing-rechecked.txt) confirms the injected configuration and Secret variable, frontend path and backend API path in the isolated audit namespace. All manifests also passed [server validation](outputs/server-validation.txt).

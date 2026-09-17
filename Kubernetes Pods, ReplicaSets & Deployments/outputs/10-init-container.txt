@@ -1,0 +1,103 @@
+$ kubectl -n lifecycle-audit apply -f pod-lifecycle/10-init-container.yaml
+pod/lifecycle-init configured
+Exit status: 0
+
+$ kubectl -n lifecycle-audit get pod lifecycle-init -o wide
+NAME             READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+lifecycle-init   1/1     Running   0          4m54s   10.244.0.23   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n lifecycle-audit describe pod lifecycle-init
+Name:             lifecycle-init
+Namespace:        lifecycle-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:48:14 +0530
+Labels:           lab=pod-lifecycle
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.23
+IPs:
+  IP:  10.244.0.23
+Init Containers:
+  setup:
+    Container ID:  containerd://ecd8ae83e7ee1324edc0527d8828a54f5db4eb36d7c4245d43c74386359c37c6
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo initialized > /work/status.txt
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 02 Oct 2026 19:48:15 +0530
+      Finished:     Fri, 02 Oct 2026 19:48:15 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8fv6t (ro)
+      /work from work (rw)
+Containers:
+  app:
+    Container ID:  containerd://63d0d994b21777a639be0b8fd79232f8314aec9e833b9af2a59bab3de3832754
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      cat /work/status.txt; sleep 3600
+    State:          Running
+      Started:      Fri, 02 Oct 2026 19:48:16 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8fv6t (ro)
+      /work from work (rw)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  work:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  kube-api-access-8fv6t:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  4m54s  default-scheduler  Successfully assigned lifecycle-audit/lifecycle-init to minikube
+  Normal  Pulled     4m54s  kubelet            spec.initContainers{setup}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    4m54s  kubelet            spec.initContainers{setup}: Container created
+  Normal  Started    4m54s  kubelet            spec.initContainers{setup}: Container started
+  Normal  Pulled     4m53s  kubelet            spec.containers{app}: Container image "busybox:1.36" already present on machine and can be accessed by the pod
+  Normal  Created    4m53s  kubelet            spec.containers{app}: Container created
+  Normal  Started    4m53s  kubelet            spec.containers{app}: Container started
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-init -c setup
+Exit status: 0
+
+$ kubectl -n lifecycle-audit logs lifecycle-init -c app
+initialized
+Exit status: 0

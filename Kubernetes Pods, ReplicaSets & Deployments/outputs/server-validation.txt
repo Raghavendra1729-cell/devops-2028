@@ -1,0 +1,81 @@
+$ kubectl apply --dry-run=server -n earlier-audit -f 03-canary/canary.yaml
+deployment.apps/app-canary created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 03-canary/stable.yaml
+deployment.apps/app-stable created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 03-canary/service.yaml
+service/canary-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 02-blue-green/green.yaml
+deployment.apps/app-green created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 02-blue-green/blue.yaml
+deployment.apps/app-blue created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 02-blue-green/service-blue.yaml
+service/strategy-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 02-blue-green/service-green.yaml
+service/strategy-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/02-pending.yaml
+pod/lifecycle-pending created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/12-termination.yaml
+pod/lifecycle-termination created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/08-liveness.yaml
+pod/lifecycle-liveness created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/04-failed.yaml
+pod/lifecycle-failed created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/01-running.yaml
+pod/lifecycle-running created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/06-imagepullbackoff.yaml
+pod/lifecycle-imagepull created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/07-readiness.yaml
+pod/lifecycle-readiness created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/03-succeeded.yaml
+pod/lifecycle-succeeded created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/10-init-container.yaml
+pod/lifecycle-init created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/09-startup.yaml
+pod/lifecycle-startup created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/05-crashloopbackoff.yaml
+pod/lifecycle-crashloop created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f pod-lifecycle/11-multi-container.yaml
+pod/lifecycle-multi created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 01-rolling-update/deployment-v2.yaml
+deployment.apps/rolling-web created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 01-rolling-update/deployment-v1.yaml
+deployment.apps/rolling-web created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f controllers/daemonset.yaml
+daemonset.apps/node-agent created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f controllers/replicaset.yaml
+replicaset.apps/demo-replicaset created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f controllers/statefulset.yaml
+service/mysql-headless created (server dry run)
+statefulset.apps/mysql-demo created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 04-recreate/deployment-v2.yaml
+deployment.apps/app-recreate created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 04-recreate/service.yaml
+service/recreate-service created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 04-recreate/deployment-v1.yaml
+deployment.apps/app-recreate created (server dry run)

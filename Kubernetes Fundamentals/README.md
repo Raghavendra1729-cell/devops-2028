@@ -1,7 +1,7 @@
 # Kubernetes Fundamentals
 
-**Name:** Raghavendra  
-**Enrollment number:** 24BCS10250  
+**Name:** Raghavendra
+**Enrollment number:** 24BCS10250
 **Class:** Lecture 9
 
 ## Aim
@@ -98,6 +98,32 @@ curl http://127.0.0.1:8080
 ```
 
 ![Pod and namespace commands](images/local-pods-namespaces.png)
+
+## Kubernetes Basics tutorial
+
+I completed the six [Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/) stages using a small Nginx application on Minikube: create the cluster, deploy, explore, expose, scale and update. Nginx was used for an image that runs on the ARM64 computer.
+
+The [recorded tutorial run](outputs/basics-tutorial.txt) includes:
+
+1. A Deployment and its healthy rollout.
+2. Pod, Deployment, Service, logs and container inspection.
+3. A ClusterIP Service tested from a client Pod.
+4. Scaling from one replica to three.
+5. Updating Nginx from 1.27 to 1.28 and checking rollout history.
+6. Rolling back and verifying the restored image.
+
+```bash
+kubectl create namespace basics-audit
+kubectl -n basics-audit create deployment basics-nginx --image=nginx:1.27-alpine
+kubectl -n basics-audit expose deployment basics-nginx --port=80 --type=ClusterIP
+kubectl -n basics-audit scale deployment/basics-nginx --replicas=3
+kubectl -n basics-audit set image deployment/basics-nginx nginx=nginx:1.28-alpine
+kubectl -n basics-audit rollout status deployment/basics-nginx
+kubectl -n basics-audit rollout undo deployment/basics-nginx
+kubectl delete namespace basics-audit
+```
+
+![Basics tutorial command output](images/basics-tutorial.jpg)
 
 ## Cleanup
 

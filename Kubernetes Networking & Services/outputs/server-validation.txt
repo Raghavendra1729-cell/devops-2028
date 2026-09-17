@@ -1,0 +1,18 @@
+$ kubectl apply --dry-run=server -n earlier-audit -f 02-nodeport.yaml
+deployment.apps/web-nodeport created (server dry run)
+service/web-service-nodeport created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 03-loadbalancer.yaml
+deployment.apps/web-loadbalancer created (server dry run)
+service/web-service-loadbalancer created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 05-headless.yaml
+service/web-service-headless created (server dry run)
+statefulset.apps/web-headless created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 04-externalname.yaml
+service/kubernetes-docs created (server dry run)
+
+$ kubectl apply --dry-run=server -n earlier-audit -f 01-clusterip.yaml
+deployment.apps/web-clusterip created (server dry run)
+service/web-service-clusterip created (server dry run)

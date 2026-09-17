@@ -1,0 +1,2 @@
+$ kubectl apply --dry-run=server -n earlier-audit -f manifests/hello-nginx.yaml
+pod/hello-nginx created (server dry run)

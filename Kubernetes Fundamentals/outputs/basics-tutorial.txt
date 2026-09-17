@@ -1,0 +1,192 @@
+$ kubectl create namespace basics-audit
+namespace/basics-audit created
+Exit status: 0
+
+$ kubectl -n basics-audit create deployment basics-nginx --image=nginx:1.27-alpine
+deployment.apps/basics-nginx created
+Exit status: 0
+
+$ kubectl -n basics-audit rollout status deployment/basics-nginx --timeout=120s
+Waiting for deployment "basics-nginx" rollout to finish: 0 of 1 updated replicas are available...
+deployment "basics-nginx" successfully rolled out
+Exit status: 0
+
+$ kubectl -n basics-audit expose deployment basics-nginx --port=80 --type=ClusterIP
+service/basics-nginx exposed
+Exit status: 0
+
+$ kubectl -n basics-audit run basics-client --image=busybox:1.36 --command -- sleep 3600
+pod/basics-client created
+Exit status: 0
+
+$ kubectl -n basics-audit wait --for=condition=Ready pod/basics-client --timeout=120s
+pod/basics-client condition met
+Exit status: 0
+
+$ kubectl -n basics-audit get deployments,pods,services -o wide
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES              SELECTOR
+deployment.apps/basics-nginx   1/1     1            1           1s    nginx        nginx:1.27-alpine   app=basics-nginx
+
+NAME                                READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+pod/basics-client                   1/1     Running   0          0s    10.244.0.31   minikube   <none>           <none>
+pod/basics-nginx-7755b76bf8-pkpwj   1/1     Running   0          1s    10.244.0.30   minikube   <none>           <none>
+
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+service/basics-nginx   ClusterIP   10.101.25.232   <none>        80/TCP    1s    app=basics-nginx
+Exit status: 0
+
+$ kubectl -n basics-audit describe deployment basics-nginx
+Name:                   basics-nginx
+Namespace:              basics-audit
+CreationTimestamp:      Fri, 02 Oct 2026 19:50:18 +0530
+Labels:                 app=basics-nginx
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=basics-nginx
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=basics-nginx
+  Containers:
+   nginx:
+    Image:         nginx:1.27-alpine
+    Port:          <none>
+    Host Port:     <none>
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   basics-nginx-7755b76bf8 (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  1s    deployment-controller  Scaled up replica set basics-nginx-7755b76bf8 from 0 to 1
+Exit status: 0
+
+$ kubectl -n basics-audit exec basics-client -- wget -qO- http://basics-nginx
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0
+
+$ kubectl -n basics-audit logs deployment/basics-nginx --tail=5
+2026/10/02 14:20:18 [notice] 1#1: start worker process 34
+2026/10/02 14:20:18 [notice] 1#1: start worker process 35
+2026/10/02 14:20:18 [notice] 1#1: start worker process 36
+2026/10/02 14:20:18 [notice] 1#1: start worker process 37
+10.244.0.31 - - [02/Oct/2026:14:20:20 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+Exit status: 0
+
+$ kubectl -n basics-audit scale deployment/basics-nginx --replicas=3
+deployment.apps/basics-nginx scaled
+Exit status: 0
+
+$ kubectl -n basics-audit rollout status deployment/basics-nginx --timeout=120s
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "basics-nginx" rollout to finish: 2 of 3 updated replicas are available...
+deployment "basics-nginx" successfully rolled out
+Exit status: 0
+
+$ kubectl -n basics-audit get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+basics-client                   1/1     Running   0          3s
+basics-nginx-7755b76bf8-bqbcm   1/1     Running   0          1s
+basics-nginx-7755b76bf8-pkpwj   1/1     Running   0          4s
+basics-nginx-7755b76bf8-vbdwh   1/1     Running   0          1s
+Exit status: 0
+
+$ kubectl -n basics-audit set image deployment/basics-nginx nginx=nginx:1.28-alpine
+deployment.apps/basics-nginx image updated
+Exit status: 0
+
+$ kubectl -n basics-audit rollout status deployment/basics-nginx --timeout=120s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "basics-nginx" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+deployment "basics-nginx" successfully rolled out
+Exit status: 0
+
+$ kubectl -n basics-audit rollout history deployment/basics-nginx
+deployment.apps/basics-nginx
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+
+Exit status: 0
+
+$ kubectl -n basics-audit get deployment basics-nginx -o 'jsonpath={.spec.template.spec.containers[0].image}{"\n"}'
+nginx:1.28-alpine
+Exit status: 0
+
+$ kubectl -n basics-audit rollout undo deployment/basics-nginx
+deployment.apps/basics-nginx rolled back
+Exit status: 0
+
+$ kubectl -n basics-audit rollout status deployment/basics-nginx --timeout=120s
+Waiting for deployment spec update to be observed...
+Waiting for deployment spec update to be observed...
+Waiting for deployment "basics-nginx" rollout to finish: 0 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "basics-nginx" rollout to finish: 1 old replicas are pending termination...
+deployment "basics-nginx" successfully rolled out
+Exit status: 0
+
+$ kubectl -n basics-audit get deployment basics-nginx -o 'jsonpath={.spec.template.spec.containers[0].image}{"\n"}'
+nginx:1.27-alpine
+Exit status: 0
+
+$ kubectl -n basics-audit get pods
+NAME                            READY   STATUS        RESTARTS   AGE
+basics-client                   1/1     Running       0          16s
+basics-nginx-7755b76bf8-czrjr   1/1     Running       0          2s
+basics-nginx-7755b76bf8-j87sz   1/1     Running       0          4s
+basics-nginx-7755b76bf8-w9pvr   1/1     Running       0          6s
+basics-nginx-96dc9c749-m2tc6    1/1     Terminating   0          12s
+Exit status: 0

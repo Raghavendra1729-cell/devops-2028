@@ -1,5 +1,9 @@
 # Kubernetes Ingress, ConfigMaps & Secrets
 
+**Name:** Raghavendra  
+**Enrollment number:** 24BCS10250  
+**Class:** Lecture 12
+
 This session connects three ideas: keep configuration outside the image, keep sensitive values separate from normal configuration, and route HTTP traffic to several Services through one entry point.
 
 > The screenshots are reference runs from our class repositories. They contain demo values only. Real passwords, keys and certificates should never be copied into a public repository.
@@ -367,7 +371,7 @@ curl -k --resolve portal.campus.local:443:<ingress-ip> \
 
 `-k` is only for the self-signed local lab. A real public service needs a trusted certificate and normal verification.
 
-![TLS-enabled Ingress reference run](images/tls-ingress-reference.png)
+> Manual capture point: show the TLS Secret, an Ingress with ports `80, 443`, and a successful `curl -k --resolve` response. Save it as `images/tls-success.png`.
 
 ## 14. Complete demo and automation
 
@@ -427,3 +431,7 @@ kubectl get events --sort-by=.lastTimestamp
 ```
 
 My order is: Pod health, Service selector/endpoints, Ingress rules, controller logs, then DNS or host mapping.
+
+The reference run below is intentionally kept as a troubleshooting example, not successful TLS evidence. It shows three useful clues together: missing backend Services, an empty Ingress address, and `curl --resolve` receiving no IP. The fix is to create healthy Services first and wait until the chosen controller publishes a reachable address before testing HTTPS.
+
+![Failed TLS attempt caused by missing Services and an empty Ingress address](images/tls-ingress-reference.png)

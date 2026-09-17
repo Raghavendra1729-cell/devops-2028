@@ -1,5 +1,9 @@
 # Kubernetes Networking & Services
 
+**Name:** Raghavendra  
+**Enrollment number:** 24BCS10250  
+**Class:** Lecture 11
+
 Pods can disappear and come back with different IP addresses. A Service gives clients a stable name and a stable way to reach the current healthy Pods. These notes cover the five Service types from class and the DNS details around them.
 
 > The screenshots are reference runs from our class repositories. The exact IP addresses and generated ports will be different on another cluster.
@@ -254,7 +258,9 @@ Need outside traffic?
   `-- many HTTP services -> one Gateway/Ingress entry point + ClusterIP backends
 ```
 
-Creating one cloud load balancer for every HTTP microservice multiplies cost and public entry points. A shared Layer 7 gateway can route by hostname or path to internal ClusterIP Services. Actual prices depend on provider, region and traffic, so I would calculate them from the current cloud pricing instead of keeping a fixed dollar amount in notes.
+Creating one cloud load balancer for every HTTP microservice multiplies cost and public entry points. A shared Layer 7 gateway can route by hostname or path to internal ClusterIP Services.
+
+The classroom estimate used `$25` per load balancer per month. With that assumption, 50 separate load balancers cost `50 x $25 = $1,250/month`; one shared entry point costs `$25/month`, an illustrative saving of `$1,225/month`. This is class arithmetic, not a current cloud quote. Real prices depend on provider, region, hours, capacity and traffic, so I would check the provider calculator before making a production estimate.
 
 ## 12. Minikube Docker-driver networking on macOS and Windows
 

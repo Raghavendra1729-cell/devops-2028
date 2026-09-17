@@ -1,5 +1,9 @@
 # Kubernetes Fundamentals
 
+**Name:** Raghavendra  
+**Enrollment number:** 24BCS10250  
+**Class:** Lecture 9
+
 These are my notes from the first Kubernetes class. I kept the setup commands, the main architecture, and the few commands I would use first when checking a cluster.
 
 > The terminal screenshots in this folder are reference runs collected from our class repositories. Some were taken on `kind`, so I have kept Minikube-specific capture points separately instead of pretending they are the same run.
@@ -93,23 +97,20 @@ kubectl get --raw='/readyz?verbose'
 
 A Pod is the smallest deployable Kubernetes object. It normally contains one main application container, although helper, sidecar and init containers are also possible.
 
-For a quick test without keeping a YAML file:
+For a quick test without keeping a YAML file, this reference run starts NGINX and leaves it running long enough to inspect:
 
 ```bash
-kubectl run hello-pod \
-  --image=busybox:1.36 \
-  --restart=Never \
-  -- sh -c 'echo Hello Kubernetes'
-
-kubectl get pod hello-pod -o wide
-kubectl logs hello-pod
-kubectl describe pod hello-pod
-kubectl delete pod hello-pod
+kubectl run hello-nginx --image=nginx:1.25-alpine --port=80
+kubectl wait --for=condition=Ready pod/hello-nginx --timeout=120s
+kubectl get pod hello-nginx -o wide
+kubectl describe pod hello-nginx
+kubectl exec hello-nginx -- nginx -v
+kubectl delete pod hello-nginx
 ```
 
-For this short command, the normal final state is `Completed` because the process exits successfully.
+Its normal state is `Running` because the NGINX process stays active. A short command such as `echo` with `restartPolicy: Never` would finish as `Completed` instead.
 
-![First Pod and its logs](images/k8-03-first-pod.png)
+![Creating and inspecting the hello-nginx Pod](images/k8-03-first-pod.png)
 
 ## 5. Namespaces
 
@@ -117,9 +118,10 @@ Namespaces separate groups of resources inside one cluster. A name only needs to
 
 ```bash
 kubectl get namespaces
-kubectl create namespace practice
-kubectl get all -n practice
-kubectl delete namespace practice
+kubectl create namespace dev
+kubectl run hello-dev --image=nginx:1.25-alpine -n dev
+kubectl get pods -A | grep -E 'NAMESPACE|hello'
+kubectl delete namespace dev
 ```
 
 Common namespaces:
@@ -131,7 +133,7 @@ Common namespaces:
 | `kube-public` | Publicly readable cluster information when configured. |
 | `kube-node-lease` | Node heartbeat lease objects. |
 
-![Namespace listing and practice namespace](images/k8-04-namespaces.png)
+![Creating a Pod in the dev namespace and cleaning it up](images/k8-04-namespaces.png)
 
 ## 6. Generate YAML and read the schema
 

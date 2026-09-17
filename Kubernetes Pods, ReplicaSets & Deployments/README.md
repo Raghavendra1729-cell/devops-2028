@@ -1,5 +1,9 @@
 # Kubernetes Pods, ReplicaSets & Deployments
 
+**Name:** Raghavendra  
+**Enrollment number:** 24BCS10250  
+**Class:** Lecture 10
+
 This class was mainly about how Kubernetes keeps applications running and how it replaces one version with another. I arranged the notes in the same order as the tasks so they are easy to revise.
 
 > The screenshots are reference runs from our class repositories. Commands that need the class YAML files are kept as repeatable steps rather than made-up output.
@@ -67,7 +71,7 @@ Pending -> ErrImagePull -> ImagePullBackOff
 
 `ImagePullBackOff` means Kubernetes is retrying with an increasing delay. The useful error is normally near the bottom of `kubectl describe pod`.
 
-![Broken image and ImagePullBackOff diagnosis](images/k9-05-broken-image.png)
+> Manual capture point: create `broken-image-pod`, then capture its `ImagePullBackOff` status and the pull error from `kubectl describe`. The deployment rollback screenshot later in these notes is a separate failure drill.
 
 ## 4. A short-lived Pod
 
@@ -230,6 +234,8 @@ kubectl rollout undo deployment/app
 
 With a safe rolling strategy, old healthy Pods stay available while the new ReplicaSet is stuck.
 
+![A Deployment update failing with ImagePullBackOff, followed by rollback](images/k9-05-broken-image.png)
+
 ### Selector mismatch
 
 The labels in `spec.selector.matchLabels` must match the Pod-template labels. A mismatch is rejected because the Deployment would not know which Pods it owns.
@@ -296,7 +302,7 @@ kubectl apply -f 02-blue-green/service-blue.yaml
 
 The switch is fast because the Service selector changes. The trade-off is running both versions at the same time.
 
-![Blue and green endpoint switch](images/blue-green-endpoints.png)
+> Manual capture point: show the Service selector and EndpointSlice before the switch, apply the green Service manifest, and show the changed endpoints after the switch.
 
 ## 12. Canary deployment
 
@@ -311,9 +317,11 @@ kubectl scale deployment app-stable --replicas=9
 kubectl scale deployment app-canary --replicas=1
 kubectl get endpointslice -l kubernetes.io/service-name=app-service
 
-# Keep `minikube service app-service --url` running in another terminal
-# on drivers that create a tunnel, then copy the printed URL here.
-APP_URL='http://127.0.0.1:<printed-port>'
+# Keep this running in Terminal 1; some drivers create a local tunnel.
+minikube service app-service --url
+
+# In Terminal 2, paste the exact URL printed above when prompted.
+read -r -p 'Minikube URL: ' APP_URL
 for i in $(seq 1 20); do
   curl -s "$APP_URL"
 done
@@ -326,7 +334,11 @@ kubectl scale deployment app-canary --replicas=0
 
 A 9:1 Pod ratio does not guarantee exactly 90:10 traffic for a small sample. For precise weighted routing, a service mesh or traffic-aware gateway is a better choice.
 
-![Stable and canary traffic responses](images/canary-traffic-check.png)
+![Stable and canary Pods at the initial replica ratio](images/blue-green-endpoints.png)
+
+![The canary NodePort Service in the service list](images/canary-traffic-check.png)
+
+> Manual capture point: save the completed 20-request loop showing both stable and canary responses as `images/canary-responses.png`.
 
 ## 13. Recreate deployment
 
@@ -345,17 +357,18 @@ kubectl rollout status deployment/app-recreate
 # Terminal 1
 kubectl get pods -l app=app-recreate -w
 
-# Terminal 2
-# First run `minikube service app-recreate --url` in another terminal
-# and copy its printed URL below.
-APP_URL='http://127.0.0.1:<printed-port>'
+# Terminal 2: first keep this running to obtain the local URL
+minikube service app-recreate --url
+
+# Terminal 3: paste the exact URL printed by Terminal 2 when prompted
+read -r -p 'Minikube URL: ' APP_URL
 while true; do
   curl -s --connect-timeout 1 "$APP_URL" \
     || echo '[OUTAGE] no ready Pod';
   sleep 0.5;
 done
 
-# Terminal 3
+# Terminal 4
 kubectl apply -f 04-recreate/deployment-v2.yaml
 ```
 

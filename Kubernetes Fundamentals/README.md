@@ -1,0 +1,171 @@
+# Kubernetes Fundamentals
+
+These are my notes from the first Kubernetes class. I kept the setup commands, the main architecture, and the few commands I would use first when checking a cluster.
+
+> The terminal screenshots in this folder are reference runs collected from our class repositories. Some were taken on `kind`, so I have kept Minikube-specific capture points separately instead of pretending they are the same run.
+
+## 1. Install and verify the tools
+
+`kubectl` is the client used to talk to Kubernetes. Minikube creates a small local cluster that is useful for practice.
+
+On macOS with Homebrew:
+
+```bash
+brew install kubectl minikube
+```
+
+Verify both tools before starting:
+
+```bash
+minikube version
+kubectl version --client
+```
+
+The important part is that both commands return a version without an error.
+
+> Screenshot to add manually: run both version commands in one terminal window and save it as `images/minikube-kubectl-versions.png`.
+
+## 2. Start and check the cluster
+
+```bash
+minikube start
+minikube status
+kubectl cluster-info
+kubectl get nodes -o wide
+```
+
+What I check:
+
+- Minikube reports the host, kubelet and API server as running.
+- The node is `Ready`.
+- `kubectl cluster-info` can reach the control plane and CoreDNS.
+
+![Cluster information, ready nodes and namespaces](images/k8-01-cluster.png)
+
+This screenshot is from a `kind` reference cluster, but `kubectl cluster-info` and `kubectl get nodes` are checked in the same way on Minikube.
+
+> Screenshot to add manually: capture `minikube status` together with `kubectl get nodes -o wide` and save it as `images/minikube-status.png`.
+
+## 3. Kubernetes architecture
+
+Kubernetes is declarative. I describe the state I want, and its controllers keep comparing the current state with that desired state.
+
+```text
+kubectl
+   |
+   v
++--------------------------- CONTROL PLANE ---------------------------+
+| kube-apiserver <----> etcd                                         |
+|       |                                                            |
+|       +----> kube-scheduler                                        |
+|       +----> kube-controller-manager                               |
++----------------------------+----------------------------------------+
+                             |
+                             v
++--------------------------- WORKER NODE -----------------------------+
+| kubelet  |  container runtime  |  kube-proxy  |  application Pods  |
++---------------------------------------------------------------------+
+```
+
+| Component | Where it runs | What I remember |
+|---|---|---|
+| `kube-apiserver` | Control plane | Front door of the cluster. `kubectl` and other components use its API. |
+| `etcd` | Control plane | Stores Kubernetes API data and the cluster state. |
+| `kube-scheduler` | Control plane | Chooses a suitable node for a new unscheduled Pod. |
+| `kube-controller-manager` | Control plane | Runs reconciliation loops that move current state toward desired state. |
+| `kubelet` | Each node | Makes sure the containers described by Pod specs are running on that node. |
+| Container runtime | Each node | Actually runs containers, normally through a CRI-compatible runtime such as `containerd`. |
+| `kube-proxy` | Each node when used | Maintains network rules for Services. Some networking implementations replace it. |
+| CoreDNS | Cluster add-on | Gives Services and Pods useful DNS names. |
+
+The API server is the central communication point. Other components should not update `etcd` directly.
+
+To see system components in a local cluster:
+
+```bash
+kubectl get pods -n kube-system -o wide
+kubectl get --raw='/readyz?verbose'
+```
+
+![Kubernetes system Pods](images/k8-02-kube-system.png)
+
+## 4. First Pod and basic inspection
+
+A Pod is the smallest deployable Kubernetes object. It normally contains one main application container, although helper, sidecar and init containers are also possible.
+
+For a quick test without keeping a YAML file:
+
+```bash
+kubectl run hello-pod \
+  --image=busybox:1.36 \
+  --restart=Never \
+  -- sh -c 'echo Hello Kubernetes'
+
+kubectl get pod hello-pod -o wide
+kubectl logs hello-pod
+kubectl describe pod hello-pod
+kubectl delete pod hello-pod
+```
+
+For this short command, the normal final state is `Completed` because the process exits successfully.
+
+![First Pod and its logs](images/k8-03-first-pod.png)
+
+## 5. Namespaces
+
+Namespaces separate groups of resources inside one cluster. A name only needs to be unique inside its namespace.
+
+```bash
+kubectl get namespaces
+kubectl create namespace practice
+kubectl get all -n practice
+kubectl delete namespace practice
+```
+
+Common namespaces:
+
+| Namespace | Purpose |
+|---|---|
+| `default` | Used when I do not specify another namespace. |
+| `kube-system` | Kubernetes and add-on components. |
+| `kube-public` | Publicly readable cluster information when configured. |
+| `kube-node-lease` | Node heartbeat lease objects. |
+
+![Namespace listing and practice namespace](images/k8-04-namespaces.png)
+
+## 6. Generate YAML and read the schema
+
+These commands are useful when I forget a field:
+
+```bash
+kubectl create deployment web --image=nginx:alpine \
+  --dry-run=client -o yaml
+
+kubectl explain pod
+kubectl explain pod.spec.containers
+kubectl api-resources
+```
+
+`--dry-run=client -o yaml` lets me generate a starting manifest without creating the resource.
+
+## 7. Stop or reset Minikube
+
+```bash
+minikube stop
+minikube status
+```
+
+`stop` keeps the cluster so it can be started again. `minikube delete` removes the local cluster completely, so I only use it when I really want a fresh setup.
+
+> Screenshot to add manually: capture `minikube stop` followed by `minikube status` and save it as `images/minikube-stop.png`.
+
+## Quick check
+
+```bash
+minikube status
+kubectl get nodes
+kubectl get pods -A
+kubectl cluster-info
+```
+
+If these four checks work, the local cluster, node, system Pods and API connection are all available.

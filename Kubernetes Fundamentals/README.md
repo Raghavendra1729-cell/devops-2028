@@ -4,195 +4,106 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 9
 
-These notes cover the local cluster setup, Kubernetes architecture, Pods, namespaces, and the commands used to check cluster health.
+## Aim
 
-## 1. Install and verify the tools
+The aim of this session was to install Minikube, verify the local cluster, understand the main Kubernetes components, and practise basic `kubectl` commands.
 
-`kubectl` is the client used to talk to Kubernetes. Minikube creates a small local cluster that is useful for practice.
+I ran the commands below from this folder.
 
-On macOS with Homebrew:
+## Installation and cluster setup
+
+I installed the required tools with Homebrew:
 
 ```bash
-brew install kubectl minikube
+brew install kubectl
+brew install minikube
 ```
 
-Verify both tools before starting:
+I checked the versions and started a local cluster using the Docker driver:
 
 ```bash
-minikube version
 kubectl version --client
+minikube version
+minikube start --driver=docker
 ```
 
-Expected result: both commands print their installed client versions without an error.
+![Minikube and kubectl versions](images/minikube-kubectl-versions.png)
 
-```text
-minikube version: vX.Y.Z
-Client Version: vX.Y.Z
-```
+![Minikube cluster starting](images/minikube-start.png)
 
-![Minikube and kubectl versions verified locally](images/minikube-kubectl-versions.png)
+## Cluster verification
 
-## 2. Start and check the cluster
+I used the following commands to check that the control plane and node were running:
 
 ```bash
-minikube start
 minikube status
 kubectl cluster-info
 kubectl get nodes -o wide
+kubectl get pods -n kube-system
 ```
 
-What I check:
+The node showed the `Ready` status and the system Pods were running.
 
-- Minikube reports the host, kubelet and API server as running.
-- The node is `Ready`.
-- `kubectl cluster-info` can reach the control plane and CoreDNS.
+![Cluster verification](images/fresh-fundamentals-verification.png)
 
-![Starting the local Minikube cluster](images/minikube-start.png)
+## Kubernetes architecture notes
 
-The important result is a reachable control plane and a node whose status is `Ready`.
+The control plane manages the cluster. The worker node runs the applications.
 
-```text
-host: Running
-kubelet: Running
-apiserver: Running
+| Component | Purpose |
+|---|---|
+| API server | Accepts requests from `kubectl` and other clients |
+| etcd | Stores the cluster data |
+| Scheduler | Selects a node for a new Pod |
+| Controller manager | Tries to keep the cluster in the requested state |
+| kubelet | Makes sure the required containers run on a node |
+| Container runtime | Runs the containers |
+| kube-proxy | Helps with Service networking |
 
-NAME       STATUS   ROLES           VERSION
-minikube   Ready    control-plane   vX.Y.Z
-```
+In Minikube, one local node is used for both the control plane and the workloads.
 
-![Minikube status, ready node and running system Pods](images/minikube-status.png)
+## Basic Kubernetes objects
 
-Fresh verification of the current cluster, CoreDNS, node, manifest, and live NGINX response:
+- **Pod:** the smallest deployable unit in Kubernetes.
+- **Deployment:** manages Pods and supports scaling and updates.
+- **Service:** gives a stable network address to a group of Pods.
+- **Namespace:** separates resources inside one cluster.
 
-![Fresh Kubernetes fundamentals verification](images/fresh-fundamentals-verification.png)
-
-## 3. Kubernetes architecture
-
-Kubernetes is declarative. I describe the state I want, and its controllers keep comparing the current state with that desired state.
-
-```text
-kubectl
-   |
-   v
-+--------------------------- CONTROL PLANE ---------------------------+
-| kube-apiserver <----> etcd                                         |
-|       |                                                            |
-|       +----> kube-scheduler                                        |
-|       +----> kube-controller-manager                               |
-+----------------------------+----------------------------------------+
-                             |
-                             v
-+--------------------------- WORKER NODE -----------------------------+
-| kubelet  |  container runtime  |  kube-proxy  |  application Pods  |
-+---------------------------------------------------------------------+
-```
-
-| Component | Where it runs | What I remember |
-|---|---|---|
-| `kube-apiserver` | Control plane | Front door of the cluster. `kubectl` and other components use its API. |
-| `etcd` | Control plane | Stores Kubernetes API data and the cluster state. |
-| `kube-scheduler` | Control plane | Chooses a suitable node for a new unscheduled Pod. |
-| `kube-controller-manager` | Control plane | Runs reconciliation loops that move current state toward desired state. |
-| `kubelet` | Each node | Makes sure the containers described by Pod specs are running on that node. |
-| Container runtime | Each node | Actually runs containers, normally through a CRI-compatible runtime such as `containerd`. |
-| `kube-proxy` | Each node when used | Maintains network rules for Services. Some networking implementations replace it. |
-| CoreDNS | Cluster add-on | Gives Services and Pods useful DNS names. |
-
-The API server is the central communication point. Other components should not update `etcd` directly.
-
-To see system components in a local cluster:
+## Basic commands
 
 ```bash
-kubectl get pods -n kube-system -o wide
-kubectl get --raw='/readyz?verbose'
+kubectl get nodes
+kubectl get pods -A
+kubectl get services
+kubectl get namespaces
+kubectl describe node minikube
 ```
 
-## 4. First Pod and basic inspection
+## First Pod
 
-A Pod is the smallest deployable Kubernetes object. It normally contains one main application container, although helper, sidecar and init containers are also possible.
-
-The runnable Pod manifest is saved as `manifests/hello-nginx.yaml`:
+The Pod definition is in [`manifests/hello-nginx.yaml`](manifests/hello-nginx.yaml).
 
 ```bash
 kubectl apply -f manifests/hello-nginx.yaml
-kubectl wait --for=condition=Ready pod/hello-nginx --timeout=120s
 kubectl get pod hello-nginx -o wide
 kubectl describe pod hello-nginx
-kubectl exec hello-nginx -- nginx -v
-kubectl delete pod hello-nginx
+kubectl logs hello-nginx
+kubectl port-forward pod/hello-nginx 8080:80
 ```
 
-Its normal state is `Running` because the NGINX process stays active. A short command such as `echo` with `restartPolicy: Never` would finish as `Completed` instead.
-
-![Creating and inspecting my local hello-nginx Pod](images/local-pods-namespaces.png)
-
-## 5. Namespaces
-
-Namespaces separate groups of resources inside one cluster. A name only needs to be unique inside its namespace.
+In another terminal, I checked the Nginx page:
 
 ```bash
-kubectl get namespaces
-kubectl create namespace dev
-kubectl run hello-dev --image=nginx:1.25-alpine -n dev
-kubectl get pods -A | grep -E 'NAMESPACE|hello'
-kubectl delete namespace dev
+curl http://127.0.0.1:8080
 ```
 
-Common namespaces:
+![Pod and namespace commands](images/local-pods-namespaces.png)
 
-| Namespace | Purpose |
-|---|---|
-| `default` | Used when I do not specify another namespace. |
-| `kube-system` | Kubernetes and add-on components. |
-| `kube-public` | Publicly readable cluster information when configured. |
-| `kube-node-lease` | Node heartbeat lease objects. |
-
-![Running Pods in the default and dev namespaces](images/local-pods-namespaces.png)
-
-## 6. Generate YAML and read the schema
-
-These commands are useful when I forget a field:
+## Cleanup
 
 ```bash
-kubectl create deployment web --image=nginx:alpine \
-  --dry-run=client -o yaml
-
-kubectl explain pod
-kubectl explain pod.spec.containers
-kubectl api-resources
-```
-
-`--dry-run=client -o yaml` lets me generate a starting manifest without creating the resource.
-
-## 7. Stop or reset Minikube
-
-```bash
+kubectl delete -f manifests/hello-nginx.yaml
 minikube stop
-minikube status
 ```
 
-`stop` keeps the cluster so it can be started again. `minikube delete` removes the local cluster completely, so I only use it when I really want a fresh setup.
-
-Expected result after `stop`: the host, kubelet, and API server are reported as stopped while the kubeconfig remains available.
-
-```text
-host: Stopped
-kubelet: Stopped
-apiserver: Stopped
-kubeconfig: Configured
-```
-
-![Minikube stopped after the lab](images/minikube-stop.png)
-
-## Quick check
-
-```bash
-minikube status
-kubectl get nodes
-kubectl get pods -A
-kubectl cluster-info
-```
-
-If these four checks work, the local cluster, node, system Pods and API connection are all available.
-
-The Pod used for the hands-on check is committed at `manifests/hello-nginx.yaml`.
+![Minikube stopped](images/minikube-stop.png)

@@ -4,457 +4,146 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 12
 
-This session connects three ideas: keep configuration outside the image, keep sensitive values separate from normal configuration, and route HTTP traffic to several Services through one entry point. The examples use demo values only; real passwords, keys, and certificates should never be committed to a public repository.
+## Aim
 
-## 1. ConfigMap for normal configuration
+The aim of this session was to use a ConfigMap and Secret in an application, route requests with Ingress, understand the difference between Ingress and an Ingress controller, and troubleshoot a Service problem.
 
-A ConfigMap stores non-sensitive key-value data separately from the container image.
+I ran the commands below from this folder.
 
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-data:
-  ENVIRONMENT: production
-  LOG_LEVEL: INFO
-  PORT: "8080"
-  DEFAULT_CURRENCY: INR
-  MAX_BOOKING_DAYS: "30"
-```
+## 1. ConfigMap
+
+A ConfigMap stores non-sensitive configuration separately from the container image. The example stores the environment name and log level.
 
 ```bash
 kubectl apply -f configmap.yaml
 kubectl get configmap app-config
 kubectl describe configmap app-config
-kubectl get configmap app-config \
-  -o jsonpath='{.data.ENVIRONMENT}' && echo
 ```
 
-ConfigMaps are not encrypted and should not contain passwords or tokens.
-
-![Local Ingress controller and ConfigMap inspection](images/local-config-secret-environment.png)
-
-## 2. Updating a ConfigMap
-
-Environment variables are copied into a container when it starts. Changing the ConfigMap does not rewrite those variables inside an existing process.
-
-```bash
-kubectl patch configmap app-config \
-  --type merge \
-  -p '{"data":{"ENVIRONMENT":"staging"}}'
-
-kubectl exec deploy/backend -- env | grep ENVIRONMENT
-kubectl rollout restart deployment/backend
-kubectl rollout status deployment/backend
-kubectl exec deploy/backend -- env | grep ENVIRONMENT
-```
-
-The old Pod can still show `production` after the patch. The replacement Pod should show `staging`.
-
-ConfigMap files mounted as volumes behave differently: kubelet can update them after a delay. An application still has to reread the file, and a `subPath` mount does not receive those automatic updates.
-
-Expected result: the existing Pod keeps the old environment value, while the replacement Pod created by the rollout reads the updated value.
-
-```text
-Before restart: ENVIRONMENT=production
-After restart:  ENVIRONMENT=staging
-```
-
-![ConfigMap value before and after the Deployment restart](images/local-configmap-update.png)
-
-## 3. Secret and Base64
-
-A Secret is meant for sensitive data, but Base64 is only an encoding format. It is easy to decode and is not encryption.
-
-```bash
-kubectl apply -f secret-demo.yaml
-```
-
-```bash
-kubectl get secret app-secret
-kubectl describe secret app-secret
-kubectl get secret app-secret \
-  -o jsonpath='{.data.DEMO_USERNAME}' | base64 --decode
-echo
-```
-
-`kubectl describe secret` shows key names and byte counts, not the decoded values. Anyone allowed to read the Secret object may still retrieve its data, so RBAC and encryption at rest matter.
-
-![Local Secret inspection and Base64 decoding](images/local-config-secret-environment.png)
-
-## 4. The trailing-newline mistake
-
-Normal `echo` adds a newline. That extra byte becomes part of the encoded password and can cause authentication failures.
-
-```bash
-echo "secretpassword" | xxd
-echo -n "secretpassword" | xxd
-
-echo "secretpassword" | base64
-echo -n "secretpassword" | base64
-```
-
-The first byte stream ends in `0a`, which is the newline. `printf %s 'secretpassword'` is another portable way to avoid it:
-
-```bash
-printf %s 'secretpassword' | base64
-```
-
-## 5. How secrets should be handled in a real project
-
-Committing a Base64 Secret manifest still exposes the credential in Git history. A safer flow is:
-
-```text
-AWS Secrets Manager / Azure Key Vault / HashiCorp Vault
-                         |
-                         v
-        External Secrets operator or CSI provider
-                         |
-                         v
-              Kubernetes Secret / mounted value
-                         |
-                         v
-                     application
-```
-
-Useful rules:
-
-- Keep real secret values outside Git.
-- Give workloads only the Secret keys they need.
-- Use namespace-scoped, least-privilege RBAC.
-- Enable encryption at rest for the Kubernetes API data store.
-- Rotate secrets instead of treating them as permanent.
-- Do not print decoded secrets in normal CI logs.
-- CI/CD should authenticate to a secret store and inject short-lived values at deployment time.
-
-```bash
-kubectl get crds | grep -i secret \
-  || echo 'No external secret operator CRD found'
-```
-
-## 6. Inject ConfigMap and Secret data into one application
+The backend Deployment uses `envFrom` to load both values:
 
 ```yaml
 envFrom:
   - configMapRef:
       name: app-config
-env:
-  - name: DEMO_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: app-secret
-        key: DEMO_USERNAME
-  - name: DEMO_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: app-secret
-        key: DEMO_PASSWORD
 ```
+
+## 2. Secret
+
+A Secret stores sensitive values such as usernames, passwords, or tokens. The values in `secret-demo.yaml` are only classroom demo values.
 
 ```bash
-kubectl apply -f configmap.yaml
 kubectl apply -f secret-demo.yaml
+kubectl get secret app-secret
+kubectl describe secret app-secret
+```
+
+The backend reads the two keys with `secretKeyRef`. I applied the backend and checked that the variables were present:
+
+```bash
 kubectl apply -f backend.yaml
 kubectl rollout status deployment/backend
-kubectl exec deploy/backend -- \
-  env | grep -E 'ENVIRONMENT|LOG_LEVEL|DEMO_USERNAME'
+kubectl exec deployment/backend -- printenv ENVIRONMENT
+kubectl exec deployment/backend -- printenv LOG_LEVEL
+kubectl exec deployment/backend -- printenv DEMO_USERNAME
+kubectl exec deployment/backend -- sh -c 'test -n "$DEMO_PASSWORD" && echo "DEMO_PASSWORD is set"'
 ```
 
-I avoid printing the password during a normal check. Confirming the variable exists is enough.
+The ConfigMap values and demo username are visible, and the final command confirms that the password variable is set without printing it.
 
-![Local application environment populated from ConfigMap and Secret](images/local-config-secret-environment.png)
+Real passwords and tokens should not be committed to Git. In a real project, they should be created separately and access should be limited to the workloads that need them.
 
-## 7. Ingress resource vs Ingress controller
+![ConfigMap and Secret verification](images/local-config-secret-environment.png)
 
-These are not the same thing:
+## 3. Ingress
 
-| Part | What it is | What it does |
-|---|---|---|
-| Ingress resource | Kubernetes API object | Stores host, path, TLS and backend-Service rules. |
-| Ingress controller | Running software | Watches those rules and configures a real reverse proxy or load balancer. |
+Ingress uses rules to route HTTP requests to Services. This example sends `/` to the frontend and `/api` to the backend.
 
-```text
-browser -> load balancer / node entry point -> controller -> ClusterIP Service -> Pods
-```
-
-An Ingress object by itself does not carry traffic. It needs a compatible controller and an `ingressClassName`.
-
-Current note: the Ingress API is stable but frozen, and the Kubernetes project recommends Gateway API for new features. The community `ingress-nginx` project used in many classroom labs was retired in March 2026 and no longer receives security fixes. It can still explain the class concept, but I would choose a maintained controller or Gateway implementation for a new production system.
-
-## 8. Enable and verify a controller in Minikube
-
-The class command is:
+I enabled the Minikube Ingress controller and applied the application files:
 
 ```bash
 minikube addons enable ingress
-kubectl get pods -n ingress-nginx
-kubectl wait --namespace ingress-nginx \
-  --for=condition=Ready pod \
-  --selector=app.kubernetes.io/component=controller \
-  --timeout=120s
-kubectl get service -n ingress-nginx
-```
-
-This lab depends on the Minikube driver and the add-on version available on the machine. If the add-on is unsupported or unavailable, I would not download an old controller blindly; I would use a currently maintained controller supported by the environment.
-
-## 9. Local hostname mapping
-
-For the classroom hostname:
-
-```bash
-minikube ip
-```
-
-Add one controlled entry to `/etc/hosts`:
-
-```text
-<minikube-ip> yatri.local portal.campus.local api.campus.local
-```
-
-Then verify it:
-
-```bash
-grep -E 'yatri.local|campus.local' /etc/hosts
-dscacheutil -q host -a name yatri.local
-```
-
-Editing `/etc/hosts` requires administrator access. I would remove the entries after the lab if they are no longer needed.
-
-An alternative for a one-off `curl` check is to send the Host header directly:
-
-```bash
-curl -H 'Host: yatri.local' http://127.0.0.1:<forwarded-port>/
-```
-
-## 10. Path-based routing
-
-One hostname can send different paths to different Services:
-
-```text
-yatri.local/       -> frontend-service
-yatri.local/api/   -> backend-service
-```
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: yatri-ingress
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: yatri.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend-service
-                port:
-                  number: 80
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-service
-                port:
-                  number: 80
-```
-
-```bash
-kubectl apply -f ingress.yaml
-kubectl get ingress
-kubectl describe ingress yatri-ingress
-curl http://yatri.local/
-curl http://yatri.local/api/
-```
-
-Controller-specific regex and rewrite annotations are useful when needed, but a plain `Prefix` rule is easier to move between controllers.
-
-![Ingress rules and successful local frontend/backend requests](images/local-ingress-routing.png)
-
-![Frontend route in a browser](images/k11-05-browser-frontend.png)
-
-![Backend route in a browser](images/k11-06-browser-api.png)
-
-## 11. Host-based routing
-
-The same entry IP can route by hostname:
-
-```text
-portal.campus.local -> frontend-service
-api.campus.local    -> backend-service
-```
-
-```yaml
-rules:
-  - host: portal.campus.local
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: frontend-service
-              port:
-                number: 80
-  - host: api.campus.local
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: backend-service
-              port:
-                number: 80
-```
-
-```bash
-INGRESS_IP=$(minikube ip)
-curl -H 'Host: portal.campus.local' "http://$INGRESS_IP/"
-curl -H 'Host: api.campus.local' "http://$INGRESS_IP/"
-```
-
-## 12. Hybrid host and path routing
-
-Hybrid routing simply combines both checks. For example:
-
-```text
-portal.campus.local/        -> frontend
-portal.campus.local/api/    -> portal API
-api.campus.local/v1/        -> version 1 API
-api.campus.local/v2/        -> version 2 API
-```
-
-```bash
-kubectl apply -f ingress-hybrid.yaml
-kubectl describe ingress campus-ingress
-```
-
-I check the `Rules` section carefully because a wrong hostname, path type or Service port can create a valid object that still returns `404` or `503`.
-
-Expected result: each hostname and path reaches its configured backend Service. A missing route normally returns `404`, while an unavailable backend commonly returns `503`.
-
-```text
-portal.campus.local -> frontend response
-api.campus.local    -> backend response
-```
-
-## 13. TLS termination
-
-For a local demonstration, create a self-signed certificate:
-
-```bash
-openssl req -x509 -nodes -days 30 -newkey rsa:2048 \
-  -keyout tls.key \
-  -out tls.crt \
-  -subj '/CN=portal.campus.local/O=CampusDevOps' \
-  -addext 'subjectAltName=DNS:portal.campus.local,DNS:api.campus.local'
-
-kubectl create secret tls campus-tls \
-  --cert=tls.crt \
-  --key=tls.key
-```
-
-The Ingress refers to the Secret:
-
-```yaml
-tls:
-  - hosts:
-      - portal.campus.local
-      - api.campus.local
-    secretName: campus-tls
-```
-
-Test without permanently changing DNS:
-
-```bash
-INGRESS_IP=$(minikube ip)
-curl -k --resolve "portal.campus.local:443:$INGRESS_IP" \
-  https://portal.campus.local/
-```
-
-`-k` is only for the self-signed local lab. A real public service needs a trusted certificate and normal verification.
-
-Expected result: the TLS Secret has type `kubernetes.io/tls`, the Ingress lists ports `80, 443`, and the HTTPS request returns the frontend response.
-
-```text
-campus-tls   kubernetes.io/tls
-campus-ingress-tls   80, 443
-HTTPS request -> frontend response
-```
-
-![TLS Secret, certificate details and successful HTTPS response](images/local-tls-success.png)
-
-## 14. Complete demo and automation
-
-The final flow is:
-
-```text
-ConfigMap ----+
-              +--> backend Deployment --> backend ClusterIP Service --+
-Secret -------+                                                     |
-                                                                    +--> Ingress
-frontend Deployment --> frontend ClusterIP Service ----------------+
-```
-
-A multi-document YAML file separates objects with three dashes:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-# ...
----
-apiVersion: v1
-kind: Service
-# ...
-```
-
-The correct separator is `---`, not `--`.
-
-```bash
 kubectl apply -f configmap.yaml
 kubectl apply -f secret-demo.yaml
-kubectl apply -f backend.yaml
 kubectl apply -f frontend.yaml
+kubectl apply -f backend.yaml
 kubectl apply -f ingress.yaml
-
-kubectl get configmap,secret,ingress,deployment,service,pods
-kubectl get events --sort-by=.lastTimestamp
-
-kubectl delete -f ingress.yaml
-kubectl delete -f frontend.yaml
-kubectl delete -f backend.yaml
-kubectl delete -f secret-demo.yaml
-kubectl delete -f configmap.yaml
-kubectl get ingress,deployment,service
+kubectl rollout status deployment/frontend
+kubectl rollout status deployment/backend
+kubectl get ingress coursework-ingress
+kubectl describe ingress coursework-ingress
 ```
 
-Expected result: the deployment script finishes with ready frontend and backend Pods, two ClusterIP Services, configuration objects, and one Ingress. After cleanup, those demo resources are no longer listed.
-
-![Complete demo with ready workloads, Services and Ingress](images/local-full-demo.png)
-
-![Post-cleanup checks confirming that the demo resources were removed](images/local-cleanup.png)
-
-The following fresh run verifies ConfigMap and Secret injection without printing the password, successful frontend and `/api` Ingress routing, an intentionally broken Service selector with no endpoints, and the working request after the selector is fixed:
-
-![Fresh ConfigMap, Secret, Ingress and troubleshooting verification](images/fresh-config-secret-ingress-troubleshooting.png)
-
-The submitted files are `configmap.yaml`, `secret-demo.yaml`, `backend.yaml`, `frontend.yaml`, `ingress.yaml`, `ingress-hybrid.yaml`, and the before/after files in `troubleshooting/`.
-
-## Troubleshooting order
+For a local test, I forwarded the Ingress controller port:
 
 ```bash
-kubectl get pods
-kubectl describe pod <pod>
-kubectl logs <pod> --all-containers
-kubectl get service
-kubectl get endpointslice
-kubectl describe ingress <ingress>
-kubectl get events --sort-by=.lastTimestamp
+kubectl port-forward -n ingress-nginx service/ingress-nginx-controller 8080:80
 ```
 
-The troubleshooting order is: Pod health, Service selector and endpoints, Ingress rules, controller logs, then DNS or host mapping.
+In another terminal, I tested both paths using the host from `ingress.yaml`:
+
+```bash
+curl -H 'Host: coursework.local' http://127.0.0.1:8080/
+curl -H 'Host: coursework.local' http://127.0.0.1:8080/api/
+```
+
+The first request returned `Frontend application`. The second returned the backend response.
+
+![Ingress path routing](images/local-ingress-routing.png)
+
+## 4. Ingress and Ingress controller
+
+| Ingress | Ingress controller |
+|---|---|
+| A Kubernetes resource containing host and path rules | The running software that reads and applies those rules |
+| Created from `ingress.yaml` | Installed separately, such as the Minikube Nginx controller |
+| Says which Service should receive a request | Receives the request and forwards it to that Service |
+
+Both are required. An Ingress resource by itself is only a set of rules. Without a controller, no component is present to handle the traffic.
+
+In this work, `coursework-ingress` is the Ingress resource and `ingress-nginx-controller` is the controller.
+
+## 5. Troubleshooting task
+
+The troubleshooting example is in the [`troubleshooting`](troubleshooting/README.md) folder.
+
+The problem was a Service selector that did not match the backend Pod label:
+
+```text
+Broken selector: app=backend-wrong
+Correct label:   app=backend
+```
+
+I reproduced the problem and checked the Service endpoints:
+
+```bash
+kubectl apply -f troubleshooting/broken-service.yaml
+kubectl get pods --show-labels
+kubectl describe service backend-service
+kubectl get endpointslice -l kubernetes.io/service-name=backend-service
+```
+
+The Service had no ready endpoint. I applied the corrected selector and tested the Service again:
+
+```bash
+kubectl apply -f troubleshooting/fixed-service.yaml
+kubectl get endpointslice -l kubernetes.io/service-name=backend-service
+kubectl run curl-client --image=curlimages/curl:8.12.1 --restart=Never --command -- sleep 3600
+kubectl wait --for=condition=Ready pod/curl-client --timeout=120s
+kubectl exec curl-client -- curl -s http://backend-service
+```
+
+After the fix, the EndpointSlice contained the backend Pod address and the request returned the backend response.
+
+![ConfigMap, Secret, Ingress, and troubleshooting results](images/fresh-config-secret-ingress-troubleshooting.png)
+
+## Cleanup
+
+```bash
+kubectl delete -f ingress.yaml --ignore-not-found
+kubectl delete -f frontend.yaml --ignore-not-found
+kubectl delete -f backend.yaml --ignore-not-found
+kubectl delete -f configmap.yaml --ignore-not-found
+kubectl delete -f secret-demo.yaml --ignore-not-found
+kubectl delete pod curl-client --ignore-not-found
+```

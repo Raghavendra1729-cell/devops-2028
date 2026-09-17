@@ -4,438 +4,194 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 10
 
-This class covers how Kubernetes keeps applications running and how it replaces one version with another. The notes follow the same order as the class tasks.
+## Aim
 
-## 1. Start with a healthy cluster
+The aim of this session was to practise four deployment strategies and observe different Pod lifecycle states.
 
-```bash
-minikube start
-kubectl version --output=yaml
-kubectl cluster-info
-kubectl get nodes -o wide
-kubectl get pods -n kube-system
-```
+I ran the commands below from this folder.
 
-I continue only when the node is `Ready` and CoreDNS is running. Otherwise later failures can look like manifest problems even when the cluster itself is unhealthy.
-
-## 2. A standalone Pod
-
-Every manifest has four main top-level fields:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-pod
-  labels:
-    app: nginx
-spec:
-  containers:
-    - name: nginx
-      image: nginx:alpine
-      ports:
-        - containerPort: 80
-```
+Before starting, I checked the cluster:
 
 ```bash
-kubectl apply -f pod-lifecycle/01-running.yaml
-kubectl wait --for=condition=Ready pod/lifecycle-running --timeout=120s
-kubectl get pod lifecycle-running -o wide --show-labels
-kubectl logs lifecycle-running
-kubectl describe pod lifecycle-running
-kubectl delete pod lifecycle-running
-```
-
-A bare Pod is not self-healing. If I delete it, no controller creates a replacement.
-
-![Creating and inspecting my local standalone Pod](images/local-standalone-pod.png)
-
-## 3. `ErrImagePull` and `ImagePullBackOff`
-
-An invalid image can still pass API validation, so the Pod object is stored successfully. The failure happens later when kubelet asks the container runtime to pull the image.
-
-```bash
-kubectl apply -f pod-lifecycle/06-imagepullbackoff.yaml
-kubectl get pods -w
-kubectl describe pod lifecycle-imagepull
-kubectl get events --sort-by=.metadata.creationTimestamp
-```
-
-The usual sequence is:
-
-```text
-Pending -> ErrImagePull -> ImagePullBackOff
-```
-
-`ImagePullBackOff` means Kubernetes is retrying with an increasing delay. The useful error is normally near the bottom of `kubectl describe pod`.
-
-Expected result: the Pod moves from `ErrImagePull` to `ImagePullBackOff`, and the Events section explains which image could not be pulled.
-
-```text
-NAME               READY   STATUS             RESTARTS
-broken-image-pod   0/1     ImagePullBackOff   0
-```
-
-![ImagePullBackOff status and the image pull error in Events](images/local-imagepullbackoff.png)
-
-## 4. A short-lived Pod
-
-This is a useful way to see a successful batch Pod:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: hello
-spec:
-  restartPolicy: Never
-  containers:
-    - name: hello
-      image: busybox:1.36
-      command: ["sh", "-c", "echo hello; sleep 5"]
-```
-
-Apply it and watch quickly from another terminal:
-
-```bash
-kubectl apply -f pod-lifecycle/03-succeeded.yaml
-kubectl get pod lifecycle-succeeded -w
-kubectl logs lifecycle-succeeded
-```
-
-The visible status normally moves through `ContainerCreating`, `Running`, then `Completed`. The Kubernetes Pod phase behind `Completed` is `Succeeded`.
-
-## 5. Pod lifecycle and probes lab
-
-The 12 lifecycle examples fit into four ideas: scheduling, process exit, health checks, and multi-container behavior.
-
-| Lab | What it demonstrates | What I would inspect |
-|---|---|---|
-| `01-running.yaml` | Long-running healthy process | `Running`, `Ready 1/1` |
-| `02-pending.yaml` | Pod cannot be scheduled, often because of impossible resource requests | `Pending` and scheduler events |
-| `03-succeeded.yaml` | Process exits with code 0 and `restartPolicy: Never` | Phase `Succeeded`, display status `Completed` |
-| `04-failed.yaml` | Process exits with a non-zero code | Phase `Failed` |
-| `05-crashloopbackoff.yaml` | Process repeatedly crashes and is restarted | Restart count and backoff events |
-| `06-imagepullbackoff.yaml` | Image cannot be downloaded | Pull error in events |
-| `07-readiness.yaml` | Container can run before it is ready for Service traffic | `Running` but `READY 0/1` |
-| `08-liveness.yaml` | Kubelet restarts an unhealthy container | Restart count increases |
-| `09-startup.yaml` | Slow application gets time to start before other probes take over | Startup probe succeeds first |
-| `10-init-container.yaml` | Setup containers run in order before app containers | `Init:` status and init logs |
-| `11-multi-container.yaml` | Containers in one Pod share networking and volumes | Both containers shown in one Pod |
-| `12-termination.yaml` | Graceful shutdown after `SIGTERM` | Termination message and grace period |
-
-```bash
-kubectl apply -f pod-lifecycle/
-kubectl get pods -w
-kubectl describe pod <pod-name>
-kubectl logs <pod-name> -c <container-name>
-kubectl get events --sort-by=.lastTimestamp
-```
-
-Important difference between probes:
-
-| Probe | Question it answers | Failure effect |
-|---|---|---|
-| Startup | Has this slow application finished starting? | Other probes wait; repeated failure restarts the container. |
-| Readiness | Can this Pod receive traffic now? | Pod stays running but is removed from Service endpoints. |
-| Liveness | Is this process stuck or unhealthy? | Kubelet restarts the container. |
-
-The main results to compare are an increasing restart count for `CrashLoopBackOff`, `READY 0/1` for a failed readiness probe, and a clean shutdown message during graceful termination.
-
-```text
-lifecycle-crashloop     0/1   CrashLoopBackOff
-lifecycle-readiness     0/1   Running
-lifecycle-termination   1/1   Terminating
-```
-
-![Repeated application crashes, restart count and back-off events](images/local-crashloopbackoff.png)
-
-![A running container changing from not ready to ready](images/local-readiness-probe.png)
-
-![SIGTERM handling and graceful cleanup during Pod deletion](images/local-graceful-termination.png)
-
-The following fresh run applies all 12 committed lifecycle manifests together and shows their real phases, readiness, errors, restart counts, logs, init output, and Pending scheduler event:
-
-![Fresh output from all 12 Pod lifecycle YAML files](images/fresh-pod-lifecycle.png)
-
-## 6. ReplicaSet and StatefulSet
-
-### ReplicaSet
-
-A ReplicaSet keeps a requested number of matching Pods alive. Labels connect the Pods to the controller.
-
-```bash
-kubectl apply -f controllers/replicaset.yaml
-kubectl get rs
-kubectl get pods --show-labels
-kubectl delete pod <one-replicaset-pod>
-kubectl get pods -w
-```
-
-Deleting one Pod should make the ReplicaSet create another so the desired count is restored.
-
-![Local ReplicaSet creation and Pod replacement](images/local-replicaset-daemonset.png)
-
-### StatefulSet
-
-A StatefulSet is for workloads that need stable identity, ordered rollout, or persistent storage.
-
-```bash
-kubectl apply -f controllers/statefulset.yaml
-kubectl rollout status statefulset/mysql-demo
-kubectl get pods -l app=mysql-demo
-kubectl get pvc
-```
-
-Expected names are ordinal, such as `mysql-0` and `mysql-1`. If `mysql-0` is deleted, the replacement is still called `mysql-0`. Its persistent volume claim also remains tied to that identity.
-
-## 7. DaemonSet
-
-A DaemonSet normally runs one copy of a Pod on every eligible node. It is useful for node exporters, logging agents and security agents.
-
-```bash
-kubectl apply -f controllers/daemonset.yaml
-kubectl get daemonset
-kubectl get pods -l app=node-agent -o wide
+minikube start --driver=docker
 kubectl get nodes
 ```
 
-There is no normal `replicas` field. Adding an eligible node causes a new DaemonSet Pod to be scheduled there automatically.
+## 1. Rolling update
 
-![Local ReplicaSet and DaemonSet controller results](images/local-replicaset-daemonset.png)
-
-## 8. Deployment, rolling update and rollback
-
-A Deployment manages ReplicaSets. That extra layer gives rollout history, controlled updates and rollback.
+A rolling update replaces old Pods gradually. The application can remain available while the new version is being created.
 
 ```bash
 kubectl apply -f 01-rolling-update/deployment-v1.yaml
 kubectl rollout status deployment/rolling-web
-kubectl get deploy,rs,pods
+kubectl get pods -l app=rolling-web --show-labels
 
 kubectl apply -f 01-rolling-update/deployment-v2.yaml
 kubectl rollout status deployment/rolling-web
-kubectl rollout history deployment/rolling-web
+kubectl get pods -l app=rolling-web --show-labels
+kubectl get replicasets
+```
 
+The Deployment uses `maxSurge: 1` and `maxUnavailable: 0`. Kubernetes creates a new Pod before removing an old one. After the update, all three Pods have the `version=v2` label.
+
+![Rolling update and rollback](images/local-deployment-rolling-rollback.png)
+
+If an update has a problem, the previous revision can be restored:
+
+```bash
+kubectl rollout history deployment/rolling-web
 kubectl rollout undo deployment/rolling-web
 kubectl rollout status deployment/rolling-web
 ```
 
-For a zero-downtime rolling update:
+## 2. Blue-green deployment
 
-```yaml
-strategy:
-  type: RollingUpdate
-  rollingUpdate:
-    maxSurge: 1
-    maxUnavailable: 0
-```
-
-- `maxSurge: 1` allows one extra Pod above the desired replica count during the update.
-- `maxUnavailable: 0` keeps all desired replicas available before an old Pod is removed.
-- Percentage values are calculated from the desired replica count. `maxSurge` rounds up; `maxUnavailable` rounds down.
-
-![Local Deployment versions and rolling update](images/local-deployment-rolling-rollback.png)
-
-![Local rolling update, history and rollback](images/local-deployment-rolling-rollback.png)
-
-![Local Pods changing from version 1 to version 2](images/local-deployment-rolling-rollback.png)
-
-## 9. Troubleshooting drills
-
-### Broken image during a Deployment update
-
-```bash
-kubectl set image deployment/app app=example/not-real:v999
-kubectl rollout status deployment/app --timeout=60s
-kubectl get pods
-kubectl describe pod <new-broken-pod>
-kubectl rollout undo deployment/app
-```
-
-With a safe rolling strategy, old healthy Pods stay available while the new ReplicaSet is stuck.
-
-![Local broken image update followed by a successful rollback](images/local-broken-update-rollback.png)
-
-### Selector mismatch
-
-The labels in `spec.selector.matchLabels` must match the Pod-template labels. A mismatch is rejected because the Deployment would not know which Pods it owns.
-
-```bash
-kubectl apply -f selector-mismatch.yaml
-kubectl get events --sort-by=.lastTimestamp
-```
-
-Fix the manifest before creating the Deployment. A Deployment selector is immutable after creation, so changing it later normally requires recreating that Deployment.
-
-## 10. Concepts I kept mixing up
-
-### Ports
-
-| Field | Meaning |
-|---|---|
-| `containerPort` | Documents the port used by the process inside a container. It does not expose the Pod by itself. |
-| `targetPort` | Pod port to which a Service forwards traffic. |
-| `port` | Port clients use on the Service. |
-| `nodePort` | High port opened on each node for a NodePort Service. |
-
-### Labels and selectors
-
-Labels are key-value tags placed on objects. Selectors are queries controllers and Services use to find objects with the required labels.
-
-```bash
-kubectl get pods -l app=web
-kubectl get pods --show-labels
-```
-
-### Requests and limits
-
-| Setting | Meaning |
-|---|---|
-| CPU request | Used by the scheduler when choosing a node. |
-| Memory request | Memory reserved for scheduling decisions. |
-| CPU limit | CPU usage is throttled above the limit. |
-| Memory limit | Exceeding it can cause an `OOMKilled` container. |
-
-`1Gi` is 1,073,741,824 bytes, while `1G` is 1,000,000,000 bytes.
-
-## 11. Blue-green deployment
-
-Blue-green keeps two complete environments:
-
-```text
-Service selector: slot=blue  -> Blue v1 Pods
-Service selector: slot=green -> Green v2 Pods
-```
+Blue is the current version and green is the new version. Both versions run at the same time, but the Service sends traffic to only one of them.
 
 ```bash
 kubectl apply -f 02-blue-green/blue.yaml
 kubectl apply -f 02-blue-green/green.yaml
 kubectl apply -f 02-blue-green/service-blue.yaml
-kubectl get endpointslice -l kubernetes.io/service-name=strategy-service
+kubectl get pods -l app=strategy-app --show-labels
+kubectl get service strategy-service -o jsonpath='{.spec.selector.slot}'
+```
 
-# Cut over to green
+The selector first returns `blue`. I switched the Service to green with:
+
+```bash
 kubectl apply -f 02-blue-green/service-green.yaml
-
-# Roll back immediately
-kubectl apply -f 02-blue-green/service-blue.yaml
+kubectl get service strategy-service -o jsonpath='{.spec.selector.slot}'
+kubectl run blue-green-test --rm -i --restart=Never --image=curlimages/curl:8.12.1 -- curl -s http://strategy-service
 ```
 
-The switch is fast because the Service selector changes. The trade-off is running both versions at the same time.
+The response changed from `BLUE v1` to `GREEN v2`.
 
-Expected result: the Service selector changes from `slot=blue` to `slot=green`, and its EndpointSlice changes to the green Pods.
+![Blue-green Service switch](images/local-blue-green-cutover.png)
 
-```text
-Before cutover: selector slot=blue
-After cutover:  selector slot=green
-```
+## 3. Canary deployment
 
-![Blue-green Service selector cutover verified with live responses](images/local-blue-green-cutover.png)
-
-## 12. Canary deployment
-
-Canary releases a new version to a small part of the traffic first. With normal Kubernetes Service balancing, the split is an approximation based on the number of ready endpoints.
+A canary deployment sends a small part of the traffic to the new version. I used four stable Pods and one canary Pod behind the same Service.
 
 ```bash
 kubectl apply -f 03-canary/stable.yaml
 kubectl apply -f 03-canary/canary.yaml
 kubectl apply -f 03-canary/service.yaml
-
-kubectl scale deployment app-stable --replicas=9
-kubectl scale deployment app-canary --replicas=1
-kubectl get endpointslice -l kubernetes.io/service-name=app-service
-
-# Keep this running in Terminal 1; some drivers create a local tunnel.
-minikube service app-service --url
-
-# In Terminal 2, paste the exact URL printed above when prompted.
-read -r -p 'Minikube URL: ' APP_URL
-for i in $(seq 1 20); do
-  curl -s "$APP_URL"
-done
-
-# Increase the canary share, or abort it
-kubectl scale deployment app-stable --replicas=7
-kubectl scale deployment app-canary --replicas=3
-kubectl scale deployment app-canary --replicas=0
+kubectl get pods -l app=canary-app --show-labels
+kubectl get endpointslice -l kubernetes.io/service-name=canary-service
 ```
 
-A 9:1 Pod ratio does not guarantee exactly 90:10 traffic for a small sample. For precise weighted routing, a service mesh or traffic-aware gateway is a better choice.
+I sent repeated requests from a temporary Pod:
 
-![Stable and canary replicas with responses from both versions](images/local-canary-responses.png)
-
-Expected result: most requests return the stable version and a smaller number return the canary version. The exact ratio varies over a small sample.
-
-```text
-STABLE v1
-STABLE v1
-CANARY v2
-STABLE v1
+```bash
+kubectl run canary-test --rm -i --restart=Never --image=curlimages/curl:8.12.1 -- sh -c 'for i in 1 2 3 4 5 6 7 8 9 10; do curl -s http://canary-service; done'
 ```
 
-## 13. Recreate deployment
+Most responses came from `STABLE v1`, while some came from `CANARY v2`. The exact order can change because the Service distributes requests between its endpoints.
 
-`Recreate` stops the old Pods before starting the new version. It is simple but creates a real outage window.
+![Stable and canary responses](images/local-canary-responses.png)
 
-```yaml
-strategy:
-  type: Recreate
-```
+## 4. Recreate deployment
+
+The Recreate strategy stops all old Pods before creating the new Pods. This causes a short period when the application is unavailable.
 
 ```bash
 kubectl apply -f 04-recreate/deployment-v1.yaml
 kubectl apply -f 04-recreate/service.yaml
 kubectl rollout status deployment/app-recreate
+kubectl get pods -l app=app-recreate
 
-# Terminal 1
-kubectl get pods -l app=app-recreate -w
-
-# Terminal 2: first keep this running to obtain the local URL
-minikube service app-recreate --url
-
-# Terminal 3: paste the exact URL printed by Terminal 2 when prompted
-read -r -p 'Minikube URL: ' APP_URL
-while true; do
-  curl -s --connect-timeout 1 "$APP_URL" \
-    || echo '[OUTAGE] no ready Pod';
-  sleep 0.5;
-done
-
-# Terminal 4
 kubectl apply -f 04-recreate/deployment-v2.yaml
+kubectl get pods -l app=app-recreate -w
+kubectl rollout status deployment/app-recreate
 ```
 
-Expected result: requests return v1, fail briefly while the old Pods are removed, and then return v2.
+I verified the final version with:
 
-```text
-Application v1
-[OUTAGE] no ready Pod
-Application v2
+```bash
+kubectl run recreate-test --rm -i --restart=Never --image=curlimages/curl:8.12.1 -- curl -s http://recreate-service
 ```
 
-![Recreate strategy showing v1, the outage window and v2](images/local-recreate-outage.png)
+The final response was `Application v2`.
 
-## Deployment strategy summary
+![Recreate update](images/local-recreate-outage.png)
 
-| Strategy | Downtime | Extra capacity | Traffic control | Best fit |
-|---|---:|---:|---|---|
-| Rolling update | Normally none | Small surge | Gradual Pod replacement | Default stateless application update |
-| Blue-green | None during switch | About two full environments | All traffic switches through selector/routing change | Fast cutover and rollback |
-| Canary | None | Small at first | Small group receives new version | Risk-controlled releases |
-| Recreate | Yes | None | Old version stops before new starts | Incompatible versions or single-writer workloads |
+## Deployment strategy comparison
+
+| Strategy | How it works | Main point |
+|---|---|---|
+| Rolling update | Replaces Pods gradually | Application stays available |
+| Blue-green | Runs two complete versions and switches the Service | Easy to switch back |
+| Canary | Runs a small number of new-version Pods | New version is tested with limited traffic |
+| Recreate | Deletes old Pods before creating new ones | Simple, but has downtime |
+
+## Pod lifecycle practice
+
+I applied the lifecycle examples with:
+
+```bash
+kubectl apply -f pod-lifecycle/
+kubectl get pods -l lab=pod-lifecycle
+kubectl get pods -l lab=pod-lifecycle -w
+```
+
+These files intentionally create different states and behaviours:
+
+| File | What I observed |
+|---|---|
+| `01-running.yaml` | A long-running Pod reaches `Running` |
+| `02-pending.yaml` | A large CPU request keeps the Pod in `Pending` on the local cluster |
+| `03-succeeded.yaml` | A successful one-time command ends in `Succeeded` |
+| `04-failed.yaml` | A command with exit code 1 ends in `Failed` |
+| `05-crashloopbackoff.yaml` | The container repeatedly exits and reaches `CrashLoopBackOff` |
+| `06-imagepullbackoff.yaml` | An invalid image causes `ImagePullBackOff` |
+| `07-readiness.yaml` | A failing readiness check keeps the Pod running but not ready |
+| `08-liveness.yaml` | A failing liveness check restarts the container |
+| `09-startup.yaml` | The startup probe allows time for Nginx to start |
+| `10-init-container.yaml` | The init container completes before the main container starts |
+| `11-multi-container.yaml` | Two containers share a file using an `emptyDir` volume |
+| `12-termination.yaml` | The container handles `SIGTERM` before it exits |
+
+I used these commands to inspect the Pods, events, and logs:
+
+```bash
+kubectl describe pod lifecycle-crashloop
+kubectl logs lifecycle-crashloop --previous
+kubectl describe pod lifecycle-imagepull
+kubectl describe pod lifecycle-readiness
+kubectl get events --sort-by=.metadata.creationTimestamp
+```
+
+![Pod lifecycle results](images/fresh-pod-lifecycle.png)
+
+![CrashLoopBackOff details](images/local-crashloopbackoff.png)
+
+![Readiness probe result](images/local-readiness-probe.png)
+
+## ReplicaSet, DaemonSet and StatefulSet examples
+
+The examples in the `controllers` folder show three different controllers:
+
+```bash
+kubectl apply -f controllers/
+kubectl get replicasets
+kubectl get daemonsets
+kubectl get statefulsets
+kubectl get pods -o wide
+```
+
+- A ReplicaSet keeps the requested number of identical Pods running.
+- A DaemonSet runs one Pod on every suitable node.
+- A StatefulSet gives its Pods stable names and ordered identities.
+
+![ReplicaSet and DaemonSet](images/local-replicaset-daemonset.png)
 
 ## Cleanup
 
-Delete only the resources created for the lab:
-
 ```bash
-kubectl delete -f <lab-directory>
-kubectl get all
+kubectl delete -f pod-lifecycle/ --ignore-not-found
+kubectl delete -f controllers/ --ignore-not-found
+kubectl delete -f 01-rolling-update/deployment-v2.yaml --ignore-not-found
+kubectl delete -f 02-blue-green/ --ignore-not-found
+kubectl delete -f 03-canary/ --ignore-not-found
+kubectl delete -f 04-recreate/ --ignore-not-found
 ```
-
-## Submitted YAML files
-
-- `pod-lifecycle/` contains all 12 lifecycle manifests.
-- `01-rolling-update/`, `02-blue-green/`, `03-canary/`, and `04-recreate/` contain the four required deployment strategies.
-- `controllers/` contains the ReplicaSet, DaemonSet, and StatefulSet examples used in the comparison notes.
-- `selector-mismatch.yaml` is intentionally invalid and is used only to demonstrate API validation.

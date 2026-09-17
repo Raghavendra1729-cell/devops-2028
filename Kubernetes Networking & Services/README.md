@@ -4,76 +4,38 @@
 **Enrollment number:** 24BCS10250  
 **Class:** Lecture 11
 
-Pods can disappear and come back with different IP addresses. A Service gives clients a stable name and a stable way to reach the current healthy Pods. These notes cover the five Service types from class and the DNS details around them. IP addresses and generated ports vary between clusters.
+## Aim
 
-## 1. The four ports
+The aim of this session was to create and test the five main Service types, study Kubernetes DNS, and compare Deployments, ReplicaSets, DaemonSets, StatefulSets, and Services.
 
-This is the path I use to remember them:
+I ran the commands below from this folder.
 
-```text
-outside client
-      |
-      v
-nodeIP:nodePort -> ServiceIP:port -> PodIP:targetPort -> application
-                                                        (containerPort documents it)
+I started the cluster and created a temporary client Pod for the internal tests:
+
+```bash
+minikube start --driver=docker
+kubectl run dns-client --image=busybox:1.36 --command -- sleep 3600
+kubectl wait --for=condition=Ready pod/dns-client --timeout=90s
 ```
 
-| Field | Scope | Example |
-|---|---|---|
-| `containerPort` | Pod template | Documents that the application listens on port `80`; it does not expose traffic by itself. |
-| `targetPort` | Service backend | Sends Service traffic to port `80` on a selected Pod. |
-| `port` | Service | Port used by clients of the Service, for example `8080`. |
-| `nodePort` | Cluster node | High port, normally from `30000-32767`, opened for a NodePort Service. |
+## 1. ClusterIP Service
 
-```yaml
-ports:
-  - port: 80
-    targetPort: 80
-    nodePort: 30080
-```
-
-The complete path in this lab is `node:30080 -> Service:80 -> Pod:80`.
-
-## 2. ClusterIP
-
-`ClusterIP` is the default type. It is for communication inside the cluster and normally should not be reachable directly from my laptop.
+ClusterIP is the default Service type. It can be reached only from inside the cluster.
 
 ```bash
 kubectl apply -f 01-clusterip.yaml
-kubectl get pods -l app=web-clusterip -o wide
 kubectl get service web-service-clusterip
-kubectl get endpointslice \
-  -l kubernetes.io/service-name=web-service-clusterip
-
-kubectl exec curl-client -- \
-  curl -s http://web-service-clusterip:80
+kubectl get endpointslice -l kubernetes.io/service-name=web-service-clusterip
+kubectl exec dns-client -- wget -qO- http://web-service-clusterip
 ```
 
-The Service selector must match the Pod labels. If it does not, the Service exists but its EndpointSlice contains no ready backends.
+The request returned the Nginx page, so the Service correctly forwarded traffic to its Pods.
 
-![Local ClusterIP Service, ready Deployment and EndpointSlice](images/local-clusterip-dns.png)
+![ClusterIP and DNS test](images/local-clusterip-dns.png)
 
-### DNS names
+## 2. NodePort Service
 
-The same Service can be reached as:
-
-```text
-web-service-clusterip
-web-service-clusterip.default
-web-service-clusterip.default.svc.cluster.local
-```
-
-The full pattern is:
-
-```text
-<service>.<namespace>.svc.<cluster-domain>
-```
-
-![ClusterIP access through short name and FQDN](images/k10-02-clusterip-dns.png)
-
-## 3. NodePort
-
-NodePort builds on ClusterIP and exposes a port on every node.
+NodePort exposes a Service on a port from `30000` to `32767` on each node. This example uses port `30080`.
 
 ```bash
 kubectl apply -f 02-nodeport.yaml
@@ -81,261 +43,128 @@ kubectl get service web-service-nodeport
 minikube service web-service-nodeport --url
 ```
 
-On a directly reachable Linux node, the normal address is:
+I opened the URL printed by Minikube and received the Nginx page.
 
-```text
-http://<node-ip>:30080
-```
+![NodePort test](images/local-nodeport-tunnel.png)
 
-![NodePort mapping, Minikube tunnel URL and successful NGINX response](images/local-nodeport-tunnel.png)
+## 3. LoadBalancer Service
 
-## 4. LoadBalancer
-
-`LoadBalancer` asks an external implementation, normally a cloud provider, to give the Service an outside address. Underneath it still has ClusterIP behavior and usually a NodePort allocation.
+LoadBalancer normally receives an external address from a cloud provider. For Minikube, I used `minikube tunnel`.
 
 ```bash
 kubectl apply -f 03-loadbalancer.yaml
-kubectl get service web-service-loadbalancer -w
+minikube tunnel
 ```
 
-On Minikube, an external IP normally needs a tunnel:
+In another terminal:
 
 ```bash
-# Keep this running in another terminal
-minikube tunnel
-
-# Check again in the first terminal
 kubectl get service web-service-loadbalancer
 curl http://127.0.0.1:8080
 ```
 
-If it stays `<pending>` on a local cluster, that usually means there is no cloud load-balancer controller or local equivalent handling the request.
+![LoadBalancer test](images/local-loadbalancer.png)
 
-![Local LoadBalancer external IP and successful response through the Minikube tunnel](images/local-loadbalancer.png)
+## 4. ExternalName Service
 
-## 5. ExternalName
-
-ExternalName creates a DNS alias to a name outside Kubernetes. It has no selector, ClusterIP or Pod endpoints.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: external-api
-spec:
-  type: ExternalName
-  externalName: api.github.com
-```
+ExternalName creates a DNS alias for an external domain. It does not create Pod endpoints.
 
 ```bash
 kubectl apply -f 04-externalname.yaml
 kubectl get service kubernetes-docs
-kubectl exec dns-client -- \
-  nslookup kubernetes-docs.default.svc.cluster.local
+kubectl exec dns-client -- nslookup kubernetes-docs
 ```
 
-DNS should show a CNAME chain. HTTP or HTTPS may still need the correct `Host` header and TLS server name, so an ExternalName is not a general-purpose proxy.
+The DNS result shows that `kubernetes-docs` points to `kubernetes.io`.
 
-![ExternalName Service and DNS alias result](images/k10-04-loadbalancer-externalname.png)
+## 5. Headless Service
 
-## 6. Headless Service
-
-A headless Service uses `clusterIP: None`. DNS returns individual ready Pod addresses instead of one Service virtual IP. This is useful when clients must discover specific StatefulSet replicas.
+A headless Service uses `clusterIP: None`. DNS returns the individual Pod addresses instead of one Service IP. This is useful with StatefulSets.
 
 ```bash
 kubectl apply -f 05-headless.yaml
-kubectl rollout status statefulset/web-headless
 kubectl get service web-service-headless
-kubectl get pods -l app=web-headless -o wide
-
-kubectl exec dns-client -- \
-  nslookup web-service-headless.default.svc.cluster.local
-
-kubectl exec dns-client -- \
-  nslookup web-headless-0.web-service-headless.default.svc.cluster.local
+kubectl get pods -l app=web-headless
+kubectl get endpointslice -l kubernetes.io/service-name=web-service-headless
+kubectl exec dns-client -- nslookup web-service-headless
+kubectl exec dns-client -- nslookup web-headless-0.web-service-headless
 ```
 
-![Headless Service, StatefulSet Pods and DNS records](images/k10-05-headless.png)
+The StatefulSet Pods have stable names such as `web-headless-0` and `web-headless-1`.
 
-## 7. Service without a selector
+![Five Service types and DNS verification](images/fresh-five-services-dns.png)
 
-A selectorless Service can represent a backend that Kubernetes does not manage, such as a legacy database. On current Kubernetes versions, I should create an `EndpointSlice`; the older `Endpoints` object is deprecated.
+## Service type comparison
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: legacy-db
-spec:
-  ports:
-    - name: mysql
-      port: 3306
-      targetPort: 3306
----
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
-metadata:
-  name: legacy-db-1
-  labels:
-    kubernetes.io/service-name: legacy-db
-addressType: IPv4
-ports:
-  - name: mysql
-    protocol: TCP
-    port: 3306
-endpoints:
-  - addresses: ["192.0.2.10"]
-```
+| Service type | How it is reached | Common use |
+|---|---|---|
+| ClusterIP | Inside the cluster | Communication between applications |
+| NodePort | Node IP and a high port | Simple external access for testing |
+| LoadBalancer | External IP from a load balancer | Public application in a cloud cluster |
+| ExternalName | Kubernetes DNS name that points outside the cluster | Giving an external service a local alias |
+| Headless | DNS records for individual Pods | Stateful applications and direct Pod discovery |
 
-`192.0.2.10` is a documentation-only example address. A real lab must use a reachable backend and must not point to an arbitrary private machine.
-
-```bash
-kubectl get endpointslice \
-  -l kubernetes.io/service-name=legacy-db
-```
-
-The next screenshot shows the related failure case: a normal Service whose selector matched no Pods.
-
-![Local Service discovery checks and empty endpoints](images/local-service-discovery-troubleshooting.png)
-
-## 8. CoreDNS and FQDN details
-
-The required separate notes are in [`fqdn/README.md`](fqdn/README.md) and [`coredns/README.md`](coredns/README.md).
-
-```bash
-kubectl get pods -n kube-system -l k8s-app=kube-dns
-kubectl exec curl-client -- cat /etc/resolv.conf
-kubectl exec curl-client -- nslookup web-service-clusterip
-kubectl exec curl-client -- \
-  nslookup web-service-clusterip.default.svc.cluster.local
-```
-
-This fresh run applies all five committed Service manifests, proves ClusterIP and LoadBalancer traffic, resolves Service FQDNs, follows the ExternalName record, and shows the headless Pod records and EndpointSlices:
-
-![Fresh verification of all five Service types and cluster DNS](images/fresh-five-services-dns.png)
-
-A Pod commonly receives settings similar to:
-
-```text
-nameserver 10.96.0.10
-search default.svc.cluster.local svc.cluster.local cluster.local
-options ndots:5
-```
-
-The search list lets a short name expand to a full cluster name. With `ndots:5`, names with fewer than five dots may be tried against search suffixes first. That can add DNS queries for external names, so latency claims should be confirmed with the cluster's actual resolver configuration rather than assumed.
-
-## 9. Deployment identity vs StatefulSet identity
-
-### Deployment vs ReplicaSet
+## Deployment and ReplicaSet
 
 | Point | Deployment | ReplicaSet |
 |---|---|---|
-| Purpose | Manages application releases and desired replicas | Keeps a fixed number of matching Pods running |
-| Pod management | Creates and owns ReplicaSets | Creates and replaces Pods directly |
-| Scaling | Changes the replica count through its current ReplicaSet | Changes its own replica count |
-| Rolling updates | Supports rollout history, controlled updates, and rollback | Does not provide a rollout strategy by itself |
+| Purpose | Manages application releases | Keeps a fixed number of matching Pods running |
+| Pod management | Creates and manages ReplicaSets | Creates and replaces Pods directly |
+| Scaling | Changes the replica count through the Deployment | Can be scaled directly, but normally belongs to a Deployment |
+| Rolling updates | Supports rolling updates and rollback | Does not manage release history |
+| Relationship | Owns ReplicaSets | Is normally owned by a Deployment |
 
-A Deployment normally owns one current ReplicaSet and may keep older ReplicaSets with zero replicas for rollback. For a stateless application, I create a Deployment instead of managing its ReplicaSet directly.
+A Deployment is normally used for an application because it gives update and rollback features. The ReplicaSet created by it makes sure the requested number of Pods stay available.
 
-### ReplicaSet vs Service
+## Deployment, DaemonSet, and StatefulSet
 
-A ReplicaSet controls how many matching Pods should exist. A Service does not create or repair Pods; it gives the ready matching Pods a stable IP/DNS name and sends traffic to their EndpointSlices.
-
-```text
-ReplicaSet -> creates and replaces Pods
-Service    -> selects ready Pods -> EndpointSlice -> traffic reaches Pod IPs
-```
-
-The Service is required because Pod names and IP addresses change when a ReplicaSet replaces them. Its selector must match the Pod labels, but the Service and ReplicaSet do not own each other.
-
-```bash
-kubectl get pods -l app=web-clusterip
-kubectl get pods -l app=web-headless
-
-kubectl delete pod <one-deployment-pod>
-kubectl delete pod web-stateful-0
-kubectl get pods -w
-```
-
-- A Deployment replacement receives a new generated Pod name.
-- The StatefulSet replacement keeps the ordinal name `web-stateful-0`.
-- Stable identity does not mean the Pod process never restarts; it means the controller recreates that numbered identity.
-
-## 10. Deployment, StatefulSet and DaemonSet
-
-| Point | Deployment | StatefulSet | DaemonSet |
+| Point | Deployment | DaemonSet | StatefulSet |
 |---|---|---|---|
-| Best for | Stateless APIs and websites | Databases and clustered systems | Node-level agents |
-| Pod identity | Disposable generated names | Stable ordinal names | One Pod per eligible node |
-| Startup order | Usually parallel | Ordered by default | Parallel across nodes |
-| Storage | Shared or disposable volumes | Usually one PVC per ordinal | Often node-local or `hostPath` |
-| Networking | Normal Service | Usually headless Service for stable Pod DNS | Often no user-facing Service |
-| Scaling | Set replica count | Ordered scale up/down | Follows eligible node count |
+| Main use | Stateless applications | One Pod on every suitable node | Stateful applications |
+| Pod creation | Requested number of replicas | One Pod per selected node | Ordered Pods with stable names |
+| Scaling | Change `replicas` | Add or remove nodes, or change node selection | Change `replicas` |
+| Networking | Pods are normally reached through a Service | Each Pod runs on a node | Often uses a headless Service |
+| Storage | Usually interchangeable Pods | Often reads node-level data | Can use stable storage for each Pod |
+| Example | Web application | Log collector | Database cluster |
 
-## 11. Choosing a Service without wasting load balancers
+## ReplicaSet and Service
+
+| ReplicaSet | Service |
+|---|---|
+| Keeps the required number of Pods running | Gives matching Pods a stable network address |
+| Replaces failed Pods | Sends traffic to ready endpoints |
+| Selects Pods using labels | Selects Pods using labels |
+
+Pod IP addresses can change when Pods are replaced. A Service keeps the same name and virtual IP, selects the new Pods by label, and forwards requests to them.
+
+## Kubernetes FQDN and CoreDNS
+
+Detailed notes are available here:
+
+- [FQDN and Service DNS](fqdn/README.md)
+- [CoreDNS](coredns/README.md)
+
+I checked DNS with:
+
+```bash
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+kubectl get configmap coredns -n kube-system
+kubectl exec dns-client -- nslookup web-service-clusterip.default.svc.cluster.local
+```
+
+The full Service name follows this pattern:
 
 ```text
-Only needed inside the cluster?
-  |-- ordinary app -> ClusterIP
-  `-- direct StatefulSet Pod discovery -> Headless Service
-
-Need to refer to an outside DNS name?
-  `-- ExternalName, after checking DNS/TLS behavior
-
-Need outside traffic?
-  |-- local practice -> NodePort or port-forward
-  |-- one TCP/UDP service -> LoadBalancer when appropriate
-  `-- many HTTP services -> one Gateway/Ingress entry point + ClusterIP backends
+service-name.namespace.svc.cluster.local
 ```
-
-Creating one cloud load balancer for every HTTP microservice multiplies cost and public entry points. A shared Layer 7 gateway can route by hostname or path to internal ClusterIP Services.
-
-The classroom estimate used `$25` per load balancer per month. With that assumption, 50 separate load balancers cost `50 x $25 = $1,250/month`; one shared entry point costs `$25/month`, an illustrative saving of `$1,225/month`. This is class arithmetic, not a current cloud quote. Real prices depend on provider, region, hours, capacity and traffic, so I would check the provider calculator before making a production estimate.
-
-## 12. Minikube Docker-driver networking on macOS and Windows
-
-With the Docker driver, the Minikube node can live inside an isolated Docker network. The node IP may not be directly reachable from the host.
-
-For NodePort:
-
-```bash
-minikube service web-service-nodeport --url
-```
-
-Keep that command running if it creates a local tunnel, then test the printed `127.0.0.1` URL from another terminal.
-
-For LoadBalancer:
-
-```bash
-minikube tunnel
-```
-
-Then inspect the external address with:
-
-```bash
-kubectl get service web-service-loadbalancer
-```
-
-This is a local-driver limitation, not a failure of the Kubernetes Service itself.
-
-## Quick comparison
-
-| Type | ClusterIP | Outside access | Main use |
-|---|---:|---:|---|
-| ClusterIP | Yes | No by default | Internal application traffic |
-| NodePort | Yes | Node IP and high port | Development or simple on-prem access |
-| LoadBalancer | Yes | External implementation | Managed external entry point |
-| ExternalName | No | DNS alias only | Stable in-cluster name for outside DNS |
-| Headless | `None` | No virtual IP | Direct Pod discovery |
 
 ## Cleanup
 
 ```bash
-kubectl delete -f 05-headless.yaml
-kubectl delete -f 04-externalname.yaml
-kubectl delete -f 03-loadbalancer.yaml
-kubectl delete -f 02-nodeport.yaml
-kubectl delete -f 01-clusterip.yaml
+kubectl delete -f 01-clusterip.yaml --ignore-not-found
+kubectl delete -f 02-nodeport.yaml --ignore-not-found
+kubectl delete -f 03-loadbalancer.yaml --ignore-not-found
+kubectl delete -f 04-externalname.yaml --ignore-not-found
+kubectl delete -f 05-headless.yaml --ignore-not-found
+kubectl delete pod dns-client --ignore-not-found
 ```
-
-The submitted Service files are `01-clusterip.yaml`, `02-nodeport.yaml`, `03-loadbalancer.yaml`, `04-externalname.yaml`, and `05-headless.yaml`.

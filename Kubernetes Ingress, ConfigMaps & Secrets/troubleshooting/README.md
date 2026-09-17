@@ -42,4 +42,4 @@ kubectl wait --for=condition=Ready pod/curl-client --timeout=120s
 kubectl exec curl-client -- curl -s http://backend-service
 ```
 
-After the selector is fixed, the EndpointSlice contains the backend Pod IP and the request returns the backend response. This checks the fix instead of stopping after the YAML applies successfully.
+After the selector is fixed, the EndpointSlice contains the backend Pod IP and the request returns the backend response.

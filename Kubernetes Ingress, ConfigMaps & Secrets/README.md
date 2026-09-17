@@ -24,7 +24,7 @@ data:
 ```
 
 ```bash
-kubectl apply -f app-config.yaml
+kubectl apply -f configmap.yaml
 kubectl get configmap app-config
 kubectl describe configmap app-config
 kubectl get configmap app-config \
@@ -68,18 +68,14 @@ After restart:  ENVIRONMENT=staging
 A Secret is meant for sensitive data, but Base64 is only an encoding format. It is easy to decode and is not encryption.
 
 ```bash
-kubectl create secret generic db-secret \
-  --from-literal=POSTGRES_USER=demo_user \
-  --from-literal=POSTGRES_PASSWORD='replace-this-demo-value' \
-  --dry-run=client -o yaml > db-secret.yaml
+kubectl apply -f secret-demo.yaml
 ```
 
 ```bash
-kubectl apply -f db-secret.yaml
-kubectl get secret db-secret
-kubectl describe secret db-secret
-kubectl get secret db-secret \
-  -o jsonpath='{.data.POSTGRES_USER}' | base64 --decode
+kubectl get secret app-secret
+kubectl describe secret app-secret
+kubectl get secret app-secret \
+  -o jsonpath='{.data.DEMO_USERNAME}' | base64 --decode
 echo
 ```
 
@@ -144,25 +140,25 @@ envFrom:
   - configMapRef:
       name: app-config
 env:
-  - name: POSTGRES_USER
+  - name: DEMO_USERNAME
     valueFrom:
       secretKeyRef:
-        name: db-secret
-        key: POSTGRES_USER
-  - name: POSTGRES_PASSWORD
+        name: app-secret
+        key: DEMO_USERNAME
+  - name: DEMO_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: db-secret
-        key: POSTGRES_PASSWORD
+        name: app-secret
+        key: DEMO_PASSWORD
 ```
 
 ```bash
 kubectl apply -f configmap.yaml
-kubectl apply -f secret.yaml
+kubectl apply -f secret-demo.yaml
 kubectl apply -f backend.yaml
 kubectl rollout status deployment/backend
 kubectl exec deploy/backend -- \
-  env | grep -E 'ENVIRONMENT|LOG_LEVEL|POSTGRES_USER'
+  env | grep -E 'ENVIRONMENT|LOG_LEVEL|DEMO_USERNAME'
 ```
 
 I avoid printing the password during a normal check. Confirming the variable exists is enough.
@@ -420,20 +416,21 @@ kind: Service
 The correct separator is `---`, not `--`.
 
 ```bash
-bash 04-full-demo/run-demo.sh
+kubectl apply -f configmap.yaml
+kubectl apply -f secret-demo.yaml
+kubectl apply -f backend.yaml
+kubectl apply -f frontend.yaml
+kubectl apply -f ingress.yaml
 
 kubectl get configmap,secret,ingress,deployment,service,pods
 kubectl get events --sort-by=.lastTimestamp
 
-bash 04-full-demo/cleanup.sh
+kubectl delete -f ingress.yaml
+kubectl delete -f frontend.yaml
+kubectl delete -f backend.yaml
+kubectl delete -f secret-demo.yaml
+kubectl delete -f configmap.yaml
 kubectl get ingress,deployment,service
-```
-
-Before running a script from someone else, I read it first:
-
-```bash
-sed -n '1,240p' 04-full-demo/run-demo.sh
-bash -n 04-full-demo/run-demo.sh
 ```
 
 Expected result: the deployment script finishes with ready frontend and backend Pods, two ClusterIP Services, configuration objects, and one Ingress. After cleanup, those demo resources are no longer listed.
@@ -441,6 +438,12 @@ Expected result: the deployment script finishes with ready frontend and backend 
 ![Complete demo with ready workloads, Services and Ingress](images/local-full-demo.png)
 
 ![Post-cleanup checks confirming that the demo resources were removed](images/local-cleanup.png)
+
+The following fresh run verifies ConfigMap and Secret injection without printing the password, successful frontend and `/api` Ingress routing, an intentionally broken Service selector with no endpoints, and the working request after the selector is fixed:
+
+![Fresh ConfigMap, Secret, Ingress and troubleshooting verification](images/fresh-config-secret-ingress-troubleshooting.png)
+
+The submitted files are `configmap.yaml`, `secret-demo.yaml`, `backend.yaml`, `frontend.yaml`, `ingress.yaml`, `ingress-hybrid.yaml`, and the before/after files in `troubleshooting/`.
 
 ## Troubleshooting order
 

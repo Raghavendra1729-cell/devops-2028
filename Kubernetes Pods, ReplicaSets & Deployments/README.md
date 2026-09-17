@@ -38,12 +38,12 @@ spec:
 ```
 
 ```bash
-kubectl apply -f pod.yml
-kubectl wait --for=condition=Ready pod/nginx-pod --timeout=120s
-kubectl get pod nginx-pod -o wide --show-labels
-kubectl logs nginx-pod
-kubectl describe pod nginx-pod
-kubectl delete pod nginx-pod
+kubectl apply -f pod-lifecycle/01-running.yaml
+kubectl wait --for=condition=Ready pod/lifecycle-running --timeout=120s
+kubectl get pod lifecycle-running -o wide --show-labels
+kubectl logs lifecycle-running
+kubectl describe pod lifecycle-running
+kubectl delete pod lifecycle-running
 ```
 
 A bare Pod is not self-healing. If I delete it, no controller creates a replacement.
@@ -55,9 +55,9 @@ A bare Pod is not self-healing. If I delete it, no controller creates a replacem
 An invalid image can still pass API validation, so the Pod object is stored successfully. The failure happens later when kubelet asks the container runtime to pull the image.
 
 ```bash
-kubectl apply -f broken-image.yaml
+kubectl apply -f pod-lifecycle/06-imagepullbackoff.yaml
 kubectl get pods -w
-kubectl describe pod broken-image-pod
+kubectl describe pod lifecycle-imagepull
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
@@ -98,9 +98,9 @@ spec:
 Apply it and watch quickly from another terminal:
 
 ```bash
-kubectl apply -f hello.yml
-kubectl get pod hello -w
-kubectl logs hello
+kubectl apply -f pod-lifecycle/03-succeeded.yaml
+kubectl get pod lifecycle-succeeded -w
+kubectl logs lifecycle-succeeded
 ```
 
 The visible status normally moves through `ContainerCreating`, `Running`, then `Completed`. The Kubernetes Pod phase behind `Completed` is `Succeeded`.
@@ -154,6 +154,10 @@ lifecycle-termination   1/1   Terminating
 
 ![SIGTERM handling and graceful cleanup during Pod deletion](images/local-graceful-termination.png)
 
+The following fresh run applies all 12 committed lifecycle manifests together and shows their real phases, readiness, errors, restart counts, logs, init output, and Pending scheduler event:
+
+![Fresh output from all 12 Pod lifecycle YAML files](images/fresh-pod-lifecycle.png)
+
 ## 6. ReplicaSet and StatefulSet
 
 ### ReplicaSet
@@ -161,7 +165,7 @@ lifecycle-termination   1/1   Terminating
 A ReplicaSet keeps a requested number of matching Pods alive. Labels connect the Pods to the controller.
 
 ```bash
-kubectl apply -f replicaset.yml
+kubectl apply -f controllers/replicaset.yaml
 kubectl get rs
 kubectl get pods --show-labels
 kubectl delete pod <one-replicaset-pod>
@@ -177,9 +181,9 @@ Deleting one Pod should make the ReplicaSet create another so the desired count 
 A StatefulSet is for workloads that need stable identity, ordered rollout, or persistent storage.
 
 ```bash
-kubectl apply -f statefulset.yml
-kubectl rollout status statefulset/mysql
-kubectl get pods -l app=mysql
+kubectl apply -f controllers/statefulset.yaml
+kubectl rollout status statefulset/mysql-demo
+kubectl get pods -l app=mysql-demo
 kubectl get pvc
 ```
 
@@ -190,7 +194,7 @@ Expected names are ordinal, such as `mysql-0` and `mysql-1`. If `mysql-0` is del
 A DaemonSet normally runs one copy of a Pod on every eligible node. It is useful for node exporters, logging agents and security agents.
 
 ```bash
-kubectl apply -f daemonset/node-agent-ds.yaml
+kubectl apply -f controllers/daemonset.yaml
 kubectl get daemonset
 kubectl get pods -l app=node-agent -o wide
 kubectl get nodes
@@ -205,16 +209,16 @@ There is no normal `replicas` field. Adding an eligible node causes a new Daemon
 A Deployment manages ReplicaSets. That extra layer gives rollout history, controlled updates and rollback.
 
 ```bash
-kubectl apply -f deployment/deployment-v1.yaml
-kubectl rollout status deployment/app
+kubectl apply -f 01-rolling-update/deployment-v1.yaml
+kubectl rollout status deployment/rolling-web
 kubectl get deploy,rs,pods
 
-kubectl apply -f deployment/deployment-v2.yaml
-kubectl rollout status deployment/app
-kubectl rollout history deployment/app
+kubectl apply -f 01-rolling-update/deployment-v2.yaml
+kubectl rollout status deployment/rolling-web
+kubectl rollout history deployment/rolling-web
 
-kubectl rollout undo deployment/app
-kubectl rollout status deployment/app
+kubectl rollout undo deployment/rolling-web
+kubectl rollout status deployment/rolling-web
 ```
 
 For a zero-downtime rolling update:
@@ -305,10 +309,10 @@ Service selector: slot=green -> Green v2 Pods
 ```
 
 ```bash
-kubectl apply -f 02-blue-green/deployment-blue.yaml
-kubectl apply -f 02-blue-green/deployment-green.yaml
+kubectl apply -f 02-blue-green/blue.yaml
+kubectl apply -f 02-blue-green/green.yaml
 kubectl apply -f 02-blue-green/service-blue.yaml
-kubectl get endpointslice -l kubernetes.io/service-name=app-service
+kubectl get endpointslice -l kubernetes.io/service-name=strategy-service
 
 # Cut over to green
 kubectl apply -f 02-blue-green/service-green.yaml
@@ -333,8 +337,8 @@ After cutover:  selector slot=green
 Canary releases a new version to a small part of the traffic first. With normal Kubernetes Service balancing, the split is an approximation based on the number of ready endpoints.
 
 ```bash
-kubectl apply -f 03-canary/deployment-stable.yaml
-kubectl apply -f 03-canary/deployment-canary.yaml
+kubectl apply -f 03-canary/stable.yaml
+kubectl apply -f 03-canary/canary.yaml
 kubectl apply -f 03-canary/service.yaml
 
 kubectl scale deployment app-stable --replicas=9
@@ -428,3 +432,10 @@ Delete only the resources created for the lab:
 kubectl delete -f <lab-directory>
 kubectl get all
 ```
+
+## Submitted YAML files
+
+- `pod-lifecycle/` contains all 12 lifecycle manifests.
+- `01-rolling-update/`, `02-blue-green/`, `03-canary/`, and `04-recreate/` contain the four required deployment strategies.
+- `controllers/` contains the ReplicaSet, DaemonSet, and StatefulSet examples used in the comparison notes.
+- `selector-mismatch.yaml` is intentionally invalid and is used only to demonstrate API validation.

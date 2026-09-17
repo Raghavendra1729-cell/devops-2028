@@ -62,6 +62,10 @@ minikube   Ready    control-plane   vX.Y.Z
 
 ![Minikube status, ready node and running system Pods](images/minikube-status.png)
 
+Fresh verification of the current cluster, CoreDNS, node, manifest, and live NGINX response:
+
+![Fresh Kubernetes fundamentals verification](images/fresh-fundamentals-verification.png)
+
 ## 3. Kubernetes architecture
 
 Kubernetes is declarative. I describe the state I want, and its controllers keep comparing the current state with that desired state.
@@ -107,10 +111,10 @@ kubectl get --raw='/readyz?verbose'
 
 A Pod is the smallest deployable Kubernetes object. It normally contains one main application container, although helper, sidecar and init containers are also possible.
 
-For a quick test without keeping a YAML file, this command starts NGINX and leaves it running long enough to inspect:
+The runnable Pod manifest is saved as `manifests/hello-nginx.yaml`:
 
 ```bash
-kubectl run hello-nginx --image=nginx:1.25-alpine --port=80
+kubectl apply -f manifests/hello-nginx.yaml
 kubectl wait --for=condition=Ready pod/hello-nginx --timeout=120s
 kubectl get pod hello-nginx -o wide
 kubectl describe pod hello-nginx
@@ -190,3 +194,5 @@ kubectl cluster-info
 ```
 
 If these four checks work, the local cluster, node, system Pods and API connection are all available.
+
+The Pod used for the hands-on check is committed at `manifests/hello-nginx.yaml`.

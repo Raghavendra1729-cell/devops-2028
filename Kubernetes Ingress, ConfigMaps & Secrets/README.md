@@ -33,7 +33,7 @@ kubectl get configmap app-config \
 
 ConfigMaps are not encrypted and should not contain passwords or tokens.
 
-![Ingress controller and ConfigMap inspection](images/k11-01-ingress-controller-configmap.png)
+![Local Ingress controller and ConfigMap inspection](images/local-config-secret-environment.png)
 
 ## 2. Updating a ConfigMap
 
@@ -85,7 +85,7 @@ echo
 
 `kubectl describe secret` shows key names and byte counts, not the decoded values. Anyone allowed to read the Secret object may still retrieve its data, so RBAC and encryption at rest matter.
 
-![Secret inspection and Base64 demonstration](images/k11-02-secret.png)
+![Local Secret inspection and Base64 decoding](images/local-config-secret-environment.png)
 
 ## 4. The trailing-newline mistake
 
@@ -167,7 +167,7 @@ kubectl exec deploy/backend -- \
 
 I avoid printing the password during a normal check. Confirming the variable exists is enough.
 
-![Application environment populated from ConfigMap and Secret](images/k11-03-apps-env.png)
+![Local application environment populated from ConfigMap and Secret](images/local-config-secret-environment.png)
 
 ## 7. Ingress resource vs Ingress controller
 
@@ -277,13 +277,11 @@ curl http://yatri.local/api/
 
 Controller-specific regex and rewrite annotations are useful when needed, but a plain `Prefix` rule is easier to move between controllers.
 
-![Ingress rules and successful frontend/backend requests](images/k11-04-ingress.png)
+![Ingress rules and successful local frontend/backend requests](images/local-ingress-routing.png)
 
 ![Frontend route in a browser](images/k11-05-browser-frontend.png)
 
 ![Backend route in a browser](images/k11-06-browser-api.png)
-
-![Ingress rules and successful local frontend and backend routing](images/local-ingress-routing.png)
 
 ## 11. Host-based routing
 

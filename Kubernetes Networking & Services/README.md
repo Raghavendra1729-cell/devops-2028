@@ -51,7 +51,7 @@ kubectl exec curl-client -- \
 
 The Service selector must match the Pod labels. If it does not, the Service exists but its EndpointSlice contains no ready backends.
 
-![ClusterIP Service, Pods and EndpointSlice](images/k10-01-clusterip.png)
+![Local ClusterIP Service, ready Deployment and EndpointSlice](images/local-clusterip-dns.png)
 
 ### DNS names
 
@@ -110,6 +110,8 @@ kubectl get service web-service-loadbalancer
 
 If it stays `<pending>` on a local cluster, that usually means there is no cloud load-balancer controller or local equivalent handling the request.
 
+![Local LoadBalancer external IP and successful response through the Minikube tunnel](images/local-loadbalancer.png)
+
 ## 5. ExternalName
 
 ExternalName creates a DNS alias to a name outside Kubernetes. It has no selector, ClusterIP or Pod endpoints.
@@ -132,7 +134,7 @@ kubectl exec dns-test-client -- nslookup external-api
 
 DNS should show a CNAME chain. HTTP or HTTPS may still need the correct `Host` header and TLS server name, so an ExternalName is not a general-purpose proxy.
 
-![LoadBalancer and ExternalName results](images/k10-04-loadbalancer-externalname.png)
+![ExternalName Service and DNS alias result](images/k10-04-loadbalancer-externalname.png)
 
 ## 6. Headless Service
 
@@ -192,7 +194,7 @@ kubectl get endpointslice \
 
 The next screenshot shows the related failure case: a normal Service whose selector matched no Pods.
 
-![Empty Service endpoints caused by a selector mismatch](images/k10-06-empty-endpoints.png)
+![Local Service discovery checks and empty endpoints](images/local-service-discovery-troubleshooting.png)
 
 ## 8. CoreDNS and FQDN details
 

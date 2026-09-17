@@ -120,7 +120,7 @@ kubectl delete pod hello-nginx
 
 Its normal state is `Running` because the NGINX process stays active. A short command such as `echo` with `restartPolicy: Never` would finish as `Completed` instead.
 
-![Creating and inspecting the hello-nginx Pod](images/k8-03-first-pod.png)
+![Creating and inspecting my local hello-nginx Pod](images/local-pods-namespaces.png)
 
 ## 5. Namespaces
 
@@ -143,7 +143,7 @@ Common namespaces:
 | `kube-public` | Publicly readable cluster information when configured. |
 | `kube-node-lease` | Node heartbeat lease objects. |
 
-![Creating a Pod in the dev namespace and cleaning it up](images/k8-04-namespaces.png)
+![Running Pods in the default and dev namespaces](images/local-pods-namespaces.png)
 
 ## 6. Generate YAML and read the schema
 

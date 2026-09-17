@@ -48,7 +48,7 @@ kubectl delete pod nginx-pod
 
 A bare Pod is not self-healing. If I delete it, no controller creates a replacement.
 
-![Creating, inspecting and deleting a Pod](images/k9-01-pod.png)
+![Creating and inspecting my local standalone Pod](images/local-standalone-pod.png)
 
 ## 3. `ErrImagePull` and `ImagePullBackOff`
 
@@ -170,7 +170,7 @@ kubectl get pods -w
 
 Deleting one Pod should make the ReplicaSet create another so the desired count is restored.
 
-![ReplicaSet creation, scaling and self-healing](images/k9-02-replicaset.png)
+![Local ReplicaSet creation and Pod replacement](images/local-replicaset-daemonset.png)
 
 ### StatefulSet
 
@@ -198,7 +198,7 @@ kubectl get nodes
 
 There is no normal `replicas` field. Adding an eligible node causes a new DaemonSet Pod to be scheduled there automatically.
 
-![One DaemonSet Pod on each eligible node](images/k9-06-daemonset.png)
+![Local ReplicaSet and DaemonSet controller results](images/local-replicaset-daemonset.png)
 
 ## 8. Deployment, rolling update and rollback
 
@@ -231,11 +231,11 @@ strategy:
 - `maxUnavailable: 0` keeps all desired replicas available before an old Pod is removed.
 - Percentage values are calculated from the desired replica count. `maxSurge` rounds up; `maxUnavailable` rounds down.
 
-![Deployment version 1 and its Service](images/k9-03-deployment-v1.png)
+![Local Deployment versions and rolling update](images/local-deployment-rolling-rollback.png)
 
-![Rolling update, history and rollback](images/k9-04-rolling-update-rollback.png)
+![Local rolling update, history and rollback](images/local-deployment-rolling-rollback.png)
 
-![Pods changing during a rolling update](images/rolling-update-in-progress.png)
+![Local Pods changing from version 1 to version 2](images/local-deployment-rolling-rollback.png)
 
 ## 9. Troubleshooting drills
 
@@ -251,7 +251,7 @@ kubectl rollout undo deployment/app
 
 With a safe rolling strategy, old healthy Pods stay available while the new ReplicaSet is stuck.
 
-![A Deployment update failing with ImagePullBackOff, followed by rollback](images/k9-05-broken-image.png)
+![Local broken image update followed by a successful rollback](images/local-broken-update-rollback.png)
 
 ### Selector mismatch
 

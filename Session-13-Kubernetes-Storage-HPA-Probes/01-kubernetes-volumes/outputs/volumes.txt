@@ -1,0 +1,58 @@
+$ kubectl -n volume-practice get pods
+NAME            READY   STATUS    RESTARTS   AGE
+emptydir-demo   2/2     Running   0          112s
+hostpath-demo   1/1     Running   0          111s
+Exit status: 0
+
+$ kubectl -n volume-practice exec emptydir-demo -c reader -- cat /data/message.txt
+shared-data
+Exit status: 0
+
+$ kubectl -n volume-practice exec hostpath-demo -- cat /data/message.txt
+node-storage
+Exit status: 0
+
+$ minikube ssh -- 'cat /tmp/course-volume-demo/message.txt'
+node-storage
+Exit status: 0
+
+$ kubectl get storageclass
+NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  14d
+Exit status: 0
+
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                           STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pvc-41c57586-37b4-47aa-b641-ded13def5c5d   500Mi      RWO            Delete           Bound    production-webapp/web-data      standard       <unset>                          6m5s
+pvc-8e6eb653-eb30-42e2-a3e4-f1e598ce1e16   1Gi        RWO            Delete           Bound    observability/grafana-data      standard       <unset>                          3h7m
+pvc-ffef1729-8b39-48c0-b35c-92f528b7cba1   2Gi        RWO            Delete           Bound    observability/prometheus-data   standard       <unset>                          3h7m
+Exit status: 0
+
+$ kubectl -n production-webapp describe pvc web-data
+Name:          web-data
+Namespace:     production-webapp
+StorageClass:  standard
+Status:        Bound
+Volume:        pvc-41c57586-37b4-47aa-b641-ded13def5c5d
+Labels:        <none>
+Annotations:   pv.kubernetes.io/bind-completed: yes
+               pv.kubernetes.io/bound-by-controller: yes
+               volume.beta.kubernetes.io/storage-provisioner: k8s.io/minikube-hostpath
+               volume.kubernetes.io/storage-provisioner: k8s.io/minikube-hostpath
+Finalizers:    [kubernetes.io/pvc-protection]
+Capacity:      500Mi
+Access Modes:  RWO
+VolumeMode:    Filesystem
+Used By:       web-app-656966ddb8-7l5xn
+               web-app-656966ddb8-hf22d
+Conditions:
+  Type     Status  LastProbeTime                     LastTransitionTime                Reason        Message
+  ----     ------  -----------------                 ------------------                ------        -------
+  Unused   False   Mon, 01 Jan 0001 00:00:00 +0000   Fri, 02 Oct 2026 19:48:14 +0530   PodUsingPVC   A pod is currently referencing this PVC
+Events:
+  Type    Reason                 Age                  From                                                                    Message
+  ----    ------                 ----                 ----                                                                    -------
+  Normal  ExternalProvisioning   6m5s (x2 over 6m5s)  persistentvolume-controller                                             Waiting for a volume to be created either by the external provisioner 'k8s.io/minikube-hostpath' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.
+  Normal  Provisioning           6m5s                 k8s.io/minikube-hostpath_minikube_fab037db-4e6a-4d03-8d84-d818057cb7a1  External provisioner is provisioning volume for claim "production-webapp/web-data"
+  Normal  ProvisioningSucceeded  6m5s                 k8s.io/minikube-hostpath_minikube_fab037db-4e6a-4d03-8d84-d818057cb7a1  Successfully provisioned volume pvc-41c57586-37b4-47aa-b641-ded13def5c5d
+Exit status: 0

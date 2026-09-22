@@ -1,0 +1,71 @@
+$ kubectl -n production-webapp get hpa,pods
+NAME                                              REFERENCE            TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/web-app-hpa   Deployment/web-app   cpu: 40%/50%   2         5         3          11m
+
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/load-generator-7b5d486896-2ptbz   1/1     Running   0          5m45s
+pod/load-generator-7b5d486896-6lznr   1/1     Running   0          5m44s
+pod/load-generator-7b5d486896-j8f2s   1/1     Running   0          5m44s
+pod/load-generator-7b5d486896-rbj8h   1/1     Running   0          5m45s
+pod/load-generator-7b5d486896-s4j2j   1/1     Running   0          5m45s
+pod/load-generator-7b5d486896-v8vw5   1/1     Running   0          5m44s
+pod/web-app-656966ddb8-7l5xn          1/1     Running   0          5m43s
+pod/web-app-656966ddb8-gwzsz          1/1     Running   0          3m39s
+pod/web-app-656966ddb8-hf22d          1/1     Running   0          5m43s
+pod/web-client                        1/1     Running   0          5m20s
+
+$ kubectl -n production-webapp top pods
+NAME                              CPU(cores)   MEMORY(bytes)
+load-generator-7b5d486896-2ptbz   221m         3Mi
+load-generator-7b5d486896-6lznr   218m         3Mi
+load-generator-7b5d486896-j8f2s   223m         4Mi
+load-generator-7b5d486896-rbj8h   218m         3Mi
+load-generator-7b5d486896-s4j2j   220m         3Mi
+load-generator-7b5d486896-v8vw5   222m         4Mi
+web-app-656966ddb8-7l5xn          40m          7Mi
+web-app-656966ddb8-gwzsz          40m          7Mi
+web-app-656966ddb8-hf22d          40m          8Mi
+web-client                        0m           0Mi
+
+$ kubectl -n production-webapp describe hpa web-app-hpa
+Name:                                                  web-app-hpa
+Namespace:                                             production-webapp
+Labels:                                                <none>
+Annotations:                                           <none>
+CreationTimestamp:                                     Fri, 02 Oct 2026 19:48:14 +0530
+Reference:                                             Deployment/web-app
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  40% (40m) / 50%
+Min replicas:                                          2
+Max replicas:                                          5
+Behavior:
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Pods     Value: 4    Period: 15 seconds
+      - Type: Percent  Value: 100  Period: 15 seconds
+  Scale Down:
+    Stabilization Window: 60 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 15 seconds
+Deployment pods:       3 current / 3 desired
+Conditions:
+  Type            Status  Reason              Message
+  ----            ------  ------              -------
+  AbleToScale     True    ReadyForNewScale    recommended size matches current size
+  ScalingActive   True    ValidMetricFound    the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  False   DesiredWithinRange  the desired count is within the acceptable range
+  ScaledToZero    False   NotScaledToZero     the HPA controller did not scale the workload to zero
+Events:
+  Type     Reason                        Age                  From                       Message
+  ----     ------                        ----                 ----                       -------
+  Warning  FailedGetResourceMetric       4m55s (x6 over 11m)  horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  4m55s (x6 over 11m)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedGetResourceMetric       4m25s (x7 over 10m)  horizontal-pod-autoscaler  failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Warning  FailedComputeMetricsReplicas  4m25s (x7 over 10m)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Normal   SuccessfulRescale             3m40s                horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
+
+$ kubectl -n production-webapp delete deployment load-generator
+deployment.apps "load-generator" deleted from production-webapp namespace

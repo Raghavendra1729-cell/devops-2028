@@ -1,0 +1,8 @@
+$ kubectl -n production-webapp get hpa,pods
+NAME                                              REFERENCE            TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/web-app-hpa   Deployment/web-app   cpu: 1%/50%   2         5         2          16m
+
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/web-app-656966ddb8-gwzsz   1/1     Running   0          8m45s
+pod/web-app-656966ddb8-hf22d   1/1     Running   0          10m
+pod/web-client                 1/1     Running   0          10m

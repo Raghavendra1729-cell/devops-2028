@@ -61,3 +61,5 @@ terraform validate
 These checks examine the configuration without creating AWS resources.
 
 [AWS provider S3 bucket documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket).
+
+[Local validation output](outputs/validate.txt) records Terraform initialization and configuration validation.

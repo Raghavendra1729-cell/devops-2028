@@ -15,14 +15,14 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 pytest -v
 export API_TOKEN=$(openssl rand -hex 24)
-gunicorn --bind 127.0.0.1:5000 --workers 1 --threads 4 app:app
+gunicorn --bind 127.0.0.1:8500 --workers 1 --threads 4 app:app
 ```
 
-Open `http://127.0.0.1:5000`. In another terminal:
+Open `http://127.0.0.1:8500`. In another terminal:
 
 ```bash
-curl -fsS http://127.0.0.1:5000/health
-curl -fsS -X POST http://127.0.0.1:5000/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
+curl -fsS http://127.0.0.1:8500/health
+curl -fsS -X POST http://127.0.0.1:8500/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
 ```
 
 The calculator returns `18`. It rejects missing fields, non-numeric values, unknown operations, division by zero and numbers too large to calculate safely.
@@ -31,7 +31,7 @@ The calculator returns `18`. It rejects missing fields, non-numeric values, unkn
 
 ```bash
 docker build -t ci-cd:1.0 .
-docker run --rm -p 127.0.0.1:5000:5000 -e API_TOKEN ci-cd:1.0
+docker run --rm -p 127.0.0.1:8500:5000 -e API_TOKEN ci-cd:1.0
 ```
 
 ## CI and CD
@@ -59,3 +59,9 @@ The image is tagged with the full commit SHA, so the deployment uses the version
 The Kubernetes deployment uses the [final project chart](../final-devops-project/helm/notes/). For a manual run, create the application Secret, load the image into Minikube and use Helm with autoscaling disabled. The commands are in the [final project README](../final-devops-project/README.md).
 
 Class reference: [Session 16](https://github.com/Mehul01-Max/devops-heros/tree/main/session-16-github-actions/session-16-github-actions/10-final-cicd-pipeline).
+
+## Pipeline result
+
+The [successful run](https://github.com/Raghavendra1729-cell/devops-2028/actions/runs/37001239685) completed tests, image publishing and Kubernetes deployment. Its deployment job verified readiness, health and the calculator response before deleting Kind.
+
+![Successful pipeline](images/pipeline-success.jpg)

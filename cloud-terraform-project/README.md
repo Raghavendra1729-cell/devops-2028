@@ -75,3 +75,5 @@ terraform validate
 ```
 
 [AWS VPC documentation](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html), [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html).
+
+[Local validation output](outputs/validate.txt) records Terraform initialization and configuration validation.

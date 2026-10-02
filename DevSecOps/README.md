@@ -15,14 +15,14 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 pytest -v
 export API_TOKEN=$(openssl rand -hex 24)
-gunicorn --bind 127.0.0.1:5000 --workers 1 --threads 4 app:app
+gunicorn --bind 127.0.0.1:8500 --workers 1 --threads 4 app:app
 ```
 
-Open `http://127.0.0.1:5000`. In another terminal:
+Open `http://127.0.0.1:8500`. In another terminal:
 
 ```bash
-curl -fsS http://127.0.0.1:5000/health
-curl -fsS -X POST http://127.0.0.1:5000/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
+curl -fsS http://127.0.0.1:8500/health
+curl -fsS -X POST http://127.0.0.1:8500/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
 ```
 
 The calculator returns `18`. It rejects missing fields, non-numeric values, unknown operations, division by zero and numbers too large to calculate safely.
@@ -31,7 +31,7 @@ The calculator returns `18`. It rejects missing fields, non-numeric values, unkn
 
 ```bash
 docker build -t devsecops:1.0 .
-docker run --rm -p 127.0.0.1:5000:5000 -e API_TOKEN devsecops:1.0
+docker run --rm -p 127.0.0.1:8500:5000 -e API_TOKEN devsecops:1.0
 ```
 
 ## Security checks
@@ -77,3 +77,17 @@ kubectl -n devsecops-lab port-forward service/notes 8500:5000
 ```
 
 Open `http://127.0.0.1:8500`. Delete `devsecops-lab` after the exercise.
+
+## Pipeline result
+
+The [successful run](https://github.com/Raghavendra1729-cell/devops-2028/actions/runs/37001239734) completed tests, image publishing and Kubernetes deployment. Its deployment job verified readiness, health and the calculator response before deleting Kind.
+
+![Successful pipeline](images/pipeline-success.jpg)
+
+## Security gate result
+
+The first image scan found fixable vulnerabilities and stopped the publishing job. Deployment remained skipped. I updated the Debian packages and removed pip and its bundled installer from the runtime image after installing the application dependencies.
+
+![Image gate blocked the pipeline](images/security-gate-blocked.jpg)
+
+The [updated image scan](outputs/image-scan.txt) passed the configured gate. The later successful run completed publishing and deployment. A passing gate means no fixable HIGH or CRITICAL findings were detected at scan time; it is not a claim that the image has no vulnerabilities of any severity.

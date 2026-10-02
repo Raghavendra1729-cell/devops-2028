@@ -84,3 +84,23 @@ kubectl -n final-project get configmap notes-config -o jsonpath='{.data.GREETING
 After reconciliation the value returns to the greeting in Git. A manual `kubectl` change is not a permanent GitOps update.
 
 [Prometheus alert rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/), [Argo CD automated sync](https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/).
+
+## Results
+
+The [storage and metrics output](outputs/storage-and-metrics.txt) shows the two PVCs bound and the application target available. Traffic generated through `/work` increased the request rate and CPU graph.
+
+![Grafana application dashboard](images/grafana-dashboard.jpg)
+
+The wrong Service selector removed its ready endpoints. Prometheus reported the application-down alert as firing. Restoring the selector returned the endpoints and cleared the alert.
+
+![Application-down alert firing](images/alert-firing.jpg)
+
+![Alert after recovery](images/alert-recovered.jpg)
+
+The exact results are in [broken Service output](outputs/broken-service.txt), [firing alert](outputs/alert-firing.json), [restored Service](outputs/service-restored.txt) and [recovered alert](outputs/alert-recovered.json).
+
+Argo CD synchronized the configuration from Git and reported Healthy. Changing the greeting in Git updated the running page to My DevOps Notes. The [self-healing output](outputs/gitops-self-healing.txt) records the manual change and restoration; the [final state](outputs/gitops-healthy.txt) confirms Synced and Healthy.
+
+![Argo CD synchronized application](images/argocd-healthy.jpg)
+
+![Greeting updated through GitOps](images/gitops-application.jpg)

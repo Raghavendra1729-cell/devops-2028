@@ -34,13 +34,13 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 pytest -v
 export API_TOKEN=$(openssl rand -hex 24)
-gunicorn --bind 127.0.0.1:5000 --workers 1 --threads 4 app:app
+gunicorn --bind 127.0.0.1:8500 --workers 1 --threads 4 app:app
 ```
 
-The page is at `http://127.0.0.1:5000`. `/health` checks that the application runs. `/ready` checks that its Secret configuration is present. `/api/private` requires the token in an `X-API-Token` header. `/metrics` exposes request counts, latency and process metrics. `/work` performs a fixed amount of CPU work for the HPA exercise.
+The page is at `http://127.0.0.1:8500`. `/health` checks that the application runs. `/ready` checks that its Secret configuration is present. `/api/private` requires the token in an `X-API-Token` header. `/metrics` exposes request counts, latency and process metrics. `/work` performs a fixed amount of CPU work for the HPA exercise.
 
 ```bash
-curl -fsS -X POST http://127.0.0.1:5000/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
+curl -fsS -X POST http://127.0.0.1:8500/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}'
 ```
 
 ## Docker setup
@@ -49,7 +49,7 @@ Run the following from `final-devops-project/`:
 
 ```bash
 docker build -t devops-notes:1.0 -f docker/Dockerfile application
-docker run --rm -p 127.0.0.1:5000:5000 -e API_TOKEN devops-notes:1.0
+docker run --rm -p 127.0.0.1:8500:5000 -e API_TOKEN devops-notes:1.0
 ```
 
 The container runs as a regular user. The pipeline publishes both AMD64 and ARM64 images, tagged with the commit SHA.
@@ -81,6 +81,11 @@ To test Ingress, forward the controller in another terminal:
 
 ```bash
 kubectl -n ingress-nginx port-forward service/ingress-nginx-controller 8080:80
+```
+
+In another terminal:
+
+```bash
 curl -fsS -H 'Host: notes.local' http://127.0.0.1:8080/api/status
 ```
 
@@ -187,3 +192,30 @@ minikube stop
 ```
 
 Delete the Argo CD Application before the namespace so reconciliation does not recreate resources. Remove PVC data only after saving any needed evidence. For the cloud deployment, run `terraform destroy` from `terraform/` after removing stored objects and confirming the planned deletions.
+
+## Local results
+
+The [deployment output](outputs/local-deployment.txt) records the working Deployment, Service, ConfigMap, Secret, Ingress and HPA. The calculator returned `18` for `6 × 3`.
+
+![Application running in Kubernetes](images/application.jpg)
+
+The [load exercise](outputs/hpa-under-load.txt) shows HPA increasing the replica count to three. Removing the load generator allowed it to return to one replica. [Application logs](outputs/application-logs.txt) show the requests handled by the server.
+
+Monitoring results and alert screenshots are in [Session 20](../Monitoring%20and%20GitOps/README.md).
+
+The [final pipeline run](https://github.com/Raghavendra1729-cell/devops-2028/actions/runs/37001699708) passed tests, scans, image publishing and the Kind deployment. The [deployment response](outputs/ci-deployment/deployment-result.json) returned the expected calculator result. [Security reports](security/outputs/reports/) contain the source scan results. The [private endpoint check](outputs/private-endpoint.txt) confirms the generated Secret works.
+
+![Successful final pipeline](images/pipeline-success.jpg)
+
+## Troubleshooting
+
+I reproduced missing Secret configuration, a wrong readiness path, an unavailable image tag and a Service selector mismatch. Each issue has investigation output, a root cause, a fix and verification in the [troubleshooting notes](troubleshooting/README.md).
+
+## Lessons learned
+
+- Helm can record an upgrade even when its new Pods are unhealthy unless the command waits for readiness.
+- A Service selector must match the labels on the Pods.
+- A readiness probe can fail while the container is still running.
+- HPA needs CPU requests and metrics; a new Pod may not have usable metrics immediately.
+- A successful image build does not guarantee a passing vulnerability scan.
+- GitOps changes belong in Git because manual changes can be reconciled away.

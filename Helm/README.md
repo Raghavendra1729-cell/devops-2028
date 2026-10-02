@@ -75,3 +75,11 @@ kubectl delete namespace helm-lab
 ```
 
 Class reference: [Notes Helm mini project](https://github.com/Mehul01-Max/devops-heros/tree/main/session-15-helm/mini-project).
+
+## Rollback result
+
+[Release history](outputs/20-history.txt) shows the failed third upgrade followed by the rollback. [Restored workload and page](outputs/21-restored.txt) confirm the production configuration returned.
+
+![Page after rollback](images/rollback-page.jpg)
+
+The release was removed after the exercise. [Uninstall](outputs/22-uninstall.txt) and [release list after cleanup](outputs/23-cleanup.txt) record the cleanup.

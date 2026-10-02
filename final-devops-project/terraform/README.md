@@ -61,3 +61,5 @@ terraform show
 ```
 
 Keep the S3 bucket empty, preserve state until destroy succeeds, and check for remaining EC2, EBS, networking and S3 resources. State and saved plans are excluded from Git.
+
+[Local validation output](outputs/validate.txt) records Terraform initialization and configuration validation.

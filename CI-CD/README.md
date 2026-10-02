@@ -38,7 +38,7 @@ docker run --rm -p 127.0.0.1:5000:5000 -e API_TOKEN ci-cd:1.0
 
 CI checks each change by building the Python source and running tests. CD builds and publishes the Docker image, installs the chart in Kubernetes and verifies the application. The deployment target in this demo is a temporary Kind cluster inside the GitHub runner. It is removed at the end of the job.
 
-A workflow contains jobs; each job contains steps. `needs` makes the publishing job wait for tests and the deployment job wait for publishing. `ubuntu-latest` selects a GitHub-hosted runner.
+A workflow contains jobs; each job contains steps. `needs` makes the publishing job wait for tests and the deployment job wait for publishing. `ubuntu-24.04` selects a GitHub-hosted runner.
 
 The registry login uses GitHub's automatic `GITHUB_TOKEN` secret. The application token is generated during deployment and stored as a Kubernetes Secret. It is never written into the workflow file.
 

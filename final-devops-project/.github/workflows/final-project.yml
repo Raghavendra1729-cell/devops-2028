@@ -24,10 +24,10 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/checkout@v7.0.1
+    - uses: actions/setup-python@v7.0.0
       with:
         python-version: '3.13'
     - name: Install dependencies
@@ -52,7 +52,7 @@ jobs:
         helm template notes final-devops-project/helm/notes > rendered.yaml
     - name: Upload test and scan reports
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: final-project-reports
         path: |-
@@ -62,19 +62,19 @@ jobs:
   publish:
     needs: test
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v4
-    - uses: docker/setup-qemu-action@v3
-    - uses: docker/setup-buildx-action@v3
+    - uses: actions/checkout@v7.0.1
+    - uses: docker/setup-qemu-action@v4.4.0
+    - uses: docker/setup-buildx-action@v4.4.1
     - name: Build image for scanning
       run: docker build -t ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }} -f final-devops-project/docker/Dockerfile
         final-devops-project/application
     - name: Container image scan and security gate
-      uses: aquasecurity/trivy-action@0.35.0
+      uses: aquasecurity/trivy-action@v0.36.0
       with:
         image-ref: ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }}
         format: table
@@ -83,13 +83,13 @@ jobs:
         vuln-type: os,library
         severity: HIGH,CRITICAL
     - name: Registry login
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4.6.0
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Push image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7.4.0
       with:
         context: final-devops-project/application
         file: final-devops-project/docker/Dockerfile
@@ -99,7 +99,7 @@ jobs:
           ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }}
           ghcr.io/raghavendra1729-cell/devops-notes:latest
     - name: Upload application build
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: final-project-application
         path: |-
@@ -107,13 +107,13 @@ jobs:
           final-devops-project/application/requirements.txt
   deploy:
     needs: publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       packages: read
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/checkout@v7.0.1
+    - uses: actions/setup-python@v7.0.0
       with:
         python-version: '3.13'
     - name: Install YAML library
@@ -148,7 +148,7 @@ jobs:
         kubectl -n pipeline-demo logs deployment/notes --tail=10
     - name: Save deployment result
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.1
       with:
         name: final-project-deployment
         path: |-

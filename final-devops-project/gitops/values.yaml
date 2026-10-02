@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/raghavendra1729-cell/devops-notes
-  tag: c34fc63fa477f3f22c48f29d4550daeea6b6899f
+  tag: 1ad9f81e4edc8b5a3f32be6a578abfb3561ba557
 app:
   greeting: My DevOps Notes
-  version: c34fc63
+  version: 1ad9f81

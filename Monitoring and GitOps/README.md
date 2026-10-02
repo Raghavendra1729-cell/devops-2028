@@ -68,7 +68,7 @@ Git stores the intended configuration. Argo CD reads the [Application](../final-
 Follow the final project's Argo CD installation commands, then:
 
 ```bash
-kubectl apply -f ../final-devops-project/gitops/application.yaml
+kubectl apply -f ../final-devops-project/gitops/application-local.yaml
 kubectl -n argocd get application devops-notes
 ```
 

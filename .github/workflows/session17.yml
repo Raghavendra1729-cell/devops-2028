@@ -40,7 +40,7 @@ jobs:
       if: ${{ inputs.gate_demo == true }}
       run: 'python -c ''raise SystemExit("Controlled gate failure: publishing and deployment must be skipped")'''
     - name: SAST
-      run: bandit -q DevSecOps/app.py -f json -o sast.json
+      run: bandit -c DevSecOps/security/bandit.yaml -q DevSecOps/app.py -f json -o sast.json
     - name: SCA
       run: pip-audit -r DevSecOps/requirements.txt -f json -o sca.json
     - name: Secret scan

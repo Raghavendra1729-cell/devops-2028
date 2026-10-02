@@ -64,7 +64,7 @@ minikube image load devops-notes:1.0
 ./kubernetes/create-secret.sh final-project
 helm upgrade --install notes helm/notes -n final-project --wait --timeout 180s
 kubectl -n final-project get deployments,pods,services,configmaps,secrets,ingress,hpa
-kubectl -n final-project port-forward service/notes 5000:5000
+kubectl -n final-project port-forward service/notes 8500:5000
 ```
 
 To deploy plain Kubernetes manifests instead of Helm, create the Secret and apply `kubernetes/application.yaml` in a separate namespace. Use one deployment method per namespace.
@@ -144,12 +144,19 @@ kubectl create namespace argocd
 kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.3/manifests/install.yaml
 kubectl -n argocd rollout status deployment/argocd-server --timeout=300s
 ./kubernetes/create-secret.sh final-project
-kubectl apply -f gitops/application.yaml
+kubectl apply -f gitops/application-local.yaml
 kubectl -n argocd get application devops-notes
-kubectl -n argocd port-forward service/argocd-server 8082:443
+kubectl -n argocd port-forward service/argocd-server 8082:80
 ```
 
-Use the Argo CD initial admin Secret for the local login. The Application follows `master`, reads the chart and `gitops/values.yaml`, and enables pruning and self-healing. Git contains the intended configuration. Manual changes are corrected by reconciliation.
+For the local HTTP port-forward, configure the server before opening it:
+
+```bash
+kubectl -n argocd patch configmap argocd-cmd-params-cm --type merge -p '{"data":{"server.insecure":"true"}}'
+kubectl -n argocd rollout restart deployment/argocd-server
+```
+
+Open `http://127.0.0.1:8082`. Use the Argo CD initial admin Secret for the local login. The Application follows `master`, reads the chart and `gitops/values.yaml`, and enables pruning and self-healing. `application-local.yaml` selects the image already loaded into Minikube; Git still controls the greeting and other application configuration. `application.yaml` selects the image published by CI for a registry-backed deployment. Git contains the intended configuration. Manual changes are corrected by reconciliation.
 
 For private GHCR packages, create a pull Secret in `final-project` using a token with package-read permission and attach it to the default ServiceAccount before syncing. Public packages can be pulled without registry credentials.
 

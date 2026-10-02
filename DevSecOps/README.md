@@ -41,7 +41,7 @@ The pipeline runs Bandit for SAST, pip-audit for dependency vulnerabilities, Git
 Run source checks locally:
 
 ```bash
-bandit -q app.py
+bandit -c security/bandit.yaml -q app.py
 pip-audit -r requirements.txt
 gitleaks dir . --redact
 ```
@@ -63,3 +63,17 @@ The image is tagged with the full commit SHA, so the deployment uses the version
 The Kubernetes deployment uses the [final project chart](../final-devops-project/helm/notes/). For a manual run, create the application Secret, load the image into Minikube and use Helm with autoscaling disabled. The commands are in the [final project README](../final-devops-project/README.md).
 
 Class reference: [Session 17](https://github.com/Mehul01-Max/devops-heros/tree/main/session-17-devsecops/demo).
+
+## Kubernetes manifests
+
+After building the Docker image above:
+
+```bash
+minikube image load devsecops:1.0
+../final-devops-project/kubernetes/create-secret.sh devsecops-lab
+kubectl apply -n devsecops-lab -f kubernetes/application.yaml
+kubectl -n devsecops-lab rollout status deployment/notes
+kubectl -n devsecops-lab port-forward service/notes 8500:5000
+```
+
+Open `http://127.0.0.1:8500`. Delete `devsecops-lab` after the exercise.

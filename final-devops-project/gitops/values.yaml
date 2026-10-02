@@ -1,0 +1,6 @@
+image:
+  repository: devops-notes
+  tag: "1.0"
+app:
+  greeting: DevOps Notes
+  version: "1.0"

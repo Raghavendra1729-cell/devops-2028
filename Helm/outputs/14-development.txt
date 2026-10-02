@@ -1,0 +1,13 @@
+$ kubectl -n helm-lab get deployments,pods,services,configmaps
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/notes-dev-deploy   1/1     1            1           8s
+
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/notes-dev-deploy-655f9587bd-fnzhg   1/1     Running   0          8s
+
+NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+service/notes-dev-svc   NodePort   10.98.152.64   <none>        80:30090/TCP   8s
+
+NAME                         DATA   AGE
+configmap/kube-root-ca.crt   1      8s
+configmap/notes-dev-config   3      8s

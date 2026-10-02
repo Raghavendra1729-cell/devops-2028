@@ -1,0 +1,8 @@
+$ helm install notes-dev notes-chart -n helm-lab --create-namespace --wait --timeout 180s
+NAME: notes-dev
+LAST DEPLOYED: Fri Oct  2 16:32:31 2026
+NAMESPACE: helm-lab
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None

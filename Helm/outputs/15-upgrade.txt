@@ -1,0 +1,9 @@
+$ helm upgrade notes-dev notes-chart -n helm-lab -f notes-chart/values-prod.yaml --wait --timeout 180s
+Release "notes-dev" has been upgraded. Happy Helming!
+NAME: notes-dev
+LAST DEPLOYED: Fri Oct  2 16:32:39 2026
+NAMESPACE: helm-lab
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None

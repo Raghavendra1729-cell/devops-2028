@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  GREETING: {{ .Values.app.greeting | quote }}
+  ENVIRONMENT: {{ .Values.app.environment | quote }}
+  APP_VERSION: {{ .Values.app.version | quote }}

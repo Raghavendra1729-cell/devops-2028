@@ -1,0 +1,2 @@
+$ helm create /Users/lingaraghavendra/Documents/Codex/2026-10-02/se/work/command-chart
+Creating /Users/lingaraghavendra/Documents/Codex/2026-10-02/se/work/command-chart

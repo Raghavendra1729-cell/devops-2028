@@ -1,0 +1,183 @@
+name: Final DevOps project
+'on':
+  push:
+    branches:
+    - master
+    paths:
+    - final-devops-project/application/**
+    - final-devops-project/docker/Dockerfile
+    - final-devops-project/helm/**
+    - final-devops-project/kubernetes/create-secret.sh
+    - .github/workflows/final-project.yml
+  pull_request:
+    paths:
+    - final-devops-project/application/**
+    - final-devops-project/docker/Dockerfile
+    - .github/workflows/final-project.yml
+  workflow_dispatch:
+    inputs:
+      gate_demo:
+        description: Run a controlled failure to check the gate
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    - name: Install dependencies
+      run: pip install -r final-devops-project/application/requirements-dev.txt
+    - name: Build application
+      run: python -m compileall -q final-devops-project/application/app.py
+    - name: Unit tests
+      run: pytest -v final-devops-project/application/tests --junitxml=test-results.xml
+    - name: Demonstrate a failing gate
+      if: ${{ inputs.gate_demo == true }}
+      run: 'python -c ''raise SystemExit("Controlled gate failure: publishing and deployment must be skipped")'''
+    - name: SAST
+      run: bandit -q final-devops-project/application/app.py -f json -o sast.json
+    - name: SCA
+      run: pip-audit -r final-devops-project/application/requirements.txt -f json -o sca.json
+    - name: Secret scan
+      run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 dir /repo/final-devops-project/application --redact
+        --report-format json --report-path /repo/secrets.json
+    - name: Check Helm chart
+      run: |-
+        helm lint final-devops-project/helm/notes
+        helm template notes final-devops-project/helm/notes > rendered.yaml
+    - name: Upload test and scan reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: final-project-reports
+        path: |-
+          test-results.xml
+          *.json
+        if-no-files-found: ignore
+  publish:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/setup-qemu-action@v3
+    - uses: docker/setup-buildx-action@v3
+    - name: Build image for scanning
+      run: docker build -t ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }} -f final-devops-project/docker/Dockerfile
+        final-devops-project/application
+    - name: Container image scan and security gate
+      uses: aquasecurity/trivy-action@0.35.0
+      with:
+        image-ref: ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }}
+        format: table
+        exit-code: '1'
+        ignore-unfixed: 'true'
+        vuln-type: os,library
+        severity: HIGH,CRITICAL
+    - name: Registry login
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Push image
+      uses: docker/build-push-action@v6
+      with:
+        context: final-devops-project/application
+        file: final-devops-project/docker/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |-
+          ghcr.io/raghavendra1729-cell/devops-notes:${{ github.sha }}
+          ghcr.io/raghavendra1729-cell/devops-notes:latest
+    - name: Upload application build
+      uses: actions/upload-artifact@v4
+      with:
+        name: final-project-application
+        path: |-
+          final-devops-project/application/app.py
+          final-devops-project/application/requirements.txt
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    - name: Install YAML library
+      run: pip install PyYAML
+    - name: Create temporary Kubernetes cluster
+      run: |-
+        curl -fsSL https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64 -o kind
+        chmod +x kind
+        sudo mv kind /usr/local/bin/kind
+        kind create cluster --wait 120s
+    - name: Registry pull secret
+      env:
+        REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |-
+        kubectl create namespace pipeline-demo
+        kubectl -n pipeline-demo create secret docker-registry ghcr --docker-server=ghcr.io --docker-username="${{ github.actor }}" --docker-password="$REGISTRY_TOKEN"
+        kubectl -n pipeline-demo patch serviceaccount default -p '{"imagePullSecrets":[{"name":"ghcr"}]}'
+    - name: Create application secret
+      run: final-devops-project/kubernetes/create-secret.sh pipeline-demo
+    - name: Deploy and verify
+      run: |-
+        helm upgrade --install notes final-devops-project/helm/notes -n pipeline-demo --set image.repository=ghcr.io/raghavendra1729-cell/devops-notes --set image.tag=${{ github.sha }} --set ingress.enabled=false --set autoscaling.enabled=false --wait --timeout 180s
+        kubectl -n pipeline-demo get pods,services
+        kubectl -n pipeline-demo port-forward service/notes 5000:5000 > port-forward.log 2>&1 &
+        for _ in $(seq 1 30); do
+          if curl -fsS http://127.0.0.1:5000/ready; then break; fi
+          sleep 1
+        done
+        curl -fsS http://127.0.0.1:5000/health
+        curl -fsS -X POST http://127.0.0.1:5000/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}' | tee deployment-result.json
+        python -c 'import json; assert json.load(open("deployment-result.json"))["result"] == 18'
+        kubectl -n pipeline-demo logs deployment/notes --tail=10
+    - name: Save deployment result
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: final-project-deployment
+        path: |-
+          deployment-result.json
+          port-forward.log
+    - name: Update GitOps image
+      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+      env:
+        IMAGE: ghcr.io/raghavendra1729-cell/devops-notes
+        TAG: ${{ github.sha }}
+      run: |-
+        python - <<'PYCODE'
+        import os, yaml
+        path='final-devops-project/gitops/values.yaml'
+        with open(path) as file:
+            values=yaml.safe_load(file)
+        values['image']={'repository':os.environ['IMAGE'],'tag':os.environ['TAG']}
+        values['app']['version']=os.environ['TAG'][:7]
+        with open(path,'w') as file:
+            yaml.safe_dump(values,file,sort_keys=False)
+        PYCODE
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add final-devops-project/gitops/values.yaml
+        if ! git diff --cached --quiet; then
+          git commit -m "Update application image for GitOps"
+          git pull --rebase origin master
+          git push origin HEAD:master
+        fi
+    - name: Remove temporary cluster
+      if: always()
+      run: kind delete cluster

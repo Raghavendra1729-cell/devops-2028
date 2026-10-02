@@ -1,0 +1,17 @@
+$ kubectl -n troubleshooting get pods
+NAME                     READY   STATUS             RESTARTS   AGE
+notes-5ccd8cfdff-5559k   0/1     ImagePullBackOff   0          20s
+notes-794f4c7495-grdnh   1/1     Running            0          55s
+
+$ kubectl -n troubleshooting get events --field-selector type=Warning --sort-by=.lastTimestamp
+LAST SEEN   TYPE      REASON                         OBJECT                          MESSAGE
+54s         Warning   Failed                         pod/notes-794f4c7495-grdnh      Error: secret "notes-secret" not found
+31s         Warning   FailedGetResourceMetric        horizontalpodautoscaler/notes   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+31s         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/notes   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+20s         Warning   Unhealthy                      pod/notes-7665945786-rmmrt      Readiness probe failed: HTTP probe failed with statuscode: 404
+17s         Warning   Failed                         pod/notes-5ccd8cfdff-5559k      Error: ImagePullBackOff
+5s          Warning   Failed                         pod/notes-5ccd8cfdff-5559k      Failed to pull image "devops-notes:missing-tag": failed to pull and unpack image "docker.io/library/devops-notes:missing-tag": failed to resolve reference "docker.io/library/devops-notes:missing-tag": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+5s          Warning   Failed                         pod/notes-5ccd8cfdff-5559k      Error: ErrImagePull
+1s          Warning   FailedGetResourceMetric        horizontalpodautoscaler/notes   failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+1s          Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/notes   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+

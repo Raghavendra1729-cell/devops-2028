@@ -1,0 +1,2 @@
+$ kubectl -n final-project delete deployment load-generator
+deployment.apps "load-generator" deleted from final-project namespace

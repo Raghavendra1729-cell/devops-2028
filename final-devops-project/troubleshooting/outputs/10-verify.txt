@@ -1,0 +1,19 @@
+$ kubectl -n troubleshooting get pods,services,hpa
+NAME                         READY   STATUS        RESTARTS   AGE
+pod/notes-5ccd8cfdff-5559k   0/1     Terminating   0          21s
+pod/notes-794f4c7495-grdnh   1/1     Running       0          56s
+
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/notes   ClusterIP   10.104.179.232   <none>        5000/TCP   56s
+
+NAME                                        REFERENCE          TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/notes   Deployment/notes   cpu: <unknown>/60%   1         3         1          56s
+
+$ kubectl -n troubleshooting exec deployment/notes -- python -c 'import urllib.request;print(urllib.request.urlopen("http://127.0.0.1:5000/ready").read().decode())'
+{"status":"ready"}
+
+
+$ kubectl -n troubleshooting delete namespace troubleshooting
+Warning: deleting cluster-scoped resources, not scoped to the provided namespace
+namespace "troubleshooting" deleted
+

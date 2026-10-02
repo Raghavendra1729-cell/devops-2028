@@ -1,0 +1,6 @@
+$ kubectl -n troubleshooting set image deployment/notes notes=devops-notes:1.0
+deployment.apps/notes image updated
+
+$ kubectl -n troubleshooting rollout status deployment/notes --timeout=120s
+deployment "notes" successfully rolled out
+

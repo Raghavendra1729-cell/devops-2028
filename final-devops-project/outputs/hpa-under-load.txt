@@ -1,0 +1,55 @@
+$ kubectl -n final-project get hpa,pods
+kubectl -n final-project top pods
+kubectl -n final-project describe hpa notes
+NAME                                        REFERENCE          TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/notes   Deployment/notes   cpu: 501%/60%   1         3         3          8m14s
+
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/load-generator-f9d68b49c-8vr72   1/1     Running   0          101s
+pod/load-generator-f9d68b49c-rxt6p   1/1     Running   0          101s
+pod/notes-794f4c7495-hlg2j           1/1     Running   0          8m14s
+pod/notes-794f4c7495-tg9jn           1/1     Running   0          28s
+pod/notes-794f4c7495-xfbnr           1/1     Running   0          28s
+NAME                             CPU(cores)   MEMORY(bytes)   
+load-generator-f9d68b49c-8vr72   23m          11Mi            
+load-generator-f9d68b49c-rxt6p   22m          4Mi             
+notes-794f4c7495-hlg2j           501m         38Mi            
+Name:                                                  notes
+Namespace:                                             final-project
+Labels:                                                app.kubernetes.io/managed-by=Helm
+Annotations:                                           meta.helm.sh/release-name: notes
+                                                       meta.helm.sh/release-namespace: final-project
+CreationTimestamp:                                     Fri, 02 Oct 2026 16:46:19 +0530
+Reference:                                             Deployment/notes
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  501% (501m) / 60%
+Min replicas:                                          1
+Max replicas:                                          3
+Behavior:
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Pods     Value: 4    Period: 15 seconds
+      - Type: Percent  Value: 100  Period: 15 seconds
+  Scale Down:
+    Stabilization Window: 60 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 15 seconds
+Deployment pods:       3 current / 3 desired
+Conditions:
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooManyReplicas   the desired replica count is more than the maximum replica count
+  ScaledToZero    False   NotScaledToZero   the HPA controller did not scale the workload to zero
+Events:
+  Type     Reason                        Age                    From                       Message
+  ----     ------                        ----                   ----                       -------
+  Warning  FailedGetResourceMetric       7m44s (x3 over 8m14s)  horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  7m44s (x3 over 8m14s)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedGetResourceMetric       6m44s (x4 over 7m29s)  horizontal-pod-autoscaler  failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Warning  FailedComputeMetricsReplicas  6m44s (x4 over 7m29s)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+  Normal   SuccessfulRescale             28s                    horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target

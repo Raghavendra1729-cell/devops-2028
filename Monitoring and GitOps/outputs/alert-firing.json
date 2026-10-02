@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "data": {
+    "alerts": [
+      {
+        "labels": {
+          "alertname": "NotesApplicationDown",
+          "instance": "notes.final-project.svc.cluster.local:5000",
+          "job": "notes",
+          "severity": "warning"
+        },
+        "annotations": {
+          "summary": "Notes application cannot be reached"
+        },
+        "state": "firing",
+        "activeAt": "2026-10-02T11:24:38.532309439Z",
+        "value": "0e+00"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+$ kubectl -n troubleshooting apply -f kubernetes/application.yaml
+configmap/notes-config unchanged
+service/notes unchanged
+deployment.apps/notes configured
+horizontalpodautoscaler.autoscaling/notes unchanged
+ingress.networking.k8s.io/notes unchanged
+
+$ kubectl -n troubleshooting rollout status deployment/notes --timeout=120s
+deployment "notes" successfully rolled out
+

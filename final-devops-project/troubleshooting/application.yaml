@@ -30,6 +30,7 @@ kind: Deployment
 metadata:
   name: notes
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: notes
@@ -90,47 +91,3 @@ spec:
       volumes:
         - name: temporary
           emptyDir: {}
-
----
-# Source: notes/templates/hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: notes
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: notes
-  minReplicas: 1
-  maxReplicas: 3
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 60
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60
-
----
-# Source: notes/templates/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: notes
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: manifest.notes.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: notes
-                port:
-                  number: 5000

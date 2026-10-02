@@ -1,0 +1,12 @@
+$ kubectl -n troubleshooting get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+notes-7665945786-rmmrt   0/1     Running   0          15s
+notes-794f4c7495-grdnh   1/1     Running   0          35s
+
+$ kubectl -n troubleshooting get events --field-selector type=Warning --sort-by=.lastTimestamp
+LAST SEEN   TYPE      REASON                         OBJECT                          MESSAGE
+34s         Warning   Failed                         pod/notes-794f4c7495-grdnh      Error: secret "notes-secret" not found
+11s         Warning   FailedGetResourceMetric        horizontalpodautoscaler/notes   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+11s         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/notes   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+4s          Warning   Unhealthy                      pod/notes-7665945786-rmmrt      Readiness probe failed: HTTP probe failed with statuscode: 404
+

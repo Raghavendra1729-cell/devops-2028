@@ -1,0 +1,3 @@
+$ kubectl -n troubleshooting-audit apply -f mini-project/broken-pod.yaml
+pod/project-broken-pod created
+Exit status: 0

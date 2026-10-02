@@ -1,0 +1,15 @@
+$ kubectl -n troubleshooting-audit apply -f issues/volume-config.yaml
+configmap/volume-config created
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/volume-mount-demo --timeout=120s
+pod/volume-mount-demo condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pod volume-mount-demo -o wide
+NAME                READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+volume-mount-demo   1/1     Running   0          12s   10.244.0.68   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec volume-mount-demo -- cat /config/message
+mount-readyExit status: 0

@@ -1,0 +1,11 @@
+$ kubectl -n troubleshooting-audit top pods
+NAME                                   CPU(cores)   MEMORY(bytes)
+configuration-demo                     0m           0Mi
+crashloop-demo                         0m           0Mi
+diagnostic-client                      0m           0Mi
+dns-broken                             0m           0Mi
+pending-demo                           0m           0Mi
+project-broken-pod                     0m           6Mi
+troubleshooting-app-7977d48645-2t4rx   0m           11Mi
+troubleshooting-app-7977d48645-msn5p   0m           6Mi
+volume-mount-demo                      0m           0Mi

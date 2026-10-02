@@ -1,0 +1,16 @@
+$ kubectl -n troubleshooting-audit delete pod pending-demo
+pod "pending-demo" deleted from troubleshooting-audit namespace
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit apply -f issues/pending-fixed.yaml
+pod/pending-demo created
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/pending-demo --timeout=120s
+pod/pending-demo condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pod pending-demo -o wide
+NAME           READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+pending-demo   1/1     Running   0          4s    10.244.0.66   minikube   <none>           <none>
+Exit status: 0

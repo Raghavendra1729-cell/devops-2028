@@ -1,0 +1,60 @@
+$ kubectl -n troubleshooting-audit get pod project-broken-pod
+NAME                 READY   STATUS             RESTARTS   AGE
+project-broken-pod   0/1     ImagePullBackOff   0          16s
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit describe pod project-broken-pod
+Name:             project-broken-pod
+Namespace:        troubleshooting-audit
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Fri, 02 Oct 2026 19:56:38 +0530
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.69
+IPs:
+  IP:  10.244.0.69
+Containers:
+  app:
+    Container ID:
+    Image:          nginx:this-tag-does-not-exist
+    Image ID:
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-b5bz9 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-b5bz9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  16s               default-scheduler  Successfully assigned troubleshooting-audit/project-broken-pod to minikube
+  Warning  Failed     12s               kubelet            spec.containers{app}: Failed to pull image "nginx:this-tag-does-not-exist": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/nginx:this-tag-does-not-exist": failed to resolve reference "docker.io/library/nginx:this-tag-does-not-exist": docker.io/library/nginx:this-tag-does-not-exist: not found
+  Warning  Failed     12s               kubelet            spec.containers{app}: Error: ErrImagePull
+  Normal   BackOff    12s               kubelet            spec.containers{app}: Back-off pulling image "nginx:this-tag-does-not-exist"
+  Warning  Failed     12s               kubelet            spec.containers{app}: Error: ImagePullBackOff
+  Normal   Pulling    1s (x2 over 15s)  kubelet            spec.containers{app}: Pulling image "nginx:this-tag-does-not-exist"
+Exit status: 0

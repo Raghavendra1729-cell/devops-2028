@@ -1,0 +1,22 @@
+$ kubectl -n troubleshooting-audit apply -f issues/dns-broken.yaml
+pod/dns-broken created
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/dns-broken --timeout=90s
+pod/dns-broken condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec dns-broken -- cat /etc/resolv.conf
+nameserver 192.0.2.1
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec dns-broken -- nslookup troubleshooting-service 192.0.2.1
+Server:		192.0.2.1
+Address:	192.0.2.1:53
+
+** server can't find troubleshooting-service: NXDOMAIN
+
+** server can't find troubleshooting-service: NXDOMAIN
+
+command terminated with exit code 1
+Exit status: 1

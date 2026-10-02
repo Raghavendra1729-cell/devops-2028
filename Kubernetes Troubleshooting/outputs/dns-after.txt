@@ -1,0 +1,38 @@
+$ kubectl -n troubleshooting-audit exec dns-broken -- cat /etc/resolv.conf
+search troubleshooting-audit.svc.cluster.local svc.cluster.local cluster.local
+nameserver 10.96.0.10
+options ndots:5
+
+$ kubectl -n troubleshooting-audit exec dns-broken -- nslookup troubleshooting-service.troubleshooting-audit.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	troubleshooting-service.troubleshooting-audit.svc.cluster.local
+Address: 10.96.217.94
+
+
+$ kubectl -n troubleshooting-audit exec dns-broken -- wget -qO- http://troubleshooting-service
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>

@@ -1,0 +1,59 @@
+$ kubectl -n hpa-practice get hpa,pods
+NAME                                           REFERENCE             TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/hpa-demo   Deployment/hpa-demo   cpu: 73%/50%   1         5         3          5m40s
+
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/hpa-demo-7cc54d875c-6vb5t         1/1     Running   0          114s
+pod/hpa-demo-7cc54d875c-jh854         1/1     Running   0          114s
+pod/hpa-demo-7cc54d875c-tk5kr         1/1     Running   0          5m40s
+pod/load-generator-7f8cdf59b5-dh62b   1/1     Running   0          92s
+pod/load-generator-7f8cdf59b5-fxh87   1/1     Running   0          3m35s
+pod/load-generator-7f8cdf59b5-jn7mk   1/1     Running   0          3m35s
+pod/load-generator-7f8cdf59b5-k9wdr   1/1     Running   0          3m35s
+pod/load-generator-7f8cdf59b5-kqxvm   1/1     Running   0          92s
+pod/load-generator-7f8cdf59b5-nr8v6   1/1     Running   0          92s
+Exit status: 0
+
+$ kubectl -n hpa-practice top pods
+NAME                              CPU(cores)   MEMORY(bytes)
+hpa-demo-7cc54d875c-6vb5t         42m          7Mi
+hpa-demo-7cc54d875c-jh854         42m          7Mi
+hpa-demo-7cc54d875c-tk5kr         42m          11Mi
+load-generator-7f8cdf59b5-dh62b   221m         3Mi
+load-generator-7f8cdf59b5-fxh87   228m         3Mi
+load-generator-7f8cdf59b5-jn7mk   230m         3Mi
+load-generator-7f8cdf59b5-k9wdr   229m         4Mi
+load-generator-7f8cdf59b5-kqxvm   225m         3Mi
+load-generator-7f8cdf59b5-nr8v6   223m         4Mi
+Exit status: 0
+
+$ kubectl -n hpa-practice describe hpa hpa-demo
+Name:                                                  hpa-demo
+Namespace:                                             hpa-practice
+Labels:                                                <none>
+Annotations:                                           <none>
+CreationTimestamp:                                     Fri, 02 Oct 2026 19:48:14 +0530
+Reference:                                             Deployment/hpa-demo
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  73% (73m) / 50%
+Min replicas:                                          1
+Max replicas:                                          5
+Deployment pods:                                       3 current / 3 desired
+Conditions:
+  Type            Status  Reason              Message
+  ----            ------  ------              -------
+  AbleToScale     True    ReadyForNewScale    recommended size matches current size
+  ScalingActive   True    ValidMetricFound    the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  False   DesiredWithinRange  the desired count is within the acceptable range
+  ScaledToZero    False   NotScaledToZero     the HPA controller did not scale the workload to zero
+Events:
+  Type     Reason                        Age                    From                       Message
+  ----     ------                        ----                   ----                       -------
+  Warning  FailedGetResourceMetric       5m10s (x3 over 5m40s)  horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  5m10s (x3 over 5m40s)  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Normal   SuccessfulRescale             114s                   horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
+Exit status: 0
+
+$ kubectl -n hpa-practice delete deployment load-generator
+deployment.apps "load-generator" deleted from hpa-practice namespace
+Exit status: 0

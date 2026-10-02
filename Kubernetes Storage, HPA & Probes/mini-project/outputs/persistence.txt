@@ -1,0 +1,45 @@
+$ kubectl -n production-webapp get pods,pvc
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/web-app-656966ddb8-vmcsj   1/1     Running   0          5m40s
+pod/web-app-656966ddb8-x74xg   1/1     Running   0          5m40s
+
+NAME                             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/web-data   Bound    pvc-41c57586-37b4-47aa-b641-ded13def5c5d   500Mi      RWO            standard       <unset>                 5m40s
+Exit status: 0
+
+$ kubectl -n production-webapp exec deployment/web-app -- sh -c 'echo "Raghavendra 24BCS10250" > /data/student.txt'
+Exit status: 0
+
+$ kubectl -n production-webapp exec deployment/web-app -- cat /data/student.txt
+Raghavendra 24BCS10250
+Exit status: 0
+
+$ kubectl -n production-webapp delete pods -l app=web-app
+pod "web-app-656966ddb8-vmcsj" deleted from production-webapp namespace
+pod "web-app-656966ddb8-x74xg" deleted from production-webapp namespace
+Exit status: 0
+
+$ kubectl -n production-webapp rollout status deployment/web-app --timeout=120s
+Waiting for deployment "web-app" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "web-app" rollout to finish: 1 of 2 updated replicas are available...
+deployment "web-app" successfully rolled out
+Exit status: 0
+
+$ kubectl -n production-webapp get pods,pvc
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/load-generator-7b5d486896-2ptbz   1/1     Running   0          18s
+pod/load-generator-7b5d486896-6lznr   1/1     Running   0          17s
+pod/load-generator-7b5d486896-j8f2s   1/1     Running   0          17s
+pod/load-generator-7b5d486896-rbj8h   1/1     Running   0          18s
+pod/load-generator-7b5d486896-s4j2j   1/1     Running   0          18s
+pod/load-generator-7b5d486896-v8vw5   1/1     Running   0          17s
+pod/web-app-656966ddb8-7l5xn          1/1     Running   0          16s
+pod/web-app-656966ddb8-hf22d          1/1     Running   0          16s
+
+NAME                             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/web-data   Bound    pvc-41c57586-37b4-47aa-b641-ded13def5c5d   500Mi      RWO            standard       <unset>                 5m59s
+Exit status: 0
+
+$ kubectl -n production-webapp exec deployment/web-app -- cat /data/student.txt
+Raghavendra 24BCS10250
+Exit status: 0

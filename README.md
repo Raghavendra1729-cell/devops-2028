@@ -19,10 +19,12 @@ This repository contains class notes, commands, small practical exercises, and s
 | Lecture 11 | Kubernetes Networking and Services | [Open notes](Kubernetes%20Networking%20%26%20Services/README.md) |
 | Lecture 12 | Kubernetes Ingress, ConfigMaps and Secrets | [Open notes](Kubernetes%20Ingress%2C%20ConfigMaps%20%26%20Secrets/README.md) |
 
-The Kubernetes section follows the Lecture 9–12 task order: fundamentals, workloads, networking, and configuration with Ingress.
+The Kubernetes section covers fundamentals, workloads, networking, configuration, storage, autoscaling, probes and troubleshooting.
 
 | Session | Topic | Notes |
 |---:|---|---|
+| 13 | Kubernetes Storage, HPA and Probes | [Open notes](Kubernetes%20Storage%2C%20HPA%20%26%20Probes/README.md) |
+| 14 | Kubernetes Troubleshooting | [Open notes](Kubernetes%20Troubleshooting/README.md) |
 | 15 | Helm | [Open notes](Helm/README.md) |
 | 16 | CI/CD and GitHub Actions | [Open notes](CI-CD/README.md) |
 | 17 | CI/CD and DevSecOps | [Open notes](DevSecOps/README.md) |

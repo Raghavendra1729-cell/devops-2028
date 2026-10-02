@@ -1,0 +1,16 @@
+$ kubectl -n troubleshooting-audit delete pod crashloop-demo
+pod "crashloop-demo" deleted from troubleshooting-audit namespace
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit apply -f issues/crashloop-fixed.yaml
+pod/crashloop-demo created
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/crashloop-demo --timeout=120s
+pod/crashloop-demo condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pod crashloop-demo -o wide
+NAME             READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+crashloop-demo   1/1     Running   0          4s    10.244.0.64   minikube   <none>           <none>
+Exit status: 0

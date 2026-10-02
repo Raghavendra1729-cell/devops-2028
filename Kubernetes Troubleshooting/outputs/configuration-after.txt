@@ -1,0 +1,16 @@
+$ kubectl -n troubleshooting-audit apply -f issues/configmap.yaml
+configmap/required-config created
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/configuration-demo --timeout=120s
+pod/configuration-demo condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pod configuration-demo -o wide
+NAME                 READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+configuration-demo   1/1     Running   0          17s   10.244.0.67   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec configuration-demo -- printenv ENVIRONMENT
+classroom
+Exit status: 0

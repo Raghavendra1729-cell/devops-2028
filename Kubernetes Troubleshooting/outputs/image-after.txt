@@ -1,0 +1,12 @@
+$ kubectl -n troubleshooting-audit apply -f mini-project/fixed-pod.yaml
+pod/project-broken-pod configured
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit wait --for=condition=Ready pod/project-broken-pod --timeout=120s
+pod/project-broken-pod condition met
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pod project-broken-pod
+NAME                 READY   STATUS    RESTARTS   AGE
+project-broken-pod   1/1     Running   0          19s
+Exit status: 0

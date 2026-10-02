@@ -160,6 +160,8 @@ jobs:
         IMAGE: ghcr.io/raghavendra1729-cell/devops-notes
         TAG: ${{ github.sha }}
       run: |-
+        git fetch origin master
+        git checkout -B gitops-update origin/master
         python - <<'PYCODE'
         import os, yaml
         path='final-devops-project/gitops/values.yaml'
@@ -175,8 +177,7 @@ jobs:
         git add final-devops-project/gitops/values.yaml
         if ! git diff --cached --quiet; then
           git commit -m "Update application image for GitOps"
-          git pull --rebase origin master
-          git push origin HEAD:master
+            git push origin HEAD:master
         fi
     - name: Remove temporary cluster
       if: always()

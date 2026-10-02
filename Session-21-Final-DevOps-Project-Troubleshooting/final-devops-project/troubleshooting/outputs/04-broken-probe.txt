@@ -1,0 +1,3 @@
+$ kubectl -n troubleshooting patch deployment notes --type strategic -p '{"spec":{"template":{"spec":{"containers":[{"name":"notes","readinessProbe":{"httpGet":{"path":"/missing","port":"http"}}}]}}}}'
+deployment.apps/notes patched
+

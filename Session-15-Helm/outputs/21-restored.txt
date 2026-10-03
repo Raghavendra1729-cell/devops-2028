@@ -1,0 +1,15 @@
+$ kubectl -n helm-lab get deployments,pods
+curl -fsS http://127.0.0.1:8081
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/notes-dev-deploy   3/3     3            3           20m
+
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/notes-dev-deploy-5b5dcbb5c5-8smhc   1/1     Running   0          20m
+pod/notes-dev-deploy-5b5dcbb5c5-gjnlx   1/1     Running   0          20m
+pod/notes-dev-deploy-5b5dcbb5c5-svznl   1/1     Running   0          20m
+<!doctype html>
+<html><head><title>Notes App</title></head><body>
+<h1>notes-app</h1>
+<p>Environment: production</p>
+<p>Release revision: 2</p>
+</body></html>

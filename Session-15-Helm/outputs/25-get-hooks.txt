@@ -1,0 +1,1 @@
+$ helm get hooks notes-dev -n helm-lab

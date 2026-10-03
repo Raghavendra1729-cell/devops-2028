@@ -1,0 +1,26 @@
+$ helm status notes-dev -n helm-lab
+NAME: notes-dev
+LAST DEPLOYED: Fri Oct  2 16:32:31 2026
+NAMESPACE: helm-lab
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+RESOURCES:
+==> v1/ConfigMap
+NAME               DATA   AGE
+notes-dev-config   3      8s
+
+==> v1/Service
+NAME            TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+notes-dev-svc   NodePort   10.98.152.64   <none>        80:30090/TCP   8s
+
+==> v1/Deployment
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+notes-dev-deploy   1/1     1            1           8s
+
+==> v1/Pod(related)
+NAME                                READY   STATUS    RESTARTS   AGE
+notes-dev-deploy-655f9587bd-fnzhg   1/1     Running   0          8s
+
+
+TEST SUITE: None

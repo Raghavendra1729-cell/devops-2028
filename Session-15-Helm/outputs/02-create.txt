@@ -1,0 +1,2 @@
+$ helm create command-chart
+Creating command-chart

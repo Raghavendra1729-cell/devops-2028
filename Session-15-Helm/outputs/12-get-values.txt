@@ -1,0 +1,12 @@
+$ helm get values notes-dev -n helm-lab --all
+COMPUTED VALUES:
+app:
+  environment: development
+  name: notes-app
+image:
+  repository: nginx
+  tag: 1.28-alpine
+replicaCount: 1
+service:
+  nodePort: 30090
+  port: 80

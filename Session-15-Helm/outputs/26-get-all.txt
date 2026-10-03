@@ -1,0 +1,61 @@
+$ helm get all notes-dev -n helm-lab
+NAME: notes-dev
+LAST DEPLOYED: Wed Oct  7 02:16:18 2026
+NAMESPACE: helm-lab
+STATUS: deployed
+REVISION: 1
+CHART: notes-chart
+VERSION: 0.1.0
+APP_VERSION: 1.28
+DESCRIPTION: Install complete
+TEST SUITE: None
+USER-SUPPLIED VALUES:
+null
+
+COMPUTED VALUES:
+app:
+  environment: development
+  name: notes-app
+image:
+  repository: nginx
+  tag: 1.28-alpine
+replicaCount: 1
+service:
+  nodePort: 30090
+  port: 80
+
+HOOKS:
+MANIFEST:
+---
+# Source: notes-chart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notes-dev-config
+data:
+  APP_NAME: "notes-app"
+  ENVIRONMENT: "development"
+  index.html: |
+    <!doctype html>
+    <html><head><title>Notes App</title></head><body>
+    <h1>notes-app</h1>
+    <p>Environment: development</p>
+    <p>Release revision: 1</p>
+    </body></html>
+
+---
+# Source: notes-chart/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-dev-svc
+spec:
+  type: NodePort
+  selector:
+    app: notes-dev
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30090
+
+---

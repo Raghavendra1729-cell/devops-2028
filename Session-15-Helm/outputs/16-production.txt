@@ -1,0 +1,12 @@
+$ kubectl -n helm-lab get deployments,pods; kubectl -n helm-lab exec deployment/notes-dev-deploy -- printenv ENVIRONMENT
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/notes-dev-deploy   3/3     3            3           11s
+
+NAME                                    READY   STATUS      RESTARTS   AGE
+pod/notes-dev-deploy-5b5dcbb5c5-8smhc   1/1     Running     0          1s
+pod/notes-dev-deploy-5b5dcbb5c5-gjnlx   1/1     Running     0          2s
+pod/notes-dev-deploy-5b5dcbb5c5-svznl   1/1     Running     0          2s
+pod/notes-dev-deploy-655f9587bd-fnzhg   0/1     Completed   0          11s
+pod/notes-dev-deploy-655f9587bd-hdt5d   0/1     Completed   0          2s
+pod/notes-dev-deploy-655f9587bd-hxpsv   0/1     Completed   0          2s
+production

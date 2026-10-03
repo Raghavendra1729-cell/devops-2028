@@ -1,0 +1,14 @@
+$ kubectl -n helm-lab get pods; kubectl -n helm-lab get events --sort-by=.lastTimestamp | tail -n 8
+NAME                                READY   STATUS             RESTARTS   AGE
+notes-dev-deploy-5b5dcbb5c5-8smhc   1/1     Running            0          27s
+notes-dev-deploy-5b5dcbb5c5-gjnlx   1/1     Running            0          28s
+notes-dev-deploy-5b5dcbb5c5-svznl   1/1     Running            0          28s
+notes-dev-deploy-97cfcbcfd-4dpqs    0/1     ImagePullBackOff   0          25s
+25s         Normal    SuccessfulCreate    replicaset/notes-dev-deploy-97cfcbcfd    Created pod: notes-dev-deploy-97cfcbcfd-4dpqs
+25s         Normal    Scheduled           pod/notes-dev-deploy-97cfcbcfd-4dpqs     Successfully assigned helm-lab/notes-dev-deploy-97cfcbcfd-4dpqs to minikube
+25s         Normal    ScalingReplicaSet   deployment/notes-dev-deploy              Scaled up replica set notes-dev-deploy-97cfcbcfd from 0 to 1
+23s         Warning   Failed              pod/notes-dev-deploy-97cfcbcfd-4dpqs     Error: ImagePullBackOff
+23s         Normal    BackOff             pod/notes-dev-deploy-97cfcbcfd-4dpqs     Back-off pulling image "nginx:broken-tag-does-not-exist"
+11s         Normal    Pulling             pod/notes-dev-deploy-97cfcbcfd-4dpqs     Pulling image "nginx:broken-tag-does-not-exist"
+10s         Warning   Failed              pod/notes-dev-deploy-97cfcbcfd-4dpqs     Error: ErrImagePull
+10s         Warning   Failed              pod/notes-dev-deploy-97cfcbcfd-4dpqs     Failed to pull image "nginx:broken-tag-does-not-exist": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/nginx:broken-tag-does-not-exist": failed to resolve reference "docker.io/library/nginx:broken-tag-does-not-exist": docker.io/library/nginx:broken-tag-does-not-exist: not found

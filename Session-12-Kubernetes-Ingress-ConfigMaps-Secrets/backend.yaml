@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: nginx:1.27-alpine
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /usr/share/nginx/html/api
+              printf 'Backend API | ENVIRONMENT=%s | DEMO_USERNAME=%s\n' "$ENVIRONMENT" "$DEMO_USERNAME" > /usr/share/nginx/html/index.html
+              cp /usr/share/nginx/html/index.html /usr/share/nginx/html/api/index.html
+              exec nginx -g 'daemon off;'
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: DEMO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DEMO_USERNAME
+            - name: DEMO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DEMO_PASSWORD
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 80
+      targetPort: 80

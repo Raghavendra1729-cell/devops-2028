@@ -1,0 +1,17 @@
+$ kubectl -n earlier-audit exec deployment/backend -- printenv ENVIRONMENT LOG_LEVEL DEMO_USERNAME
+classroom-demo
+INFO
+student
+
+$ kubectl -n earlier-audit exec deployment/backend -- sh -c 'test -n "$DEMO_PASSWORD" && echo "DEMO_PASSWORD is set"'
+DEMO_PASSWORD is set
+
+$ kubectl -n earlier-audit get ingress coursework-ingress
+NAME                 CLASS   HOSTS              ADDRESS        PORTS   AGE
+coursework-ingress   nginx   coursework.local   192.168.49.2   80      2m11s
+
+$ curl -fsS -H 'Host: coursework.local' http://127.0.0.1:8084/
+Frontend application
+
+$ curl -fsS -H 'Host: coursework.local' http://127.0.0.1:8084/api/
+Backend API | ENVIRONMENT=classroom-demo | DEMO_USERNAME=student

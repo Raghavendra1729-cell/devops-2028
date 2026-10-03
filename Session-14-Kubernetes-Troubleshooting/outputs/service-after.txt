@@ -1,0 +1,34 @@
+$ kubectl -n troubleshooting-audit apply -f mini-project/service.yaml
+service/troubleshooting-service configured
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get endpointslice -l kubernetes.io/service-name=troubleshooting-service
+NAME                            ADDRESSTYPE   PORTS   ENDPOINTS                 AGE
+troubleshooting-service-8qdmm   IPv4          80      10.244.0.62,10.244.0.61   101s
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec diagnostic-client -- wget -T 3 -qO- http://troubleshooting-service
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: network-demo
+spec:
+  containers:
+    - name: web
+      image: nginx:1.28-alpine
+      command:
+        - sh
+        - -c
+        - |
+          printf 'server { listen 80; location / { return 200 "Pod network response\n"; } }' > /etc/nginx/conf.d/default.conf
+          exec nginx -g 'daemon off;'

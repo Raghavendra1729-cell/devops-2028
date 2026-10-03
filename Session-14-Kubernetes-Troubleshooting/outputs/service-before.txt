@@ -1,0 +1,44 @@
+$ kubectl -n troubleshooting-audit apply -f mini-project/broken-service.yaml
+service/troubleshooting-service configured
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pods --show-labels
+NAME                                   READY   STATUS    RESTARTS   AGE    LABELS
+configuration-demo                     1/1     Running   0          51s    <none>
+crashloop-demo                         1/1     Running   0          65s    <none>
+diagnostic-client                      1/1     Running   0          99s    <none>
+pending-demo                           1/1     Running   0          56s    <none>
+project-broken-pod                     1/1     Running   0          20s    <none>
+troubleshooting-app-7977d48645-2t4rx   1/1     Running   0          100s   app=troubleshooting-app,pod-template-hash=7977d48645
+troubleshooting-app-7977d48645-msn5p   1/1     Running   0          100s   app=troubleshooting-app,pod-template-hash=7977d48645
+volume-mount-demo                      1/1     Running   0          33s    <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit describe service troubleshooting-service
+Name:                     troubleshooting-service
+Namespace:                troubleshooting-audit
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=wrong-app
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.217.94
+IPs:                      10.96.217.94
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+Endpoints:
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get endpointslice -l kubernetes.io/service-name=troubleshooting-service
+NAME                            ADDRESSTYPE   PORTS     ENDPOINTS   AGE
+troubleshooting-service-8qdmm   IPv4          <unset>   <unset>     99s
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec diagnostic-client -- wget -T 3 -qO- http://troubleshooting-service
+wget: can't connect to remote host (10.96.217.94): Connection refused
+command terminated with exit code 1
+Exit status: 1

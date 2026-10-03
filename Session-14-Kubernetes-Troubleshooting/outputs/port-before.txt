@@ -1,0 +1,85 @@
+$ kubectl -n troubleshooting-audit apply -f issues/wrong-port-service.yaml
+service/troubleshooting-service configured
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pods -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+configuration-demo                     1/1     Running   0          99s     10.244.0.67   minikube   <none>           <none>
+crashloop-demo                         1/1     Running   0          113s    10.244.0.64   minikube   <none>           <none>
+diagnostic-client                      1/1     Running   0          2m27s   10.244.0.60   minikube   <none>           <none>
+dns-broken                             1/1     Running   0          6s      10.244.0.71   minikube   <none>           <none>
+pending-demo                           1/1     Running   0          104s    10.244.0.66   minikube   <none>           <none>
+project-broken-pod                     1/1     Running   0          68s     10.244.0.69   minikube   <none>           <none>
+troubleshooting-app-7977d48645-2t4rx   1/1     Running   0          2m28s   10.244.0.62   minikube   <none>           <none>
+troubleshooting-app-7977d48645-msn5p   1/1     Running   0          2m28s   10.244.0.61   minikube   <none>           <none>
+volume-mount-demo                      1/1     Running   0          81s     10.244.0.68   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit describe service troubleshooting-service
+Name:                     troubleshooting-service
+Namespace:                troubleshooting-audit
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=troubleshooting-app
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.217.94
+IPs:                      10.96.217.94
+Port:                     <unset>  80/TCP
+TargetPort:               8081/TCP
+Endpoints:                10.244.0.61:8081,10.244.0.62:8081
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec diagnostic-client -- nslookup troubleshooting-service
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	troubleshooting-service.troubleshooting-audit.svc.cluster.local
+Address: 10.96.217.94
+
+** server can't find troubleshooting-service.cluster.local: NXDOMAIN
+
+** server can't find troubleshooting-service.svc.cluster.local: NXDOMAIN
+
+
+** server can't find troubleshooting-service.svc.cluster.local: NXDOMAIN
+
+** server can't find troubleshooting-service.cluster.local: NXDOMAIN
+
+command terminated with exit code 1
+Exit status: 1
+
+$ kubectl -n troubleshooting-audit exec diagnostic-client -- wget -T 3 -qO- http://troubleshooting-service
+wget: can't connect to remote host (10.96.217.94): Connection refused
+command terminated with exit code 1
+Exit status: 1
+
+$ kubectl -n troubleshooting-audit exec deployment/troubleshooting-app -- curl -fsS http://127.0.0.1:80
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0

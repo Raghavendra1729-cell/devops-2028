@@ -1,0 +1,45 @@
+$ kubectl -n troubleshooting-audit apply -f mini-project/service.yaml
+service/troubleshooting-service configured
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec diagnostic-client -- wget -qO- http://troubleshooting-service
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit get pods,services -o wide
+NAME                                       READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+pod/configuration-demo                     1/1     Running   0          104s    10.244.0.67   minikube   <none>           <none>
+pod/crashloop-demo                         1/1     Running   0          118s    10.244.0.64   minikube   <none>           <none>
+pod/diagnostic-client                      1/1     Running   0          2m32s   10.244.0.60   minikube   <none>           <none>
+pod/dns-broken                             1/1     Running   0          11s     10.244.0.71   minikube   <none>           <none>
+pod/pending-demo                           1/1     Running   0          109s    10.244.0.66   minikube   <none>           <none>
+pod/project-broken-pod                     1/1     Running   0          73s     10.244.0.69   minikube   <none>           <none>
+pod/troubleshooting-app-7977d48645-2t4rx   1/1     Running   0          2m33s   10.244.0.62   minikube   <none>           <none>
+pod/troubleshooting-app-7977d48645-msn5p   1/1     Running   0          2m33s   10.244.0.61   minikube   <none>           <none>
+pod/volume-mount-demo                      1/1     Running   0          86s     10.244.0.68   minikube   <none>           <none>
+
+NAME                              TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+service/troubleshooting-service   ClusterIP   10.96.217.94   <none>        80/TCP    2m34s   app=troubleshooting-app
+Exit status: 0

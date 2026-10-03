@@ -1,0 +1,153 @@
+$ kubectl -n troubleshooting-audit get pods -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+diagnostic-client                      1/1     Running   0          7s    10.244.0.60   minikube   <none>           <none>
+troubleshooting-app-7977d48645-2t4rx   1/1     Running   0          8s    10.244.0.62   minikube   <none>           <none>
+troubleshooting-app-7977d48645-msn5p   1/1     Running   0          8s    10.244.0.61   minikube   <none>           <none>
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit describe deployment troubleshooting-app
+Name:                   troubleshooting-app
+Namespace:              troubleshooting-audit
+CreationTimestamp:      Fri, 02 Oct 2026 19:55:18 +0530
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=troubleshooting-app
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=troubleshooting-app
+  Containers:
+   app:
+    Image:         nginx:1.28-alpine
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   troubleshooting-app-7977d48645 (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled up replica set troubleshooting-app-7977d48645 from 0 to 2
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit logs deployment/troubleshooting-app --tail=8
+Found 2 pods, using pod/troubleshooting-app-7977d48645-2t4rx
+2026/10/02 14:25:24 [notice] 1#1: start worker process 31
+2026/10/02 14:25:24 [notice] 1#1: start worker process 32
+2026/10/02 14:25:24 [notice] 1#1: start worker process 33
+2026/10/02 14:25:24 [notice] 1#1: start worker process 34
+2026/10/02 14:25:24 [notice] 1#1: start worker process 35
+2026/10/02 14:25:24 [notice] 1#1: start worker process 36
+2026/10/02 14:25:24 [notice] 1#1: start worker process 37
+10.244.0.60 - - [02/Oct/2026:14:25:26 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit exec deployment/troubleshooting-app -- nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit events --types=Normal,Warning
+LAST SEEN   TYPE     REASON              OBJECT                                      MESSAGE
+11s         Normal   SuccessfulCreate    ReplicaSet/troubleshooting-app-7977d48645   Created pod: troubleshooting-app-7977d48645-2t4rx
+11s         Normal   ScalingReplicaSet   Deployment/troubleshooting-app              Scaled up replica set troubleshooting-app-7977d48645 from 0 to 2
+10s         Normal   SuccessfulCreate    ReplicaSet/troubleshooting-app-7977d48645   Created pod: troubleshooting-app-7977d48645-msn5p
+10s         Normal   Scheduled           Pod/troubleshooting-app-7977d48645-2t4rx    Successfully assigned troubleshooting-audit/troubleshooting-app-7977d48645-2t4rx to minikube
+10s         Normal   Scheduled           Pod/troubleshooting-app-7977d48645-msn5p    Successfully assigned troubleshooting-audit/troubleshooting-app-7977d48645-msn5p to minikube
+10s         Normal   Scheduled           Pod/diagnostic-client                       Successfully assigned troubleshooting-audit/diagnostic-client to minikube
+7s          Normal   Pulled              Pod/diagnostic-client                       Container image "busybox:1.36" already present on machine and can be accessed by the pod
+7s          Normal   Created             Pod/diagnostic-client                       Container created
+7s          Normal   Pulled              Pod/troubleshooting-app-7977d48645-2t4rx    Container image "nginx:1.28-alpine" already present on machine and can be accessed by the pod
+6s          Normal   Created             Pod/troubleshooting-app-7977d48645-2t4rx    Container created
+6s          Normal   Created             Pod/troubleshooting-app-7977d48645-msn5p    Container created
+6s          Normal   Pulled              Pod/troubleshooting-app-7977d48645-msn5p    Container image "nginx:1.28-alpine" already present on machine and can be accessed by the pod
+6s          Normal   Started             Pod/troubleshooting-app-7977d48645-2t4rx    Container started
+6s          Normal   Started             Pod/diagnostic-client                       Container started
+5s          Normal   Started             Pod/troubleshooting-app-7977d48645-msn5p    Container started
+Exit status: 0
+
+$ kubectl explain pod.spec.containers.readinessProbe
+KIND:       Pod
+VERSION:    v1
+
+FIELD: readinessProbe <Probe>
+
+
+DESCRIPTION:
+    Periodic probe of container service readiness. Container will be removed
+    from service endpoints if the probe fails. Cannot be updated. More info:
+    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+    Probe describes a health check to be performed against a container to
+    determine whether it is alive or ready to receive traffic.
+
+FIELDS:
+  exec	<ExecAction>
+    Exec specifies a command to execute in the container.
+
+  failureThreshold	<integer>
+    Minimum consecutive failures for the probe to be considered failed after
+    having succeeded. Defaults to 3. Minimum value is 1.
+
+  grpc	<GRPCAction>
+    GRPC specifies a GRPC HealthCheckRequest.
+
+  httpGet	<HTTPGetAction>
+    HTTPGet specifies an HTTP GET request to perform.
+
+  initialDelaySeconds	<integer>
+    Number of seconds after the container has started before liveness probes are
+    initiated. More info:
+    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+
+  periodSeconds	<integer>
+    How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+    value is 1.
+
+  successThreshold	<integer>
+    Minimum consecutive successes for the probe to be considered successful
+    after having failed. Defaults to 1. Must be 1 for liveness and startup.
+    Minimum value is 1.
+
+  tcpSocket	<TCPSocketAction>
+    TCPSocket specifies a connection to a TCP port.
+
+  terminationGracePeriodSeconds	<integer>
+    Optional duration in seconds the pod needs to terminate gracefully upon
+    probe failure. The grace period is the duration in seconds after the
+    processes running in the pod are sent a termination signal and the time when
+    the processes are forcibly halted with a kill signal. Set this value longer
+    than the expected cleanup time for your process. If this value is nil, the
+    pod's terminationGracePeriodSeconds will be used. Otherwise, this value
+    overrides the value provided by the pod spec. Value must be non-negative
+    integer. The value zero indicates stop immediately via the kill signal (no
+    opportunity to shut down). This is a beta field and requires enabling
+    ProbeTerminationGracePeriod feature gate. Minimum value is 1.
+    spec.terminationGracePeriodSeconds is used if unset.
+
+  timeoutSeconds	<integer>
+    Number of seconds after which the probe times out. Defaults to 1 second.
+    Minimum value is 1. More info:
+    https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+
+
+Exit status: 0
+
+$ kubectl -n troubleshooting-audit top pods
+error: metrics not available yet
+Exit status: 1
+
+$ kubectl -n troubleshooting-audit get service troubleshooting-service -o wide
+NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+troubleshooting-service   ClusterIP   10.96.217.94   <none>        80/TCP    11s   app=troubleshooting-app
+Exit status: 0

@@ -1,0 +1,3 @@
+NAME          ADDRESSTYPE   PORTS   ENDPOINTS     AGE
+notes-fdhr6   IPv4          5000    10.244.0.20   11m
+{"status":"ok"}

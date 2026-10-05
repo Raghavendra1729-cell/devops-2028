@@ -1,0 +1,13 @@
+$ kubectl -n observability get pods,pvc
+kubectl -n final-project top pods
+curl -fsS 'http://127.0.0.1:9090/api/v1/query?query=up%7Bjob%3D%22notes%22%7D'
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/grafana-65bdf55fb8-76mzf      1/1     Running   0          6m25s
+pod/prometheus-64b79b7578-nm8fh   1/1     Running   0          6m25s
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/grafana-data      Bound    pvc-8e6eb653-eb30-42e2-a3e4-f1e598ce1e16   1Gi        RWO            standard       <unset>                 6m25s
+persistentvolumeclaim/prometheus-data   Bound    pvc-ffef1729-8b39-48c0-b35c-92f528b7cba1   2Gi        RWO            standard       <unset>                 6m25s
+NAME                     CPU(cores)   MEMORY(bytes)   
+notes-794f4c7495-hlg2j   2m           35Mi            
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"up","instance":"notes.final-project.svc.cluster.local:5000","job":"notes"},"value":[1790940171.923,"1"]}]}}

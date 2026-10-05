@@ -1,0 +1,6 @@
+$ kubectl -n final-project patch configmap notes-config --type merge -p '{"data":{"GREETING":"Manual change"}}'
+configmap/notes-config patched
+After manual patch: Manual change
+After reconciliation: My DevOps Notes
+NAME           SYNC STATUS   HEALTH STATUS
+devops-notes   OutOfSync     Healthy

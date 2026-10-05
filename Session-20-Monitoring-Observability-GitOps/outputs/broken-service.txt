@@ -1,0 +1,5 @@
+$ kubectl -n final-project patch service notes -p '{"spec":{"selector":{"app":"notes-wrong"}}}'
+kubectl -n final-project get endpointslice -l kubernetes.io/service-name=notes
+service/notes patched
+NAME          ADDRESSTYPE   PORTS     ENDPOINTS   AGE
+notes-fdhr6   IPv4          <unset>   <unset>     8m14s

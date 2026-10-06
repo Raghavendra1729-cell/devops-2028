@@ -1,0 +1,16 @@
+.DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.coverage
+build/
+.env
+*.pem
+*.key
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+terraform.local.tfvars

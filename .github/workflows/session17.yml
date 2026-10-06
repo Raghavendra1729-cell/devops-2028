@@ -1,0 +1,149 @@
+name: Session 17 Session-17-Complete-CI-CD-DevSecOps
+'on':
+  push:
+    branches:
+    - master
+    paths:
+    - Session-17-Complete-CI-CD-DevSecOps/**
+    - Session-17-Complete-CI-CD-DevSecOps/Dockerfile
+    - Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/**
+    - Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/kubernetes/create-secret.sh
+    - .github/workflows/session17.yml
+  pull_request:
+    paths:
+    - Session-17-Complete-CI-CD-DevSecOps/**
+    - Session-17-Complete-CI-CD-DevSecOps/Dockerfile
+    - .github/workflows/session17.yml
+  workflow_dispatch:
+    inputs:
+      gate_demo:
+        description: Run a controlled failure to check the gate
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - uses: actions/setup-python@v7.0.0
+      with:
+        python-version: '3.13'
+    - name: Install dependencies
+      run: pip install -r Session-17-Complete-CI-CD-DevSecOps/requirements-dev.txt
+    - name: Build application
+      run: python -m compileall -q Session-17-Complete-CI-CD-DevSecOps/app.py
+    - name: Unit tests
+      run: pytest -v Session-17-Complete-CI-CD-DevSecOps/tests --junitxml=test-results.xml
+    - name: Demonstrate a failing gate
+      if: ${{ inputs.gate_demo == true }}
+      run: 'python -c ''raise SystemExit("Controlled gate failure: publishing and deployment must be skipped")'''
+    - name: SAST
+      run: bandit -c Session-17-Complete-CI-CD-DevSecOps/security/bandit.yaml -q Session-17-Complete-CI-CD-DevSecOps/app.py -f json -o sast.json
+    - name: SCA
+      run: pip-audit -r Session-17-Complete-CI-CD-DevSecOps/requirements.txt -f json -o sca.json
+    - name: Secret scan
+      run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 dir /repo/Session-17-Complete-CI-CD-DevSecOps --redact --report-format json
+        --report-path /repo/secrets.json
+    - name: Upload test and scan reports
+      if: always()
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: session17-reports
+        path: |-
+          test-results.xml
+          *.json
+        if-no-files-found: ignore
+  publish:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - uses: docker/setup-qemu-action@v4.4.0
+    - uses: docker/setup-buildx-action@v4.4.1
+    - name: Build image for scanning
+      run: docker build -t ghcr.io/raghavendra1729-cell/course-devsecops:${{ github.sha }} -f Session-17-Complete-CI-CD-DevSecOps/Dockerfile Session-17-Complete-CI-CD-DevSecOps
+    - name: Container image scan and security gate
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        image-ref: ghcr.io/raghavendra1729-cell/course-devsecops:${{ github.sha }}
+        format: table
+        exit-code: '1'
+        ignore-unfixed: 'true'
+        vuln-type: os,library
+        severity: HIGH,CRITICAL
+    - name: Registry login
+      uses: docker/login-action@v4.6.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Push image
+      uses: docker/build-push-action@v7.4.0
+      with:
+        context: Session-17-Complete-CI-CD-DevSecOps
+        file: Session-17-Complete-CI-CD-DevSecOps/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |-
+          ghcr.io/raghavendra1729-cell/course-devsecops:${{ github.sha }}
+          ghcr.io/raghavendra1729-cell/course-devsecops:latest
+    - name: Upload application build
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: session17-application
+        path: |-
+          Session-17-Complete-CI-CD-DevSecOps/app.py
+          Session-17-Complete-CI-CD-DevSecOps/requirements.txt
+  deploy:
+    needs: publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - name: Create temporary Kubernetes cluster
+      run: |-
+        curl -fsSL https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64 -o kind
+        chmod +x kind
+        sudo mv kind /usr/local/bin/kind
+        kind create cluster --wait 120s
+    - name: Registry pull secret
+      env:
+        REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |-
+        kubectl create namespace pipeline-demo
+        kubectl -n pipeline-demo create secret docker-registry ghcr --docker-server=ghcr.io --docker-username="${{ github.actor }}" --docker-password="$REGISTRY_TOKEN"
+        kubectl -n pipeline-demo patch serviceaccount default -p '{"imagePullSecrets":[{"name":"ghcr"}]}'
+    - name: Create application secret
+      run: Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/kubernetes/create-secret.sh pipeline-demo
+    - name: Deploy and verify
+      run: |-
+        helm upgrade --install notes Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/notes -n pipeline-demo --set image.repository=ghcr.io/raghavendra1729-cell/course-devsecops --set image.tag=${{ github.sha }} --set ingress.enabled=false --set autoscaling.enabled=false --wait --timeout 180s
+        kubectl -n pipeline-demo get pods,services
+        kubectl -n pipeline-demo port-forward service/notes 5000:5000 > port-forward.log 2>&1 &
+        for _ in $(seq 1 30); do
+          if curl -fsS http://127.0.0.1:5000/ready; then break; fi
+          sleep 1
+        done
+        curl -fsS http://127.0.0.1:5000/health
+        curl -fsS -X POST http://127.0.0.1:5000/api/calculate -H 'Content-Type: application/json' -d '{"a":6,"b":3,"operation":"multiply"}' | tee deployment-result.json
+        python -c 'import json; assert json.load(open("deployment-result.json"))["result"] == 18'
+        kubectl -n pipeline-demo logs deployment/notes --tail=10
+    - name: Save deployment result
+      if: always()
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: session17-deployment
+        path: |-
+          deployment-result.json
+          port-forward.log
+    - name: Remove temporary cluster
+      if: always()
+      run: kind delete cluster

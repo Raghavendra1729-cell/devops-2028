@@ -26,6 +26,7 @@ This repository contains class notes, commands, small practical exercises, and s
 | 18 | Terraform & Infrastructure as Code | [Open notes](Session-18-Terraform-Infrastructure-as-Code/terraform-s3-demo/README.md) |
 | 19 | Cloud & Terraform in Action | [Open notes](Session-19-Cloud-Terraform-in-Action/README.md) |
 | 20 | Monitoring, Observability & GitOps | [Open notes](Session-20-Monitoring-Observability-GitOps/README.md) |
-| 21 | Final DevOps Project & Troubleshooting | [Open notes](Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/README.md) |
+| 21 | DevSecOps Python Project (manual + Docker Compose deployment) | [Open notes](Session-21-DevSecOps-Python/README.md) |
+| Final | Final DevOps Project & Troubleshooting | [Open notes](Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/README.md) |
 
 Extra notes: AWS services — [IAM](aws-services/01-iam/README.md), [EC2](aws-services/02-ec2/README.md), [S3](aws-services/03-s3/README.md), [VPC](aws-services/04-vpc/README.md), [Databases](aws-services/05-dynamodb-rds/README.md).

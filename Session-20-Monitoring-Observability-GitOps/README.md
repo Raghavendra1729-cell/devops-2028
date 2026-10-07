@@ -6,7 +6,7 @@
 
 ## Monitoring
 
-The [monitoring stack](../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/monitoring/stack.yaml) runs Prometheus and Grafana. Prometheus scrapes the application every five seconds and evaluates an application-down alert. Grafana uses a provisioned dashboard for availability, request rate, CPU and memory. Both services store data on PVCs.
+The [monitoring stack](../Final-DevOps-Project/monitoring/stack.yaml) runs Prometheus and Grafana. Prometheus scrapes the application every five seconds and evaluates an application-down alert. Grafana uses a provisioned dashboard for availability, request rate, CPU and memory. Both services store data on PVCs.
 
 Start the Notes app using the final project's Helm instructions, then run:
 
@@ -80,16 +80,16 @@ Do this before enabling Argo CD self-healing, or perform the deliberate change t
 
 With Kubernetes this means no one runs `kubectl apply` by hand on the real cluster. In my project CI builds the image and writes the new image tag into `gitops/values.yaml`, then Argo CD deploys it.
 
-Git stores the intended configuration. Argo CD reads the [Application](../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/gitops/application.yaml), renders the Helm chart and continuously compares Git with Kubernetes. Automated sync applies Git changes; self-healing restores manual drift.
+Git stores the intended configuration. Argo CD reads the [Application](../Final-DevOps-Project/gitops/application.yaml), renders the Helm chart and continuously compares Git with Kubernetes. Automated sync applies Git changes; self-healing restores manual drift.
 
 Follow the final project's Argo CD installation commands, then:
 
 ```bash
-kubectl apply -f ../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/gitops/application-local.yaml
+kubectl apply -f ../Final-DevOps-Project/gitops/application-local.yaml
 kubectl -n argocd get application devops-notes
 ```
 
-Change the greeting in `Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/gitops/values.yaml`, commit and push. Argo CD synchronizes the ConfigMap and Deployment. Verify the greeting using the browser and inspect the Application's Git revision.
+Change the greeting in `Final-DevOps-Project/gitops/values.yaml`, commit and push. Argo CD synchronizes the ConfigMap and Deployment. Verify the greeting using the browser and inspect the Application's Git revision.
 
 To check self-healing:
 

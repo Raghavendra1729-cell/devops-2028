@@ -6,8 +6,8 @@ name: Session 16 Session-16-CI-CD-GitHub-Actions
     paths:
     - Session-16-CI-CD-GitHub-Actions/**
     - Session-16-CI-CD-GitHub-Actions/Dockerfile
-    - Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/**
-    - Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/kubernetes/create-secret.sh
+    - Final-DevOps-Project/helm/**
+    - Final-DevOps-Project/kubernetes/create-secret.sh
     - .github/workflows/session16.yml
   pull_request:
     paths:
@@ -112,10 +112,10 @@ jobs:
         kubectl -n pipeline-demo create secret docker-registry ghcr --docker-server=ghcr.io --docker-username="${{ github.actor }}" --docker-password="$REGISTRY_TOKEN"
         kubectl -n pipeline-demo patch serviceaccount default -p '{"imagePullSecrets":[{"name":"ghcr"}]}'
     - name: Create application secret
-      run: Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/kubernetes/create-secret.sh pipeline-demo
+      run: Final-DevOps-Project/kubernetes/create-secret.sh pipeline-demo
     - name: Deploy and verify
       run: |-
-        helm upgrade --install notes Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/notes -n pipeline-demo --set image.repository=ghcr.io/raghavendra1729-cell/course-ci-demo --set image.tag=${{ github.sha }} --set ingress.enabled=false --set autoscaling.enabled=false --wait --timeout 180s
+        helm upgrade --install notes Final-DevOps-Project/helm/notes -n pipeline-demo --set image.repository=ghcr.io/raghavendra1729-cell/course-ci-demo --set image.tag=${{ github.sha }} --set ingress.enabled=false --set autoscaling.enabled=false --wait --timeout 180s
         kubectl -n pipeline-demo get pods,services
         kubectl -n pipeline-demo port-forward service/notes 5000:5000 > port-forward.log 2>&1 &
         for _ in $(seq 1 30); do

@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")/../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project"
+cd "$(dirname "$0")/../Final-DevOps-Project"
 ./monitoring/install.sh

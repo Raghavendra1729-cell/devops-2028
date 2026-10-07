@@ -129,7 +129,7 @@ kubectl -n troubleshooting patch service notes -p '{"spec":{"selector":{"app":"n
 
 ![Service selector mismatch: problem, fix and check](../images/s21-ts4-selector.png)
 
-This is the same thing that happened to the alert in the Session 20 monitoring demo: [alert firing](../../../Session-20-Monitoring-Observability-GitOps/images/alert-firing.jpg) and [alert recovered](../../../Session-20-Monitoring-Observability-GitOps/images/alert-recovered.jpg) after the selector was corrected.
+This is the same thing that happened to the alert in the Session 20 monitoring demo: [alert firing](../../Session-20-Monitoring-Observability-GitOps/images/alert-firing.jpg) and [alert recovered](../../Session-20-Monitoring-Observability-GitOps/images/alert-recovered.jpg) after the selector was corrected.
 
 ## Final check and cleanup
 

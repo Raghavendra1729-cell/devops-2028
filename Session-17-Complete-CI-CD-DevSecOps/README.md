@@ -77,7 +77,7 @@ gh run view --log
 
 The image is tagged with the full commit SHA, so the deployment uses the version built by that run. PR checks run tests without publishing an image.
 
-The Kubernetes deployment uses the [final project chart](../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/notes/). For a manual run, create the application Secret, load the image into Minikube and use Helm with autoscaling disabled. The commands are in the [final project README](../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/README.md).
+The Kubernetes deployment uses the [final project chart](../Final-DevOps-Project/helm/notes/). For a manual run, create the application Secret, load the image into Minikube and use Helm with autoscaling disabled. The commands are in the [final project README](../Final-DevOps-Project/README.md).
 
 Class reference: [devops-heros](https://github.com/Nency-Ravaliya/devops-heros), session-17-devsecops.
 
@@ -87,7 +87,7 @@ These manifests are for running the app by hand on Minikube. The pipeline itself
 
 ```bash
 minikube image load devsecops:1.0
-../Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/kubernetes/create-secret.sh devsecops-lab
+../Final-DevOps-Project/kubernetes/create-secret.sh devsecops-lab
 kubectl apply -n devsecops-lab -f kubernetes/application.yaml
 kubectl -n devsecops-lab rollout status deployment/notes
 kubectl -n devsecops-lab port-forward service/notes 8500:5000

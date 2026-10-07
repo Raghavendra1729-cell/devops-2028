@@ -8,14 +8,9 @@ spec:
   source:
     repoURL: https://github.com/Raghavendra1729-cell/devops-2028.git
     targetRevision: master
-    path: Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project/helm/notes
+    path: Final-DevOps-Project/helm/notes
     helm:
       releaseName: notes
-      parameters:
-        - name: image.repository
-          value: devops-notes
-        - name: image.tag
-          value: "1.0"
       valueFiles:
         - ../../gitops/values.yaml
   destination:

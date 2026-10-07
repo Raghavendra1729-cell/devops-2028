@@ -30,7 +30,7 @@ In the instance session:
 
 ```bash
 git clone https://github.com/Raghavendra1729-cell/devops-2028.git
-cd devops-2028/Session-21-Final-DevOps-Project-Troubleshooting/final-devops-project
+cd devops-2028/Final-DevOps-Project
 sudo ./kubernetes/create-secret.sh final-project
 sudo k3s kubectl create namespace argocd
 sudo k3s kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.3/manifests/install.yaml

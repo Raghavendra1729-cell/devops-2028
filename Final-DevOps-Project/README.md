@@ -3,7 +3,7 @@
 **Name:** Raghavendra  
 **Enrollment number:** 24BCS10250
 
-**Session:** 21
+**Project:** Final capstone project
 
 
 ## Project overview
@@ -50,7 +50,7 @@ curl -fsS -X POST http://127.0.0.1:8500/api/calculate -H 'Content-Type: applicat
 
 ## Docker setup
 
-Run the following from the `final-devops-project/` folder:
+Run the following from the `Final-DevOps-Project/` folder:
 
 ```bash
 docker build -t devops-notes:1.0 -f docker/Dockerfile application
@@ -113,7 +113,7 @@ The application requests 100m CPU. HPA targets 60% of that request and can scale
 
 ## CI/CD pipeline
 
-The executable workflow is [the root final workflow](../../.github/workflows/final-project.yml). A copy is in `.github/workflows/` to keep the requested project structure. Both describe paths relative to this coursework repository.
+The executable workflow is [the root final workflow](../.github/workflows/final-project.yml). A copy is in `.github/workflows/` to keep the requested project structure. Both describe paths relative to this coursework repository.
 
 Build and tests run before SAST, SCA and secret scanning. The Docker image scan gates publishing on fixable HIGH and CRITICAL findings. Test reports and deployment responses are uploaded as artifacts. The pipeline deploys to a temporary Kind cluster, tests readiness and the calculator, and removes that cluster.
 
@@ -236,21 +236,21 @@ The [application logs](outputs/application-logs.txt) show the requests handled b
 
 The Prometheus alert firing when the Service lost its endpoints, and then recovering after the fix:
 
-![Alert firing](../../Session-20-Monitoring-Observability-GitOps/images/alert-firing.jpg)
+![Alert firing](../Session-20-Monitoring-Observability-GitOps/images/alert-firing.jpg)
 
-![Alert recovered](../../Session-20-Monitoring-Observability-GitOps/images/alert-recovered.jpg)
+![Alert recovered](../Session-20-Monitoring-Observability-GitOps/images/alert-recovered.jpg)
 
 Grafana dashboard with availability, request rate, CPU and memory:
 
-![Grafana dashboard](../../Session-20-Monitoring-Observability-GitOps/images/grafana-dashboard.jpg)
+![Grafana dashboard](../Session-20-Monitoring-Observability-GitOps/images/grafana-dashboard.jpg)
 
 ### GitOps
 
 Argo CD showing the `devops-notes` application as Healthy and Synced:
 
-![Argo CD healthy](../../Session-20-Monitoring-Observability-GitOps/images/argocd-healthy.jpg)
+![Argo CD healthy](../Session-20-Monitoring-Observability-GitOps/images/argocd-healthy.jpg)
 
-More detail is in the [Session 20 notes](../../Session-20-Monitoring-Observability-GitOps/README.md).
+More detail is in the [Session 20 notes](../Session-20-Monitoring-Observability-GitOps/README.md).
 
 ### Terraform
 
